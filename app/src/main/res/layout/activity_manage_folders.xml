@@ -14,8 +14,7 @@
         app:titleTextAppearance="@style/AppTheme.ActionBar.TitleTextStyle" />
 
     <RelativeLayout
-        android:id="@+id/manage_folders_holder"
-        android:layout_width="match_parent"
+            android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="?attr/actionBarSize">
 

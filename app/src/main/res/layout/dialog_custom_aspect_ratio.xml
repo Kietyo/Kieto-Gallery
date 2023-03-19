@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/aspect_ratio_holder"
-    android:layout_width="match_parent"
+        android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:paddingLeft="@dimen/activity_margin"
@@ -41,8 +40,7 @@
         android:textStyle="bold" />
 
     <com.simplemobiletools.commons.views.MyTextInputLayout
-        android:id="@+id/aspect_ratio_height_hint"
-        android:layout_width="100dp"
+            android:layout_width="100dp"
         android:layout_height="wrap_content"
         android:layout_alignTop="@+id/aspect_ratio_width_hint"
         android:layout_alignBottom="@+id/aspect_ratio_width_hint"

@@ -42,8 +42,7 @@
                 android:layout_height="wrap_content">
 
                 <com.simplemobiletools.commons.views.MyTextView
-                    android:id="@+id/settings_color_customization_label"
-                    style="@style/SettingsTextLabelStyle"
+                        style="@style/SettingsTextLabelStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/customize_colors"
@@ -52,9 +51,7 @@
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
-            <include
-                android:id="@+id/settings_color_customization_divider"
-                layout="@layout/divider" />
+            <include layout="@layout/divider" />
 
             <TextView
                 android:id="@+id/settings_general_settings_label"
@@ -108,8 +105,7 @@
                 android:layout_height="wrap_content">
 
                 <com.simplemobiletools.commons.views.MyTextView
-                    android:id="@+id/settings_change_date_time_format"
-                    style="@style/SettingsTextLabelStyle"
+                        style="@style/SettingsTextLabelStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/change_date_and_time_format" />
@@ -161,8 +157,7 @@
                 android:layout_height="wrap_content">
 
                 <com.simplemobiletools.commons.views.MyTextView
-                    android:id="@+id/settings_manage_excluded_folders"
-                    style="@style/SettingsTextLabelStyle"
+                        style="@style/SettingsTextLabelStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/manage_excluded_folders" />
@@ -176,8 +171,7 @@
                 android:layout_height="wrap_content">
 
                 <com.simplemobiletools.commons.views.MyTextView
-                    android:id="@+id/settings_manage_hidden_folders"
-                    style="@style/SettingsTextLabelStyle"
+                        style="@style/SettingsTextLabelStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/manage_hidden_folders" />
@@ -214,9 +208,7 @@
 
             </RelativeLayout>
 
-            <include
-                android:id="@+id/settings_general_settings_divider"
-                layout="@layout/divider" />
+            <include layout="@layout/divider" />
 
             <TextView
                 android:id="@+id/settings_videos_label"
@@ -300,9 +292,7 @@
 
             </RelativeLayout>
 
-            <include
-                android:id="@+id/settings_videos_divider"
-                layout="@layout/divider" />
+            <include layout="@layout/divider" />
 
             <TextView
                 android:id="@+id/settings_thumbnails_label"
@@ -333,8 +323,7 @@
                 android:layout_height="wrap_content">
 
                 <com.simplemobiletools.commons.views.MyTextView
-                    android:id="@+id/settings_file_thumbnail_style_label"
-                    style="@style/SettingsTextLabelStyle"
+                        style="@style/SettingsTextLabelStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/file_thumbnail_style" />
@@ -364,9 +353,7 @@
 
             </RelativeLayout>
 
-            <include
-                android:id="@+id/settings_thumbnails_divider"
-                layout="@layout/divider" />
+            <include layout="@layout/divider" />
 
             <TextView
                 android:id="@+id/settings_scrolling_label"
@@ -405,9 +392,7 @@
 
             </RelativeLayout>
 
-            <include
-                android:id="@+id/settings_scrolling_divider"
-                layout="@layout/divider" />
+            <include layout="@layout/divider" />
 
             <TextView
                 android:id="@+id/settings_fullscreen_media_label"
@@ -544,9 +529,7 @@
 
             </RelativeLayout>
 
-            <include
-                android:id="@+id/settings_fullscreen_media_divider"
-                layout="@layout/divider" />
+            <include layout="@layout/divider" />
 
             <TextView
                 android:id="@+id/settings_deep_zoomable_images_label"
@@ -615,9 +598,7 @@
 
             </RelativeLayout>
 
-            <include
-                android:id="@+id/settings_deep_zoomable_images_divider"
-                layout="@layout/divider" />
+            <include layout="@layout/divider" />
 
             <TextView
                 android:id="@+id/settings_extended_details_label"
@@ -663,17 +644,14 @@
                 android:layout_height="wrap_content">
 
                 <com.simplemobiletools.commons.views.MyTextView
-                    android:id="@+id/settings_manage_extended_details"
-                    style="@style/SettingsTextLabelStyle"
+                        style="@style/SettingsTextLabelStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/manage_extended_details" />
 
             </RelativeLayout>
 
-            <include
-                android:id="@+id/settings_extended_details_divider"
-                layout="@layout/divider" />
+            <include layout="@layout/divider" />
 
             <TextView
                 android:id="@+id/settings_security_label"
@@ -742,9 +720,7 @@
 
             </RelativeLayout>
 
-            <include
-                android:id="@+id/settings_security_divider"
-                layout="@layout/divider" />
+            <include layout="@layout/divider" />
 
             <TextView
                 android:id="@+id/settings_file_operations_label"
@@ -798,9 +774,7 @@
 
             </RelativeLayout>
 
-            <include
-                android:id="@+id/settings_file_operations_divider"
-                layout="@layout/divider" />
+            <include layout="@layout/divider" />
 
             <TextView
                 android:id="@+id/settings_bottom_actions_label"
@@ -831,17 +805,14 @@
                 android:layout_height="wrap_content">
 
                 <com.simplemobiletools.commons.views.MyTextView
-                    android:id="@+id/settings_manage_bottom_actions"
-                    style="@style/SettingsTextLabelStyle"
+                        style="@style/SettingsTextLabelStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/manage_bottom_actions" />
 
             </RelativeLayout>
 
-            <include
-                android:id="@+id/settings_bottom_actions_divider"
-                layout="@layout/divider" />
+            <include layout="@layout/divider" />
 
             <TextView
                 android:id="@+id/settings_recycle_bin_label"
@@ -918,9 +889,7 @@
 
             </RelativeLayout>
 
-            <include
-                android:id="@+id/settings_recycle_bin_divider"
-                layout="@layout/divider" />
+            <include layout="@layout/divider" />
 
             <TextView
                 android:id="@+id/settings_migrating_label"
@@ -959,8 +928,7 @@
                 android:layout_height="wrap_content">
 
                 <com.simplemobiletools.commons.views.MyTextView
-                    android:id="@+id/settings_export_favorites"
-                    style="@style/SettingsTextLabelStyle"
+                        style="@style/SettingsTextLabelStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/export_favorite_paths" />
@@ -974,8 +942,7 @@
                 android:layout_height="wrap_content">
 
                 <com.simplemobiletools.commons.views.MyTextView
-                    android:id="@+id/settings_import_favorites"
-                    style="@style/SettingsTextLabelStyle"
+                        style="@style/SettingsTextLabelStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/import_favorite_paths" />
@@ -989,8 +956,7 @@
                 android:layout_height="wrap_content">
 
                 <com.simplemobiletools.commons.views.MyTextView
-                    android:id="@+id/settings_export"
-                    style="@style/SettingsTextLabelStyle"
+                        style="@style/SettingsTextLabelStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/export_settings" />
@@ -1004,8 +970,7 @@
                 android:layout_height="wrap_content">
 
                 <com.simplemobiletools.commons.views.MyTextView
-                    android:id="@+id/settings_import"
-                    style="@style/SettingsTextLabelStyle"
+                        style="@style/SettingsTextLabelStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/import_settings" />

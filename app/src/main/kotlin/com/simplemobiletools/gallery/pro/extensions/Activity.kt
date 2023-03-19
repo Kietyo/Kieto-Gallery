@@ -251,7 +251,7 @@ fun BaseSimpleActivity.removeNoMedia(path: String, callback: (() -> Unit)? = nul
         return
     }
 
-    tryDeleteFileDirItem(file.toFileDirItem(applicationContext), false, false) {
+    tryDeleteFileDirItem(file.toFileDirItem(applicationContext), allowDeleteFolder = false, deleteFromDatabase = false) {
         callback?.invoke()
         deleteFromMediaStore(file.absolutePath) { needsRescan ->
             if (needsRescan) {
@@ -280,7 +280,7 @@ fun BaseSimpleActivity.toggleFileVisibility(oldPath: String, hide: Boolean, call
     }
 
     val newPath = "$path/$filename"
-    renameFile(oldPath, newPath, false) { success, useAndroid30Way ->
+    renameFile(oldPath, newPath, false) { _, _ ->
         runOnUiThread {
             callback?.invoke(newPath)
         }
@@ -298,8 +298,12 @@ fun BaseSimpleActivity.tryCopyMoveFilesTo(fileDirItems: ArrayList<FileDirItem>, 
     }
 
     val source = fileDirItems[0].getParentPath()
-    PickDirectoryDialog(this, source, true, false, true, false) {
-        val destination = it
+    PickDirectoryDialog(this, source,
+        showOtherFolderButton = true,
+        showFavoritesBin = false,
+        isPickingCopyMoveDestination = true,
+        isPickingFolderForWidget = false
+    ) { destination ->
         handleSAFDialog(source) {
             if (it) {
                 copyMoveFilesTo(fileDirItems, source.trimEnd('/'), destination, isCopyOperation, true, config.shouldShowHidden, callback)
@@ -548,7 +552,7 @@ fun AppCompatActivity.fixDateTaken(
                     val separator = dateTime.substring(4, 5)
                     val format = "yyyy${separator}MM${separator}dd${t}kk:mm:ss"
                     val formatter = SimpleDateFormat(format, Locale.getDefault())
-                    val timestamp = formatter.parse(dateTime).time
+                    val timestamp = formatter.parse(dateTime)!!.time
 
                     val uri = getFileUri(path)
                     ContentProviderOperation.newUpdate(uri).apply {
@@ -676,7 +680,7 @@ fun BaseSimpleActivity.saveRotatedImageToFile(oldPath: String, newPath: String, 
             showErrorToast(e)
         }
     } finally {
-        tryDeleteFileDirItem(tmpFileDirItem, false, true)
+        tryDeleteFileDirItem(tmpFileDirItem, allowDeleteFolder = false, deleteFromDatabase = true)
     }
 }
 
@@ -759,7 +763,7 @@ fun Activity.getShortcutImage(tmb: String, drawable: Drawable, callback: () -> U
 
         try {
             (drawable as LayerDrawable).setDrawableByLayerId(R.id.shortcut_image, builder.get())
-        } catch (e: Exception) {
+        } catch (_: Exception) {
         }
 
         runOnUiThread {

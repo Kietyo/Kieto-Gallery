@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/editor_coordinator"
-    android:layout_width="match_parent"
+        android:layout_width="match_parent"
     android:layout_height="match_parent">
 
     <com.google.android.material.appbar.AppBarLayout
-        android:id="@+id/editor_app_bar_layout"
-        android:layout_width="match_parent"
+            android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
         <com.google.android.material.appbar.MaterialToolbar
@@ -22,8 +20,7 @@
     </com.google.android.material.appbar.AppBarLayout>
 
     <RelativeLayout
-        android:id="@+id/activity_edit_holder"
-        android:layout_width="match_parent"
+            android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginTop="?attr/actionBarSize">
 
@@ -53,8 +50,7 @@
             android:visibility="gone" />
 
         <RelativeLayout
-            android:id="@+id/bottom_editor_actions_background"
-            android:layout_width="match_parent"
+                android:layout_width="match_parent"
             android:layout_height="@dimen/bottom_editor_actions_shadow_height"
             android:layout_alignParentBottom="true"
             android:background="@drawable/gradient_background" />

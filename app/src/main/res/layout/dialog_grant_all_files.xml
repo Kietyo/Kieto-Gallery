@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/grant_all_files_holder"
-    android:layout_width="match_parent"
+        android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:gravity="center_horizontal">
 
@@ -14,8 +13,7 @@
         android:src="@drawable/ic_folder_vector" />
 
     <com.simplemobiletools.commons.views.MyTextView
-        android:id="@+id/grant_all_files_description"
-        android:layout_width="match_parent"
+            android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/grant_all_files_image"
         android:gravity="center"
