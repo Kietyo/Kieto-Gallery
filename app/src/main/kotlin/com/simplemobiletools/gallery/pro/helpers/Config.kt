@@ -188,9 +188,9 @@ class Config(context: Context) : BaseConfig(context) {
         get() = prefs.getInt(SCREEN_ROTATION, ROTATE_BY_SYSTEM_SETTING)
         set(screenRotation) = prefs.edit().putInt(SCREEN_ROTATION, screenRotation).apply()
 
-    var fileLoadingPriority: Int
-        get() = prefs.getInt(FILE_LOADING_PRIORITY, PRIORITY_SPEED)
-        set(fileLoadingPriority) = prefs.edit().putInt(FILE_LOADING_PRIORITY, fileLoadingPriority).apply()
+    var fileLoadingPriority: FileLoadingPriorityEnum
+        get() = FileLoadingPriorityEnum.getEnumFromId(prefs.getInt(FILE_LOADING_PRIORITY, FileLoadingPriorityEnum.SPEED.id))
+        set(fileLoadingPriority) = prefs.edit().putInt(FILE_LOADING_PRIORITY, fileLoadingPriority.id).apply()
 
     var loopVideos: Boolean
         get() = prefs.getBoolean(LOOP_VIDEOS, false)

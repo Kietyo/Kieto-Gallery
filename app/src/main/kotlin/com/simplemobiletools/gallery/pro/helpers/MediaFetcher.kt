@@ -298,8 +298,8 @@ class MediaFetcher(val context: Context) {
         }
 
         val config = context.config
-        val checkProperFileSize = getProperFileSize || config.fileLoadingPriority == PRIORITY_COMPROMISE
-        val checkFileExistence = config.fileLoadingPriority == PRIORITY_VALIDITY
+        val checkProperFileSize = getProperFileSize || config.fileLoadingPriority == FileLoadingPriorityEnum.COMPROMISE
+        val checkFileExistence = config.fileLoadingPriority == FileLoadingPriorityEnum.VALIDITY
         val showHidden = config.shouldShowHidden
         val showPortraits = filterMedia and TYPE_PORTRAITS != 0
         val fileSizes = if (checkProperFileSize || checkFileExistence) getFolderSizes(folder) else HashMap()
@@ -544,7 +544,7 @@ class MediaFetcher(val context: Context) {
     ): ArrayList<Medium> {
         val media = ArrayList<Medium>()
         val files = context.getDocumentFile(folder)?.listFiles() ?: return media
-        val checkFileExistence = context.config.fileLoadingPriority == PRIORITY_VALIDITY
+        val checkFileExistence = context.config.fileLoadingPriority == FileLoadingPriorityEnum.VALIDITY
         val showHidden = context.config.shouldShowHidden
         val OTGPath = context.config.OTGPath
 

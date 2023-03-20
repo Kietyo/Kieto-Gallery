@@ -21,7 +21,6 @@ import kotlin.math.min
 
 // allow horizontal swipes through the layout, else it can cause glitches at zoomed in images
 class MediaSideScroll(context: Context, attrs: AttributeSet) : RelativeLayout(context, attrs) {
-    private val SLIDE_INFO_FADE_DELAY = 1000L
     private var mTouchDownX = 0f
     private var mTouchDownY = 0f
     private var mTouchDownTime = 0L
@@ -137,7 +136,8 @@ class MediaSideScroll(context: Context, attrs: AttributeSet) : RelativeLayout(co
         return true
     }
 
-    private fun getCurrentVolume() = activity?.audioManager?.getStreamVolume(AudioManager.STREAM_MUSIC) ?: 0
+    private fun getCurrentVolume() = activity?.audioManager?.getStreamVolume(AudioManager.STREAM_MUSIC)
+        ?: 0
 
     private fun getCurrentBrightness(): Int {
         return try {
@@ -173,7 +173,7 @@ class MediaSideScroll(context: Context, attrs: AttributeSet) : RelativeLayout(co
         mSlideInfoFadeHandler.removeCallbacksAndMessages(null)
         mSlideInfoFadeHandler.postDelayed({
             slideInfoView.animate().alpha(0f)
-        }, SLIDE_INFO_FADE_DELAY)
+        }, Companion.SLIDE_INFO_FADE_DELAY)
     }
 
     private fun brightnessPercentChanged(percent: Int) {
@@ -192,7 +192,7 @@ class MediaSideScroll(context: Context, attrs: AttributeSet) : RelativeLayout(co
         mSlideInfoFadeHandler.removeCallbacksAndMessages(null)
         mSlideInfoFadeHandler.postDelayed({
             slideInfoView.animate().alpha(0f)
-        }, SLIDE_INFO_FADE_DELAY)
+        }, Companion.SLIDE_INFO_FADE_DELAY)
     }
 
     private fun showValue(percent: Int) {
@@ -200,5 +200,9 @@ class MediaSideScroll(context: Context, attrs: AttributeSet) : RelativeLayout(co
             text = "$mSlideInfoText:\n$percent%"
             alpha = 1f
         }
+    }
+
+    companion object {
+        private val SLIDE_INFO_FADE_DELAY = 1000L
     }
 }

@@ -169,13 +169,13 @@ class SettingsActivity : SimpleActivity() {
         settings_file_loading_priority.text = getFileLoadingPriorityText()
         settings_file_loading_priority_holder.setOnClickListener {
             val items = arrayListOf(
-                RadioItem(PRIORITY_SPEED, getString(R.string.speed)),
-                RadioItem(PRIORITY_COMPROMISE, getString(R.string.compromise)),
-                RadioItem(PRIORITY_VALIDITY, getString(R.string.avoid_showing_invalid_files))
+                RadioItem(FileLoadingPriorityEnum.SPEED.id, getString(R.string.speed)),
+                RadioItem(FileLoadingPriorityEnum.COMPROMISE.id, getString(R.string.compromise)),
+                RadioItem(FileLoadingPriorityEnum.VALIDITY.id, getString(R.string.avoid_showing_invalid_files))
             )
 
-            RadioGroupDialog(this@SettingsActivity, items, config.fileLoadingPriority) {
-                config.fileLoadingPriority = it as Int
+            RadioGroupDialog(this@SettingsActivity, items, config.fileLoadingPriority.id) {
+                config.fileLoadingPriority = FileLoadingPriorityEnum.getEnumFromId(it as Int)
                 settings_file_loading_priority.text = getFileLoadingPriorityText()
             }
         }
@@ -183,8 +183,8 @@ class SettingsActivity : SimpleActivity() {
 
     private fun getFileLoadingPriorityText() = getString(
         when (config.fileLoadingPriority) {
-            PRIORITY_SPEED -> R.string.speed
-            PRIORITY_COMPROMISE -> R.string.compromise
+            FileLoadingPriorityEnum.SPEED -> R.string.speed
+            FileLoadingPriorityEnum.COMPROMISE -> R.string.compromise
             else -> R.string.avoid_showing_invalid_files
         }
     )
@@ -996,7 +996,7 @@ class SettingsActivity : SimpleActivity() {
                 INCLUDED_FOLDERS -> config.addIncludedFolders(value.toStringSet())
                 EXCLUDED_FOLDERS -> config.addExcludedFolders(value.toStringSet())
                 SHOW_HIDDEN_MEDIA -> config.showHiddenMedia = value.toBoolean()
-                FILE_LOADING_PRIORITY -> config.fileLoadingPriority = value.toInt()
+                FILE_LOADING_PRIORITY -> config.fileLoadingPriority = FileLoadingPriorityEnum.getEnumFromId(value.toInt())
                 AUTOPLAY_VIDEOS -> config.autoplayVideos = value.toBoolean()
                 REMEMBER_LAST_VIDEO_POSITION -> config.rememberLastVideoPosition = value.toBoolean()
                 LOOP_VIDEOS -> config.loopVideos = value.toBoolean()

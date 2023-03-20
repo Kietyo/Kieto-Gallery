@@ -42,9 +42,6 @@ import kotlinx.android.synthetic.main.activity_main.*
 import java.io.*
 
 class MainActivity : SimpleActivity(), DirectoryOperationsListener {
-    private val PICK_MEDIA = 2
-    private val PICK_WALLPAPER = 3
-    private val LAST_MEDIA_CHECK_PERIOD = 3000L
 
     private var mIsPickImageIntent = false
     private var mIsPickVideoIntent = false
@@ -311,7 +308,7 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, resultData: Intent?) {
         if (resultCode == Activity.RESULT_OK) {
-            if (requestCode == PICK_MEDIA && resultData != null) {
+            if (requestCode == Companion.PICK_MEDIA && resultData != null) {
                 val resultIntent = Intent()
                 var resultUri: Uri? = null
                 if (mIsThirdPartyIntent) {
@@ -331,7 +328,7 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
 
                 setResult(Activity.RESULT_OK, resultIntent)
                 finish()
-            } else if (requestCode == PICK_WALLPAPER) {
+            } else if (requestCode == Companion.PICK_WALLPAPER) {
                 setResult(Activity.RESULT_OK)
                 finish()
             }
@@ -893,13 +890,13 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
         intent.apply {
             if (mIsSetWallpaperIntent) {
                 putExtra(SET_WALLPAPER_INTENT, true)
-                startActivityForResult(this, PICK_WALLPAPER)
+                startActivityForResult(this, Companion.PICK_WALLPAPER)
             } else {
                 putExtra(GET_IMAGE_INTENT, mIsPickImageIntent || mIsGetImageContentIntent)
                 putExtra(GET_VIDEO_INTENT, mIsPickVideoIntent || mIsGetVideoContentIntent)
                 putExtra(GET_ANY_INTENT, mIsGetAnyContentIntent)
                 putExtra(Intent.EXTRA_ALLOW_MULTIPLE, mAllowPickingMultiple)
-                startActivityForResult(this, PICK_MEDIA)
+                startActivityForResult(this, Companion.PICK_MEDIA)
             }
         }
     }
@@ -1376,7 +1373,7 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
                     checkLastMediaChanged()
                 }
             }
-        }, LAST_MEDIA_CHECK_PERIOD)
+        }, Companion.LAST_MEDIA_CHECK_PERIOD)
     }
 
     private fun checkRecycleBinItems() {
@@ -1494,5 +1491,11 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
             add(Release(369, R.string.release_369))
             checkWhatsNew(this, BuildConfig.VERSION_CODE)
         }
+    }
+
+    companion object {
+        private val PICK_MEDIA = 2
+        private val PICK_WALLPAPER = 3
+        private val LAST_MEDIA_CHECK_PERIOD = 3000L
     }
 }
