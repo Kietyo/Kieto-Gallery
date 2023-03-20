@@ -80,7 +80,7 @@ class Config(context: Context) : BaseConfig(context) {
         set(isThirdPartyIntent) = prefs.edit().putBoolean(IS_THIRD_PARTY_INTENT, isThirdPartyIntent).apply()
 
     var pinnedFolders: Set<String>
-        get() = prefs.getStringSet(PINNED_FOLDERS, HashSet<String>())!!
+        get() = prefs.getStringSet(PINNED_FOLDERS, HashSet())!!
         set(pinnedFolders) = prefs.edit().putStringSet(PINNED_FOLDERS, pinnedFolders).apply()
 
     var showAll: Boolean
@@ -88,7 +88,7 @@ class Config(context: Context) : BaseConfig(context) {
         set(showAll) = prefs.edit().putBoolean(SHOW_ALL, showAll).apply()
 
     fun addPinnedFolders(paths: Set<String>) {
-        val currPinnedFolders = HashSet<String>(pinnedFolders)
+        val currPinnedFolders = HashSet(pinnedFolders)
         currPinnedFolders.addAll(paths)
         pinnedFolders = currPinnedFolders.filter { it.isNotEmpty() }.toHashSet()
         if (paths.contains(RECYCLE_BIN)) {
@@ -97,23 +97,23 @@ class Config(context: Context) : BaseConfig(context) {
     }
 
     fun removePinnedFolders(paths: Set<String>) {
-        val currPinnedFolders = HashSet<String>(pinnedFolders)
+        val currPinnedFolders = HashSet(pinnedFolders)
         currPinnedFolders.removeAll(paths)
         pinnedFolders = currPinnedFolders
     }
 
     fun addExcludedFolder(path: String) {
-        addExcludedFolders(HashSet<String>(listOf(path)))
+        addExcludedFolders(HashSet(listOf(path)))
     }
 
     fun addExcludedFolders(paths: Set<String>) {
-        val currExcludedFolders = HashSet<String>(excludedFolders)
+        val currExcludedFolders = HashSet(excludedFolders)
         currExcludedFolders.addAll(paths)
         excludedFolders = currExcludedFolders.filter { it.isNotEmpty() }.toHashSet()
     }
 
     fun removeExcludedFolder(path: String) {
-        val currExcludedFolders = HashSet<String>(excludedFolders)
+        val currExcludedFolders = HashSet(excludedFolders)
         currExcludedFolders.remove(path)
         excludedFolders = currExcludedFolders
     }
@@ -135,25 +135,25 @@ class Config(context: Context) : BaseConfig(context) {
         set(excludedProtectionType) = prefs.edit().putInt(EXCLUDED_PROTECTION_TYPE, excludedProtectionType).apply()
 
     fun addIncludedFolder(path: String) {
-        val currIncludedFolders = HashSet<String>(includedFolders)
+        val currIncludedFolders = HashSet(includedFolders)
         currIncludedFolders.add(path)
         includedFolders = currIncludedFolders
     }
 
     fun addIncludedFolders(paths: Set<String>) {
-        val currIncludedFolders = HashSet<String>(includedFolders)
+        val currIncludedFolders = HashSet(includedFolders)
         currIncludedFolders.addAll(paths)
         includedFolders = currIncludedFolders.filter { it.isNotEmpty() }.toHashSet()
     }
 
     fun removeIncludedFolder(path: String) {
-        val currIncludedFolders = HashSet<String>(includedFolders)
+        val currIncludedFolders = HashSet(includedFolders)
         currIncludedFolders.remove(path)
         includedFolders = currIncludedFolders
     }
 
     var includedFolders: MutableSet<String>
-        get() = prefs.getStringSet(INCLUDED_FOLDERS, HashSet<String>())!!
+        get() = prefs.getStringSet(INCLUDED_FOLDERS, HashSet())!!
         set(includedFolders) = prefs.edit().remove(INCLUDED_FOLDERS).putStringSet(INCLUDED_FOLDERS, includedFolders).apply()
 
     var autoplayVideos: Boolean
@@ -354,10 +354,6 @@ class Config(context: Context) : BaseConfig(context) {
     var extendedDetails: Int
         get() = prefs.getInt(EXTENDED_DETAILS, EXT_RESOLUTION or EXT_LAST_MODIFIED or EXT_EXIF_PROPERTIES)
         set(extendedDetails) = prefs.edit().putInt(EXTENDED_DETAILS, extendedDetails).apply()
-
-    var wasNewAppShown: Boolean
-        get() = prefs.getBoolean(WAS_NEW_APP_SHOWN, false)
-        set(wasNewAppShown) = prefs.edit().putBoolean(WAS_NEW_APP_SHOWN, wasNewAppShown).apply()
 
     var lastFilepickerPath: String
         get() = prefs.getString(LAST_FILEPICKER_PATH, "")!!

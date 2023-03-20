@@ -170,9 +170,6 @@ const val EXT_LAST_MODIFIED = 16
 const val EXT_DATE_TAKEN = 32
 const val EXT_CAMERA_MODEL = 64
 const val EXT_EXIF_PROPERTIES = 128
-const val EXT_DURATION = 256
-const val EXT_ARTIST = 512
-const val EXT_ALBUM = 1024
 const val EXT_GPS = 2048
 
 // media types

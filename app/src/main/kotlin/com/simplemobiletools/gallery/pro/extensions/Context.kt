@@ -119,7 +119,7 @@ fun Context.getSortedDirectories(source: ArrayList<Directory>): ArrayList<Direct
         return newDirsOrdered
     }
 
-    dirs.sortWith(Comparator { o1, o2 ->
+    dirs.sortWith({ o1, o2 ->
         o1 as Directory
         o2 as Directory
 
@@ -308,7 +308,7 @@ fun Context.getDirectParentSubfolders(dirs: ArrayList<Directory>, currentPathPre
     }
 }
 
-fun Context.updateSubfolderCounts(children: ArrayList<Directory>, parentDirs: ArrayList<Directory>) {
+fun updateSubfolderCounts(children: ArrayList<Directory>, parentDirs: ArrayList<Directory>) {
     for (child in children) {
         var longestSharedPath = ""
         for (parentDir in parentDirs) {
@@ -857,7 +857,7 @@ fun Context.getFavoritePaths(): ArrayList<String> {
     }
 }
 
-fun Context.getFavoriteFromPath(path: String) = Favorite(null, path, path.getFilenameFromPath(), path.getParentPath())
+fun getFavoriteFromPath(path: String) = Favorite(null, path, path.getFilenameFromPath(), path.getParentPath())
 
 fun Context.updateFavorite(path: String, isFavorite: Boolean) {
     try {
