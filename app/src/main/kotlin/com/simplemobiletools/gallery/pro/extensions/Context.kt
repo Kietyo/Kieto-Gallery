@@ -292,9 +292,8 @@ fun Context.getDirectParentSubfolders(dirs: ArrayList<Directory>, currentPathPre
 
     var areDirectSubfoldersAvailable = false
     currentPaths.forEach { it ->
-        val path = it
         currentPaths.forEach {
-            if (!foldersWithoutMediaFiles.contains(it) && !it.equals(path, true) && File(it).parent?.equals(path, true) == true) {
+            if (!foldersWithoutMediaFiles.contains(it) && !it.equals(it, true) && File(it).parent?.equals(it, true) == true) {
                 areDirectSubfoldersAvailable = true
             }
         }

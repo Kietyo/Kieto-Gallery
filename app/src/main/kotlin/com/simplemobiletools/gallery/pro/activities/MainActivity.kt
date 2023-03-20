@@ -1426,8 +1426,7 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
                 }
 
                 val substringToRemove = oftenRepeatedPaths.filter { it ->
-                    val path = it
-                    it == "/" || oftenRepeatedPaths.any { it != path && it.startsWith(path) }
+                    it == "/" || oftenRepeatedPaths.any { it != it && it.startsWith(it) }
                 }
 
                 oftenRepeatedPaths.removeAll(substringToRemove.toSet())

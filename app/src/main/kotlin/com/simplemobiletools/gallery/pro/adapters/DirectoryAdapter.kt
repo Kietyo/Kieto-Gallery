@@ -529,8 +529,7 @@ class DirectoryAdapter(
 
         val fileDirItems = paths.map { FileDirItem(it, it.getFilenameFromPath()) } as ArrayList<FileDirItem>
         activity.tryCopyMoveFilesTo(fileDirItems, isCopyOperation) { it ->
-            val destinationPath = it
-            val newPaths = fileDirItems.map { "$destinationPath/${it.name}" }.toMutableList() as ArrayList<String>
+            val newPaths = fileDirItems.map { "$it/${it.name}" }.toMutableList() as ArrayList<String>
             activity.rescanPaths(newPaths) {
                 activity.fixDateTaken(newPaths, false)
             }
