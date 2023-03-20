@@ -17,7 +17,7 @@ import kotlinx.android.synthetic.main.dialog_directory_picker.view.*
 
 class PickDirectoryDialog(
     val activity: BaseSimpleActivity,
-    val sourcePath: String,
+    private val sourcePath: String,
     showOtherFolderButton: Boolean,
     val showFavoritesBin: Boolean,
     val isPickingCopyMoveDestination: Boolean,
@@ -73,7 +73,7 @@ class PickDirectoryDialog(
     }
 
     private fun fetchDirectories(forceShowHiddenAndExcluded: Boolean) {
-        activity.getCachedDirectories(forceShowHidden = forceShowHiddenAndExcluded, forceShowExcluded = forceShowHiddenAndExcluded) {
+        activity.getCachedDirectories(forceShowHidden = forceShowHiddenAndExcluded, forceShowExcluded = forceShowHiddenAndExcluded) { it ->
             if (it.isNotEmpty()) {
                 it.forEach {
                     it.subfoldersMediaCount = it.mediaCnt

@@ -15,7 +15,7 @@ class ChangeGroupingDialog(val activity: BaseSimpleActivity, val path: String = 
     DialogInterface.OnClickListener {
     private var currGrouping = 0
     private var config = activity.config
-    private val pathToUse = if (path.isEmpty()) SHOW_ALL else path
+    private val pathToUse = path.ifEmpty { SHOW_ALL }
     private var view: View
 
     init {

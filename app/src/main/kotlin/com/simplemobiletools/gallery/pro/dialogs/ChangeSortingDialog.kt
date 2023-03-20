@@ -11,7 +11,7 @@ import com.simplemobiletools.gallery.pro.helpers.SHOW_ALL
 import kotlinx.android.synthetic.main.dialog_change_sorting.view.*
 
 class ChangeSortingDialog(
-    val activity: BaseSimpleActivity, val isDirectorySorting: Boolean, val showFolderCheckbox: Boolean,
+    val activity: BaseSimpleActivity, private val isDirectorySorting: Boolean, private val showFolderCheckbox: Boolean,
     val path: String = "", val callback: () -> Unit
 ) :
     DialogInterface.OnClickListener {

@@ -9,7 +9,7 @@ import com.simplemobiletools.gallery.pro.R
 import com.simplemobiletools.gallery.pro.models.FilterItem
 import kotlinx.android.synthetic.main.editor_filter_item.view.*
 
-class FiltersAdapter(val context: Context, val filterItems: ArrayList<FilterItem>, val itemClick: (Int) -> Unit) :
+class FiltersAdapter(val context: Context, private val filterItems: ArrayList<FilterItem>, private val itemClick: (Int) -> Unit) :
     RecyclerView.Adapter<FiltersAdapter.ViewHolder>() {
 
     private var currentSelection = filterItems.first()

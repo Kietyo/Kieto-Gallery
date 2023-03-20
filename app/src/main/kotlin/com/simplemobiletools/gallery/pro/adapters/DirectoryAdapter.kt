@@ -55,7 +55,7 @@ import java.util.*
 
 class DirectoryAdapter(
     activity: BaseSimpleActivity, var dirs: ArrayList<Directory>, val listener: DirectoryOperationsListener?, recyclerView: MyRecyclerView,
-    val isPickIntent: Boolean, val swipeRefreshLayout: SwipeRefreshLayout? = null, itemClick: (Any) -> Unit
+    private val isPickIntent: Boolean, private val swipeRefreshLayout: SwipeRefreshLayout? = null, itemClick: (Any) -> Unit
 ) :
     MyRecyclerViewAdapter(activity, recyclerView, itemClick), ItemTouchHelperContract, RecyclerViewFastScroller.OnPopupTextUpdate {
 
@@ -514,7 +514,7 @@ class DirectoryAdapter(
     private fun copyMoveTo(isCopyOperation: Boolean) {
         val paths = ArrayList<String>()
         val showHidden = config.shouldShowHidden
-        getSelectedPaths().forEach {
+        getSelectedPaths().forEach { it ->
             val filter = config.filterMedia
             File(it).listFiles()?.filter {
                 !File(it.absolutePath).isDirectory &&
@@ -528,7 +528,7 @@ class DirectoryAdapter(
         }
 
         val fileDirItems = paths.map { FileDirItem(it, it.getFilenameFromPath()) } as ArrayList<FileDirItem>
-        activity.tryCopyMoveFilesTo(fileDirItems, isCopyOperation) {
+        activity.tryCopyMoveFilesTo(fileDirItems, isCopyOperation) { it ->
             val destinationPath = it
             val newPaths = fileDirItems.map { "$destinationPath/${it.name}" }.toMutableList() as ArrayList<String>
             activity.rescanPaths(newPaths) {
@@ -623,12 +623,12 @@ class DirectoryAdapter(
 
         val SAFPath = getFirstSelectedItemPath() ?: return
         val selectedDirs = getSelectedItems()
-        activity.handleSAFDialog(SAFPath) {
+        activity.handleSAFDialog(SAFPath) { it ->
             if (!it) {
                 return@handleSAFDialog
             }
 
-            activity.handleSAFDialogSdk30(SAFPath) {
+            activity.handleSAFDialogSdk30(SAFPath) { it ->
                 if (!it) {
                     return@handleSAFDialogSdk30
                 }

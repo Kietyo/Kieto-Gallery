@@ -11,7 +11,7 @@ import kotlinx.android.synthetic.main.dialog_save_as.view.*
 import java.io.File
 
 class SaveAsDialog(
-    val activity: BaseSimpleActivity, val path: String, val appendFilename: Boolean, val cancelCallback: (() -> Unit)? = null,
+    val activity: BaseSimpleActivity, val path: String, private val appendFilename: Boolean, private val cancelCallback: (() -> Unit)? = null,
     val callback: (savePath: String) -> Unit
 ) {
     init {

@@ -262,13 +262,13 @@ class SearchActivity : SimpleActivity(), MediaOperationsListener {
     }
 
     private fun deleteFilteredFiles(filtered: ArrayList<FileDirItem>) {
-        deleteFiles(filtered) {
+        deleteFiles(filtered) { it ->
             if (!it) {
                 toast(R.string.unknown_error_occurred)
                 return@deleteFiles
             }
 
-            mAllMedia.removeAll { filtered.map { it.path }.contains((it as? Medium)?.path) }
+            mAllMedia.removeAll { it -> filtered.map { it.path }.contains((it as? Medium)?.path) }
 
             ensureBackgroundThread {
                 val useRecycleBin = config.useRecycleBin
@@ -283,5 +283,5 @@ class SearchActivity : SimpleActivity(), MediaOperationsListener {
 
     override fun selectedPaths(paths: ArrayList<String>) {}
 
-    override fun updateMediaGridDecoration(media: ArrayList<ThumbnailItem>) {}
+    override fun updateMediaGridDecoration(media: List<ThumbnailItem>) {}
 }

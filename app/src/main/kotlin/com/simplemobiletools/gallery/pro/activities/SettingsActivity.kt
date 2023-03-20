@@ -745,7 +745,7 @@ class SettingsActivity : SimpleActivity() {
                     }
                 }
             } else {
-                handlePermission(PERMISSION_WRITE_STORAGE) {
+                handlePermission(PERMISSION_WRITE_STORAGE) { it ->
                     if (it) {
                         ExportFavoritesDialog(this, getExportFavoritesFilename(), false) { path, filename ->
                             val file = File(path)

@@ -197,7 +197,7 @@ class MediaActivity : SimpleActivity(), MediaOperationsListener {
         storeStateVariables()
         mLastMediaHandler.removeCallbacksAndMessages(null)
 
-        if (!mMedia.isEmpty()) {
+        if (mMedia.isNotEmpty()) {
             mCurrAsyncTask?.stopFetching()
         }
     }
@@ -246,7 +246,7 @@ class MediaActivity : SimpleActivity(), MediaOperationsListener {
     }
 
     private fun refreshMenuItems() {
-        val isDefaultFolder = !config.defaultFolder.isEmpty() && File(config.defaultFolder).compareTo(File(mPath)) == 0
+        val isDefaultFolder = config.defaultFolder.isNotEmpty() && File(config.defaultFolder).compareTo(File(mPath)) == 0
 
         media_menu.getToolbar().menu.apply {
             findItem(R.id.group).isVisible = !config.scrollHorizontally
@@ -373,10 +373,10 @@ class MediaActivity : SimpleActivity(), MediaOperationsListener {
     private fun tryLoadGallery() {
         handlePermission(getPermissionToRequest()) {
             if (it) {
-                val dirName = when {
-                    mPath == FAVORITES -> getString(R.string.favorites)
-                    mPath == RECYCLE_BIN -> getString(R.string.recycle_bin)
-                    mPath == config.OTGPath -> getString(R.string.usb)
+                val dirName = when (mPath) {
+                    FAVORITES -> getString(R.string.favorites)
+                    RECYCLE_BIN -> getString(R.string.recycle_bin)
+                    config.OTGPath -> getString(R.string.usb)
                     else -> getHumanizedFilename(mPath)
                 }
 
@@ -505,7 +505,7 @@ class MediaActivity : SimpleActivity(), MediaOperationsListener {
     }
 
     private fun restoreAllFiles() {
-        val paths = mMedia.filter { it is Medium }.map { (it as Medium).path } as ArrayList<String>
+        val paths = mMedia.filterIsInstance<Medium>().map { (it as Medium).path } as ArrayList<String>
         restoreRecycleBinPaths(paths) {
             ensureBackgroundThread {
                 directoryDB.deleteDirPath(RECYCLE_BIN)
@@ -913,13 +913,13 @@ class MediaActivity : SimpleActivity(), MediaOperationsListener {
     private fun shouldSkipAuthentication() = intent.getBooleanExtra(SKIP_AUTHENTICATION, false)
 
     private fun deleteFilteredFiles(filtered: ArrayList<FileDirItem>) {
-        deleteFiles(filtered) {
+        deleteFiles(filtered) { it ->
             if (!it) {
                 toast(R.string.unknown_error_occurred)
                 return@deleteFiles
             }
 
-            mMedia.removeAll { filtered.map { it.path }.contains((it as? Medium)?.path) }
+            mMedia.removeAll { it -> filtered.map { it.path }.contains((it as? Medium)?.path) }
 
             ensureBackgroundThread {
                 val useRecycleBin = config.useRecycleBin
@@ -950,7 +950,7 @@ class MediaActivity : SimpleActivity(), MediaOperationsListener {
         finish()
     }
 
-    override fun updateMediaGridDecoration(media: ArrayList<ThumbnailItem>) {
+    override fun updateMediaGridDecoration(media: List<ThumbnailItem>) {
         var currentGridPosition = 0
         media.forEach {
             if (it is Medium) {

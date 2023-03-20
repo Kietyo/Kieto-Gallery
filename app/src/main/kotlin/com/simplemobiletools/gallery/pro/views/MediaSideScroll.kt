@@ -15,6 +15,9 @@ import com.simplemobiletools.commons.extensions.onGlobalLayout
 import com.simplemobiletools.gallery.pro.R
 import com.simplemobiletools.gallery.pro.extensions.audioManager
 import com.simplemobiletools.gallery.pro.helpers.DRAG_THRESHOLD
+import kotlin.math.abs
+import kotlin.math.max
+import kotlin.math.min
 
 // allow horizontal swipes through the layout, else it can cause glitches at zoomed in images
 class MediaSideScroll(context: Context, attrs: AttributeSet) : RelativeLayout(context, attrs) {
@@ -103,9 +106,9 @@ class MediaSideScroll(context: Context, attrs: AttributeSet) : RelativeLayout(co
                 val diffX = mTouchDownX - event.rawX
                 val diffY = mTouchDownY - event.rawY
 
-                if (Math.abs(diffY) > dragThreshold && Math.abs(diffY) > Math.abs(diffX)) {
+                if (abs(diffY) > dragThreshold && abs(diffY) > abs(diffX)) {
                     var percent = ((diffY / mViewHeight) * 100).toInt() * 3
-                    percent = Math.min(100, Math.max(-100, percent))
+                    percent = min(100, max(-100, percent))
 
                     if ((percent == 100 && event.rawY > mLastTouchY) || (percent == -100 && event.rawY < mLastTouchY)) {
                         mTouchDownY = event.rawY
@@ -113,7 +116,7 @@ class MediaSideScroll(context: Context, attrs: AttributeSet) : RelativeLayout(co
                     }
 
                     percentChanged(percent)
-                } else if (Math.abs(diffX) > dragThreshold || Math.abs(diffY) > dragThreshold) {
+                } else if (abs(diffX) > dragThreshold || abs(diffY) > dragThreshold) {
                     if (!mPassTouches) {
                         event.action = MotionEvent.ACTION_DOWN
                         event.setLocation(event.rawX, event.rawY)
@@ -161,7 +164,7 @@ class MediaSideScroll(context: Context, attrs: AttributeSet) : RelativeLayout(co
         }
 
         val addPoints = percent / percentPerPoint
-        val newVolume = Math.min(maxVolume, Math.max(0, mTouchDownValue + addPoints))
+        val newVolume = min(maxVolume, max(0, mTouchDownValue + addPoints))
         activity!!.audioManager.setStreamVolume(stream, newVolume, 0)
 
         val absolutePercent = ((newVolume / maxVolume.toFloat()) * 100).toInt()
@@ -176,7 +179,7 @@ class MediaSideScroll(context: Context, attrs: AttributeSet) : RelativeLayout(co
     private fun brightnessPercentChanged(percent: Int) {
         val maxBrightness = 255f
         var newBrightness = (mTouchDownValue + 2.55 * percent).toFloat()
-        newBrightness = Math.min(maxBrightness, Math.max(0f, newBrightness))
+        newBrightness = min(maxBrightness, max(0f, newBrightness))
         mTempBrightness = newBrightness.toInt()
 
         val absolutePercent = ((newBrightness / maxBrightness) * 100).toInt()

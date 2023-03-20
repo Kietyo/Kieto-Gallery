@@ -38,6 +38,9 @@ import kotlinx.android.synthetic.main.bottom_video_time_holder.view.*
 import kotlinx.android.synthetic.main.pager_video_item.view.*
 import java.io.File
 import java.io.FileInputStream
+import kotlin.math.max
+import kotlin.math.min
+import kotlin.math.roundToLong
 
 class VideoFragment : ViewPagerFragment(), TextureView.SurfaceTextureListener, SeekBar.OnSeekBarChangeListener {
     private val PROGRESS = "progress"
@@ -552,8 +555,8 @@ class VideoFragment : ViewPagerFragment(), TextureView.SurfaceTextureListener, S
 
         val curr = mExoPlayer!!.currentPosition
         val newProgress = if (forward) curr + FAST_FORWARD_VIDEO_MS else curr - FAST_FORWARD_VIDEO_MS
-        val roundProgress = Math.round(newProgress / 1000f)
-        val limitedProgress = Math.max(Math.min(mExoPlayer!!.duration.toInt() / 1000, roundProgress), 0)
+        val roundProgress = (newProgress / 1000f).roundToLong()
+        val limitedProgress = max(min(mExoPlayer!!.duration.toInt() / 1000, roundProgress.toInt()), 0)
         setPosition(limitedProgress)
         if (!mIsPlaying) {
             togglePlayPause()

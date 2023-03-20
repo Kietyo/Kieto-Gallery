@@ -41,7 +41,10 @@ import java.io.File
 import java.io.FileInputStream
 import java.nio.ByteBuffer
 import java.nio.channels.FileChannel
+import java.util.*
 import kotlin.collections.set
+import kotlin.math.max
+import kotlin.math.min
 
 val Context.audioManager get() = getSystemService(Context.AUDIO_SERVICE) as AudioManager
 
@@ -112,7 +115,7 @@ fun Context.getSortedDirectories(source: ArrayList<Directory>): ArrayList<Direct
             }
         }
 
-        dirs.mapTo(newDirsOrdered, { it })
+        dirs.mapTo(newDirsOrdered) { it }
         return newDirsOrdered
     }
 
@@ -123,35 +126,38 @@ fun Context.getSortedDirectories(source: ArrayList<Directory>): ArrayList<Direct
         var result = when {
             sorting and SORT_BY_NAME != 0 -> {
                 if (o1.sortValue.isEmpty()) {
-                    o1.sortValue = o1.name.toLowerCase()
+                    o1.sortValue = o1.name.lowercase(Locale.getDefault())
                 }
 
                 if (o2.sortValue.isEmpty()) {
-                    o2.sortValue = o2.name.toLowerCase()
+                    o2.sortValue = o2.name.lowercase(Locale.getDefault())
                 }
 
                 if (sorting and SORT_USE_NUMERIC_VALUE != 0) {
-                    AlphanumericComparator().compare(o1.sortValue.normalizeString().toLowerCase(), o2.sortValue.normalizeString().toLowerCase())
+                    AlphanumericComparator().compare(
+                        o1.sortValue.normalizeString().lowercase(Locale.getDefault()),
+                        o2.sortValue.normalizeString().lowercase(Locale.getDefault())
+                    )
                 } else {
-                    o1.sortValue.normalizeString().toLowerCase().compareTo(o2.sortValue.normalizeString().toLowerCase())
+                    o1.sortValue.normalizeString().lowercase(Locale.getDefault()).compareTo(o2.sortValue.normalizeString().lowercase(Locale.getDefault()))
                 }
             }
             sorting and SORT_BY_PATH != 0 -> {
                 if (o1.sortValue.isEmpty()) {
-                    o1.sortValue = o1.path.toLowerCase()
+                    o1.sortValue = o1.path.lowercase(Locale.getDefault())
                 }
 
                 if (o2.sortValue.isEmpty()) {
-                    o2.sortValue = o2.path.toLowerCase()
+                    o2.sortValue = o2.path.lowercase(Locale.getDefault())
                 }
 
                 if (sorting and SORT_USE_NUMERIC_VALUE != 0) {
-                    AlphanumericComparator().compare(o1.sortValue.toLowerCase(), o2.sortValue.toLowerCase())
+                    AlphanumericComparator().compare(o1.sortValue.lowercase(Locale.getDefault()), o2.sortValue.lowercase(Locale.getDefault()))
                 } else {
-                    o1.sortValue.toLowerCase().compareTo(o2.sortValue.toLowerCase())
+                    o1.sortValue.lowercase(Locale.getDefault()).compareTo(o2.sortValue.lowercase(Locale.getDefault()))
                 }
             }
-            sorting and SORT_BY_PATH != 0 -> AlphanumericComparator().compare(o1.sortValue.toLowerCase(), o2.sortValue.toLowerCase())
+            sorting and SORT_BY_PATH != 0 -> AlphanumericComparator().compare(o1.sortValue.lowercase(Locale.getDefault()), o2.sortValue.lowercase(Locale.getDefault()))
             sorting and SORT_BY_SIZE != 0 -> (o1.sortValue.toLongOrNull() ?: 0).compareTo(o2.sortValue.toLongOrNull() ?: 0)
             sorting and SORT_BY_DATE_MODIFIED != 0 -> (o1.sortValue.toLongOrNull() ?: 0).compareTo(o2.sortValue.toLongOrNull() ?: 0)
             else -> (o1.sortValue.toLongOrNull() ?: 0).compareTo(o2.sortValue.toLongOrNull() ?: 0)
@@ -179,7 +185,7 @@ fun Context.getDirsToShow(dirs: ArrayList<Directory>, allDirs: ArrayList<Directo
         // show the current folder as an available option too, not just subfolders
         if (currentPathPrefix.isNotEmpty()) {
             val currentFolder =
-                allDirs.firstOrNull { parentDirs.firstOrNull { it.path.equals(currentPathPrefix, true) } == null && it.path.equals(currentPathPrefix, true) }
+                allDirs.firstOrNull { it -> parentDirs.firstOrNull { it.path.equals(currentPathPrefix, true) } == null && it.path.equals(currentPathPrefix, true) }
             currentFolder?.apply {
                 subfoldersCount = 1
                 parentDirs.add(this)
@@ -249,7 +255,7 @@ fun Context.getDirectParentSubfolders(dirs: ArrayList<Directory>, currentPathPre
                         parent,
                         subDirs.first().tmb,
                         getFolderNameFromPath(parent),
-                        subDirs.sumBy { it.mediaCnt },
+                        subDirs.sumOf { it.mediaCnt },
                         lastModified,
                         dateTaken,
                         subDirs.sumByLong { it.size },
@@ -270,7 +276,7 @@ fun Context.getDirectParentSubfolders(dirs: ArrayList<Directory>, currentPathPre
     }
 
     var areDirectSubfoldersAvailable = false
-    currentPaths.forEach {
+    currentPaths.forEach { it ->
         val path = it
         currentPaths.forEach {
             if (!foldersWithoutMediaFiles.contains(it) && !it.equals(path, true) && File(it).parent?.equals(path, true) == true) {
@@ -768,7 +774,7 @@ fun Context.getCachedMedia(path: String, getVideosOnly: Boolean = false, getImag
             }
         }) as ArrayList<Medium>
 
-        val pathToUse = if (path.isEmpty()) SHOW_ALL else path
+        val pathToUse = path.ifEmpty { SHOW_ALL }
         mediaFetcher.sortMedia(media, config.getFolderSorting(pathToUse))
         val grouped = mediaFetcher.groupMedia(media, pathToUse)
         callback(grouped.clone() as ArrayList<ThumbnailItem>)
@@ -942,7 +948,7 @@ fun Context.parseFileChannel(path: String, fc: FileChannel, level: Int, start: L
                     }
                 }
 
-                val xmlString = sb.toString().toLowerCase()
+                val xmlString = sb.toString().lowercase(Locale.getDefault())
                 if (xmlString.contains("gspherical:projectiontype>equirectangular") || xmlString.contains("gspherical:projectiontype=\"equirectangular\"")) {
                     callback.invoke()
                 }
@@ -1003,7 +1009,7 @@ fun Context.createDirectoryFromMedia(
     }
 
     if (thumbnail == null) {
-        val sortedMedia = grouped.filter { it is Medium }.toMutableList() as ArrayList<Medium>
+        val sortedMedia = grouped.filterIsInstance<Medium>().toMutableList() as ArrayList<Medium>
         thumbnail = sortedMedia.firstOrNull { getDoesFilePathExist(it.path, OTGPath) }?.path ?: ""
     }
 
@@ -1016,8 +1022,8 @@ fun Context.createDirectoryFromMedia(
     val firstItem = curMedia.firstOrNull() ?: defaultMedium
     val lastItem = curMedia.lastOrNull() ?: defaultMedium
     val dirName = checkAppendingHidden(path, hiddenString, includedFolders, noMediaFolders)
-    val lastModified = if (isSortingAscending) Math.min(firstItem.modified, lastItem.modified) else Math.max(firstItem.modified, lastItem.modified)
-    val dateTaken = if (isSortingAscending) Math.min(firstItem.taken, lastItem.taken) else Math.max(firstItem.taken, lastItem.taken)
+    val lastModified = if (isSortingAscending) min(firstItem.modified, lastItem.modified) else max(firstItem.modified, lastItem.modified)
+    val dateTaken = if (isSortingAscending) min(firstItem.taken, lastItem.taken) else max(firstItem.taken, lastItem.taken)
     val size = if (getProperFileSize) curMedia.sumByLong { it.size } else 0L
     val mediaTypes = curMedia.getDirMediaTypes()
     val sortValue = getDirectorySortingValue(curMedia, path, dirName, size)

@@ -25,6 +25,9 @@ import com.simplemobiletools.gallery.pro.helpers.PATH
 import kotlinx.android.synthetic.main.activity_panorama_video.*
 import kotlinx.android.synthetic.main.bottom_video_time_holder.*
 import java.io.File
+import kotlin.math.max
+import kotlin.math.min
+import kotlin.math.roundToLong
 
 open class PanoramaVideoActivity : SimpleActivity(), SeekBar.OnSeekBarChangeListener {
     private val CARDBOARD_DISPLAY_MODE = 3
@@ -305,10 +308,10 @@ open class PanoramaVideoActivity : SimpleActivity(), SeekBar.OnSeekBarChangeList
         }
 
         val curr = vr_video_view.currentPosition
-        val twoPercents = Math.max((vr_video_view.duration / 50).toInt(), MIN_SKIP_LENGTH)
+        val twoPercents = max((vr_video_view.duration / 50).toInt(), MIN_SKIP_LENGTH)
         val newProgress = if (forward) curr + twoPercents else curr - twoPercents
-        val roundProgress = Math.round(newProgress / 1000f)
-        val limitedProgress = Math.max(Math.min(vr_video_view.duration.toInt(), roundProgress), 0)
+        val roundProgress = (newProgress / 1000f).roundToLong()
+        val limitedProgress = max(min(vr_video_view.duration.toInt(), roundProgress.toInt()), 0)
         setVideoProgress(limitedProgress)
         if (!mIsPlaying) {
             togglePlayPause()

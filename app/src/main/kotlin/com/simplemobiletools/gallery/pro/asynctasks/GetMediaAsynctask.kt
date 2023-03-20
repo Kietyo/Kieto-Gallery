@@ -13,7 +13,7 @@ import com.simplemobiletools.gallery.pro.models.Medium
 import com.simplemobiletools.gallery.pro.models.ThumbnailItem
 
 class GetMediaAsynctask(
-    val context: Context, val mPath: String, val isPickImage: Boolean = false, val isPickVideo: Boolean = false,
+    val context: Context, private val mPath: String, val isPickImage: Boolean = false, val isPickVideo: Boolean = false,
     val showAll: Boolean, val callback: (media: ArrayList<ThumbnailItem>) -> Unit
 ) :
     AsyncTask<Void, Void, ArrayList<ThumbnailItem>>() {

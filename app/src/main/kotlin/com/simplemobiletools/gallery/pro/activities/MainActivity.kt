@@ -343,7 +343,7 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
         if (!mIsThirdPartyIntent) {
             main_menu.getToolbar().menu.apply {
                 findItem(R.id.column_count).isVisible = config.viewTypeFolders == VIEW_TYPE_GRID
-                findItem(R.id.set_as_default_folder).isVisible = !config.defaultFolder.isEmpty()
+                findItem(R.id.set_as_default_folder).isVisible = config.defaultFolder.isNotEmpty()
                 findItem(R.id.open_recycle_bin).isVisible = config.useRecycleBin && !config.showRecycleBinAtFolders
                 findItem(R.id.more_apps_from_us).isVisible = !resources.getBoolean(R.bool.hide_google_relations)
             }
@@ -656,7 +656,7 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
         val itemsToDelete = ArrayList<FileDirItem>()
         val filter = config.filterMedia
         val showHidden = config.shouldShowHidden
-        fileDirItems.filter { it.isDirectory }.forEach {
+        fileDirItems.filter { it.isDirectory }.forEach { it ->
             val files = File(it.path).listFiles()
             files?.filter {
                 it.absolutePath.isMediaFile() && (showHidden || !it.name.startsWith('.')) &&
@@ -761,7 +761,7 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
     }
 
     private fun createNewFolder() {
-        FilePickerDialog(this, internalStoragePath, false, config.shouldShowHidden, false, true) {
+        FilePickerDialog(this, internalStoragePath, false, config.shouldShowHidden, false, true) { it ->
             CreateNewFolderDialog(this, it) {
                 config.tempFolderPath = it
                 ensureBackgroundThread {
@@ -1035,7 +1035,7 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
                 }
 
                 if (!directory.isRecycleBin()) {
-                    getCachedMedia(directory.path, getVideosOnly, getImagesOnly) {
+                    getCachedMedia(directory.path, getVideosOnly, getImagesOnly) { it ->
                         val mediaToDelete = ArrayList<Medium>()
                         it.forEach {
                             if (!curMedia.contains(it)) {
@@ -1295,7 +1295,7 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
     private fun checkInvalidDirectories(dirs: ArrayList<Directory>) {
         val invalidDirs = ArrayList<Directory>()
         val OTGPath = config.OTGPath
-        dirs.filter { !it.areFavorites() && !it.isRecycleBin() }.forEach {
+        dirs.filter { !it.areFavorites() && !it.isRecycleBin() }.forEach { it ->
             if (!getDoesFilePathExist(it.path, OTGPath)) {
                 invalidDirs.add(it)
             } else if (it.path != config.tempFolderPath && (!isRPlus() || isExternalStorageManager())) {
@@ -1408,11 +1408,11 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
                 val checkedPaths = ArrayList<String>()
                 val oftenRepeatedPaths = ArrayList<String>()
                 val paths = mDirs.map { it.path.removePrefix(internalPath) }.toMutableList() as ArrayList<String>
-                paths.forEach {
+                paths.forEach { it ->
                     val parts = it.split("/")
                     var currentString = ""
-                    for (i in 0 until parts.size) {
-                        currentString += "${parts[i]}/"
+                    for (element in parts) {
+                        currentString += "${element}/"
 
                         if (!checkedPaths.contains(currentString)) {
                             val cnt = paths.count { it.startsWith(currentString) }
@@ -1425,7 +1425,7 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
                     }
                 }
 
-                val substringToRemove = oftenRepeatedPaths.filter {
+                val substringToRemove = oftenRepeatedPaths.filter { it ->
                     val path = it
                     it == "/" || oftenRepeatedPaths.any { it != path && it.startsWith(path) }
                 }

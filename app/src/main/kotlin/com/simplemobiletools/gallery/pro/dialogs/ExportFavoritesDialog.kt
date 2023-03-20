@@ -10,7 +10,7 @@ import com.simplemobiletools.gallery.pro.extensions.config
 import kotlinx.android.synthetic.main.dialog_export_favorites.view.*
 
 class ExportFavoritesDialog(
-    val activity: BaseSimpleActivity, val defaultFilename: String, val hidePath: Boolean,
+    val activity: BaseSimpleActivity, private val defaultFilename: String, private val hidePath: Boolean,
     callback: (path: String, filename: String) -> Unit
 ) {
     init {

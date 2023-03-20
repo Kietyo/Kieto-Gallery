@@ -9,7 +9,7 @@ import kotlinx.android.synthetic.main.dialog_other_aspect_ratio.view.*
 
 class OtherAspectRatioDialog(
     val activity: BaseSimpleActivity,
-    val lastOtherAspectRatio: Pair<Float, Float>?,
+    private val lastOtherAspectRatio: Pair<Float, Float>?,
     val callback: (aspectRatio: Pair<Float, Float>) -> Unit
 ) {
     private var dialog: AlertDialog? = null

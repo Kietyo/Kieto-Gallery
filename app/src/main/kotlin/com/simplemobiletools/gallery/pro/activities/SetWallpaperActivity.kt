@@ -28,7 +28,7 @@ class SetWallpaperActivity : SimpleActivity(), CropImageView.OnCropImageComplete
     private var wallpaperFlag = -1
 
     lateinit var uri: Uri
-    lateinit var wallpaperManager: WallpaperManager
+    private lateinit var wallpaperManager: WallpaperManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

@@ -743,7 +743,7 @@ class ViewPagerActivity : SimpleActivity(), ViewPager.OnPageChangeListener, View
 
     private fun saveImageAs() {
         val currPath = getCurrentPath()
-        SaveAsDialog(this, currPath, false) {
+        SaveAsDialog(this, currPath, false) { it ->
             val newPath = it
             handleSAFDialog(it) {
                 if (!it) {
@@ -1151,7 +1151,7 @@ class ViewPagerActivity : SimpleActivity(), ViewPager.OnPageChangeListener, View
 
         val fileDirItem = currentMedium.toFileDirItem()
         if (config.useRecycleBin && !getCurrentMedium()!!.getIsInRecycleBin()) {
-            checkManageMediaOrHandleSAFDialogSdk30(fileDirItem.path) {
+            checkManageMediaOrHandleSAFDialogSdk30(fileDirItem.path) { it ->
                 if (!it) {
                     return@checkManageMediaOrHandleSAFDialogSdk30
                 }
@@ -1188,7 +1188,7 @@ class ViewPagerActivity : SimpleActivity(), ViewPager.OnPageChangeListener, View
     }
 
     private fun handleDeletion(fileDirItem: FileDirItem) {
-        checkManageMediaOrHandleSAFDialogSdk30(fileDirItem.path) {
+        checkManageMediaOrHandleSAFDialogSdk30(fileDirItem.path) { it ->
             if (!it) {
                 return@checkManageMediaOrHandleSAFDialogSdk30
             }

@@ -40,8 +40,8 @@ import kotlinx.android.synthetic.main.video_item_grid.view.medium_name
 import kotlinx.android.synthetic.main.video_item_grid.view.medium_thumbnail
 
 class MediaAdapter(
-    activity: BaseSimpleActivity, var media: ArrayList<ThumbnailItem>, val listener: MediaOperationsListener?, val isAGetIntent: Boolean,
-    val allowMultiplePicks: Boolean, val path: String, recyclerView: MyRecyclerView, itemClick: (Any) -> Unit
+    activity: BaseSimpleActivity, var media: MutableList<ThumbnailItem>, val listener: MediaOperationsListener?, private val isAGetIntent: Boolean,
+    private val allowMultiplePicks: Boolean, val path: String, recyclerView: MyRecyclerView, itemClick: (Any) -> Unit
 ) :
     MyRecyclerViewAdapter(activity, recyclerView, itemClick), RecyclerViewFastScroller.OnPopupTextUpdate {
 
@@ -183,7 +183,7 @@ class MediaAdapter(
         }
     }
 
-    override fun getSelectableItemCount() = media.filter { it is Medium }.size
+    override fun getSelectableItemCount() = media.filterIsInstance<Medium>().size
 
     override fun getIsItemSelectable(position: Int) = !isASectionTitle(position)
 
@@ -388,7 +388,7 @@ class MediaAdapter(
             return
         }
 
-        activity.tryCopyMoveFilesTo(fileDirItems, isCopyOperation) {
+        activity.tryCopyMoveFilesTo(fileDirItems, isCopyOperation) { it ->
             val destinationPath = it
             config.tempFolderPath = ""
             activity.applicationContext.rescanFolderMedia(destinationPath)
@@ -496,7 +496,7 @@ class MediaAdapter(
         val selectedItems = getSelectedItems()
         val selectedPaths = selectedItems.map { it.path } as ArrayList<String>
         val SAFPath = selectedPaths.firstOrNull { activity.needsStupidWritePermissions(it) } ?: getFirstSelectedItemPath() ?: return
-        activity.handleSAFDialog(SAFPath) {
+        activity.handleSAFDialog(SAFPath) { it ->
             if (!it) {
                 return@handleSAFDialog
             }

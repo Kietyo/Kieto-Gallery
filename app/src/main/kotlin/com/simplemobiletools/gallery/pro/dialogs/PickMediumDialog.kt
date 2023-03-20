@@ -22,7 +22,7 @@ import kotlinx.android.synthetic.main.dialog_medium_picker.view.*
 
 class PickMediumDialog(val activity: BaseSimpleActivity, val path: String, val callback: (path: String) -> Unit) {
     private var dialog: AlertDialog? = null
-    private var shownMedia = ArrayList<ThumbnailItem>()
+    private var shownMedia = emptyList<ThumbnailItem>()
     private val view = activity.layoutInflater.inflate(R.layout.dialog_medium_picker, null)
     private val config = activity.config
     private val viewType = config.getFolderViewType(if (config.showAll) SHOW_ALL else path)
@@ -47,7 +47,7 @@ class PickMediumDialog(val activity: BaseSimpleActivity, val path: String, val c
             }
 
         activity.getCachedMedia(path) {
-            val media = it.filter { it is Medium } as ArrayList
+            val media = it.filterIsInstance<Medium>()
             if (media.isNotEmpty()) {
                 activity.runOnUiThread {
                     gotMedia(media)
@@ -67,12 +67,12 @@ class PickMediumDialog(val activity: BaseSimpleActivity, val path: String, val c
         }
     }
 
-    private fun gotMedia(media: ArrayList<ThumbnailItem>) {
+    private fun gotMedia(media: List<ThumbnailItem>) {
         if (media.hashCode() == shownMedia.hashCode())
             return
 
         shownMedia = media
-        val adapter = MediaAdapter(activity, shownMedia.clone() as ArrayList<ThumbnailItem>, null, true, false, path, view.media_grid) {
+        val adapter = MediaAdapter(activity, shownMedia.toMutableList(), null, true, false, path, view.media_grid) {
             if (it is Medium) {
                 callback(it.path)
                 dialog?.dismiss()
@@ -87,7 +87,7 @@ class PickMediumDialog(val activity: BaseSimpleActivity, val path: String, val c
         handleGridSpacing(media)
     }
 
-    private fun handleGridSpacing(media: ArrayList<ThumbnailItem>) {
+    private fun handleGridSpacing(media: List<ThumbnailItem>) {
         if (isGridViewType) {
             val spanCount = config.mediaColumnCnt
             val spacing = config.thumbnailSpacing

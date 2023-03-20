@@ -54,6 +54,7 @@ import kotlinx.android.synthetic.main.bottom_editor_crop_rotate_actions.*
 import kotlinx.android.synthetic.main.bottom_editor_draw_actions.*
 import kotlinx.android.synthetic.main.bottom_editor_primary_actions.*
 import java.io.*
+import kotlin.math.max
 
 class EditActivity : SimpleActivity(), CropImageView.OnCropImageCompleteListener {
     companion object {
@@ -578,7 +579,7 @@ class EditActivity : SimpleActivity(), CropImageView.OnCropImageCompleteListener
 
     private fun updateBrushSize(percent: Int) {
         editor_draw_canvas.updateBrushSize(percent)
-        val scale = Math.max(0.03f, percent / 100f)
+        val scale = max(0.03f, percent / 100f)
         bottom_draw_color.scaleX = scale
         bottom_draw_color.scaleY = scale
     }
