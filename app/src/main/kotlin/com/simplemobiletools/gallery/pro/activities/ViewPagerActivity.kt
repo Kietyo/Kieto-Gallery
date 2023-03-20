@@ -743,9 +743,8 @@ class ViewPagerActivity : SimpleActivity(), ViewPager.OnPageChangeListener, View
 
     private fun saveImageAs() {
         val currPath = getCurrentPath()
-        SaveAsDialog(this, currPath, false) { it ->
-            val newPath = it
-            handleSAFDialog(it) {
+        SaveAsDialog(this, currPath, false) { savePath ->
+            handleSAFDialog(savePath) {
                 if (!it) {
                     return@handleSAFDialog
                 }
@@ -753,7 +752,7 @@ class ViewPagerActivity : SimpleActivity(), ViewPager.OnPageChangeListener, View
                 toast(R.string.saving)
                 ensureBackgroundThread {
                     val photoFragment = getCurrentPhotoFragment() ?: return@ensureBackgroundThread
-                    saveRotatedImageToFile(currPath, newPath, photoFragment.mCurrentRotationDegrees, true) {
+                    saveRotatedImageToFile(currPath, savePath, photoFragment.mCurrentRotationDegrees, true) {
                         toast(R.string.file_saved)
                         getCurrentPhotoFragment()?.mCurrentRotationDegrees = 0
                         refreshMenuItems()
