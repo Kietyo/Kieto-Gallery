@@ -48,6 +48,7 @@ import com.simplemobiletools.gallery.pro.activities.PhotoActivity
 import com.simplemobiletools.gallery.pro.activities.PhotoVideoActivity
 import com.simplemobiletools.gallery.pro.activities.ViewPagerActivity
 import com.simplemobiletools.gallery.pro.adapters.PortraitPhotosAdapter
+import com.simplemobiletools.gallery.pro.enums.TileDpiQualityEnum
 import com.simplemobiletools.gallery.pro.extensions.config
 import com.simplemobiletools.gallery.pro.extensions.saveRotatedImageToFile
 import com.simplemobiletools.gallery.pro.extensions.sendFakeClick
@@ -731,12 +732,13 @@ class PhotoFragment : ViewPagerFragment() {
         val metrics = resources.displayMetrics
         val averageDpi = (metrics.xdpi + metrics.ydpi) / 2
         val device = "${Build.BRAND} ${Build.MODEL}".lowercase(Locale.getDefault())
-        return when {
-            WEIRD_DEVICES.contains(device) -> WEIRD_TILE_DPI
-            averageDpi > 400 -> HIGH_TILE_DPI
-            averageDpi > 300 -> NORMAL_TILE_DPI
-            else -> LOW_TILE_DPI
+        val enum = when {
+            WEIRD_DEVICES.contains(device) -> TileDpiQualityEnum.WEIRD
+            averageDpi > 400 -> TileDpiQualityEnum.HIGH
+            averageDpi > 300 -> TileDpiQualityEnum.NORMAL
+            else -> TileDpiQualityEnum.LOW
         }
+        return enum.dpi
     }
 
     private fun checkIfPanorama() {

@@ -155,21 +155,6 @@ const val ROTATE_BY_SYSTEM_SETTING = 0
 const val ROTATE_BY_DEVICE_ROTATION = 1
 const val ROTATE_BY_ASPECT_RATIO = 2
 
-// file loading priority
-//const val PRIORITY_SPEED = 0
-//const val PRIORITY_COMPROMISE = 1
-//const val PRIORITY_VALIDITY = 2
-enum class FileLoadingPriorityEnum(val id: Int) {
-    SPEED(0),
-    COMPROMISE(1),
-    VALIDITY(2);
-
-    companion object {
-        val ID_TO_ENUM_MAP = values().map { it.id to it }.toMap()
-        fun getEnumFromId(id: Int) = ID_TO_ENUM_MAP[id]!!
-    }
-}
-
 // extended details values
 const val EXT_NAME = 1
 const val EXT_PATH = 2
@@ -231,12 +216,6 @@ const val ASPECT_RATIO_ONE_ONE = 1
 const val ASPECT_RATIO_FOUR_THREE = 2
 const val ASPECT_RATIO_SIXTEEN_NINE = 3
 const val ASPECT_RATIO_OTHER = 4
-
-// constants related to image quality
-const val LOW_TILE_DPI = 160
-const val NORMAL_TILE_DPI = 220
-const val WEIRD_TILE_DPI = 240
-const val HIGH_TILE_DPI = 280
 
 const val ROUNDED_CORNERS_NONE = 1
 const val ROUNDED_CORNERS_SMALL = 2

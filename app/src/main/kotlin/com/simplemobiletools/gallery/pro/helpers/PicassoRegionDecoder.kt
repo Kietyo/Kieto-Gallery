@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.*
 import android.net.Uri
 import com.davemorrissey.labs.subscaleview.ImageRegionDecoder
+import com.simplemobiletools.gallery.pro.enums.TileDpiQualityEnum
 
 class PicassoRegionDecoder(
     private val showHighestQuality: Boolean,
@@ -25,7 +26,7 @@ class PicassoRegionDecoder(
     override fun decodeRegion(rect: Rect, sampleSize: Int): Bitmap {
         synchronized(decoderLock) {
             var newSampleSize = sampleSize
-            if (!showHighestQuality && minTileDpi == LOW_TILE_DPI) {
+            if (!showHighestQuality && minTileDpi == TileDpiQualityEnum.LOW.dpi) {
                 if ((rect.width() > rect.height() && screenWidth > screenHeight) || (rect.height() > rect.width() && screenHeight > screenWidth)) {
                     if ((rect.width() / sampleSize > screenWidth || rect.height() / sampleSize > screenHeight)) {
                         newSampleSize *= 2
