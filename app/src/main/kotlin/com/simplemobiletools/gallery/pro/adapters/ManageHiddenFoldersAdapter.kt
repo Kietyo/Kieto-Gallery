@@ -96,7 +96,7 @@ class ManageHiddenFoldersAdapter(
             activity.removeNoMedia(it)
         }
 
-        folders.removeAll(removeFolders)
+        folders.removeAll(removeFolders.toSet())
         removeSelectedItems(position)
         if (folders.isEmpty()) {
             listener?.refreshItems()

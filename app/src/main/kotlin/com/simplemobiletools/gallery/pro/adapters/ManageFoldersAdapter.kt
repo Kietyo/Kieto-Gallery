@@ -119,7 +119,7 @@ class ManageFoldersAdapter(
             }
         }
 
-        folders.removeAll(removeFolders)
+        folders.removeAll(removeFolders.toSet())
         removeSelectedItems(positions)
         if (folders.isEmpty()) {
             listener?.refreshItems()

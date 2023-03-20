@@ -516,7 +516,7 @@ class MediaAdapter(
                     removeMedia.add(medium)
                 }
 
-                media.removeAll(removeMedia)
+                media.removeAll(removeMedia.toSet())
                 listener?.tryDeleteFiles(fileDirItems)
                 listener?.updateMediaGridDecoration(media)
                 removeSelectedItems(positions)

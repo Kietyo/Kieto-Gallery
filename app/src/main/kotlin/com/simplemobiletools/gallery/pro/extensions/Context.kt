@@ -77,7 +77,7 @@ fun Context.movePinnedDirectoriesToFront(dirs: ArrayList<Directory>): ArrayList<
         }
     }
 
-    dirs.removeAll(foundFolders)
+    dirs.removeAll(foundFolders.toSet())
     dirs.addAll(0, foundFolders)
     if (config.tempFolderPath.isNotEmpty()) {
         val newFolder = dirs.firstOrNull { it.path == config.tempFolderPath }
@@ -119,7 +119,7 @@ fun Context.getSortedDirectories(source: ArrayList<Directory>): ArrayList<Direct
         return newDirsOrdered
     }
 
-    dirs.sortWith({ o1, o2 ->
+    dirs.sortWith { o1, o2 ->
         o1 as Directory
         o2 as Directory
 
@@ -157,17 +157,32 @@ fun Context.getSortedDirectories(source: ArrayList<Directory>): ArrayList<Direct
                     o1.sortValue.lowercase(Locale.getDefault()).compareTo(o2.sortValue.lowercase(Locale.getDefault()))
                 }
             }
-            sorting and SORT_BY_PATH != 0 -> AlphanumericComparator().compare(o1.sortValue.lowercase(Locale.getDefault()), o2.sortValue.lowercase(Locale.getDefault()))
-            sorting and SORT_BY_SIZE != 0 -> (o1.sortValue.toLongOrNull() ?: 0).compareTo(o2.sortValue.toLongOrNull() ?: 0)
-            sorting and SORT_BY_DATE_MODIFIED != 0 -> (o1.sortValue.toLongOrNull() ?: 0).compareTo(o2.sortValue.toLongOrNull() ?: 0)
-            else -> (o1.sortValue.toLongOrNull() ?: 0).compareTo(o2.sortValue.toLongOrNull() ?: 0)
+            sorting and SORT_BY_PATH != 0 -> AlphanumericComparator().compare(
+                o1.sortValue.lowercase(Locale.getDefault()),
+                o2.sortValue.lowercase(Locale.getDefault())
+            )
+            sorting and SORT_BY_SIZE != 0 -> (o1.sortValue.toLongOrNull()
+                ?: 0).compareTo(
+                o2.sortValue.toLongOrNull()
+                    ?: 0
+            )
+            sorting and SORT_BY_DATE_MODIFIED != 0 -> (o1.sortValue.toLongOrNull()
+                ?: 0).compareTo(
+                o2.sortValue.toLongOrNull()
+                    ?: 0
+            )
+            else -> (o1.sortValue.toLongOrNull()
+                ?: 0).compareTo(
+                o2.sortValue.toLongOrNull()
+                    ?: 0
+            )
         }
 
         if (sorting and SORT_DESCENDING != 0) {
             result *= -1
         }
         result
-    })
+    }
 
     return movePinnedDirectoriesToFront(dirs)
 }

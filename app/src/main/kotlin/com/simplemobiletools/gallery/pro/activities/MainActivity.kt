@@ -1056,7 +1056,7 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
                 dirsToRemove.forEach {
                     directoryDB.deleteDirPath(it.path)
                 }
-                dirs.removeAll(dirsToRemove)
+                dirs.removeAll(dirsToRemove.toSet())
                 setupAdapter(dirs)
             }
         } catch (ignored: Exception) {
@@ -1334,7 +1334,7 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
         }
 
         if (invalidDirs.isNotEmpty()) {
-            dirs.removeAll(invalidDirs)
+            dirs.removeAll(invalidDirs.toSet())
             setupAdapter(dirs)
             invalidDirs.forEach {
                 try {
@@ -1430,7 +1430,7 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
                     it == "/" || oftenRepeatedPaths.any { it != path && it.startsWith(path) }
                 }
 
-                oftenRepeatedPaths.removeAll(substringToRemove)
+                oftenRepeatedPaths.removeAll(substringToRemove.toSet())
                 val OTGPath = config.OTGPath
                 oftenRepeatedPaths.forEach {
                     val file = File("$internalPath/$it")
