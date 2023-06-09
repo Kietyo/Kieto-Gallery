@@ -40,7 +40,7 @@ import kotlinx.android.synthetic.main.video_item_grid.view.medium_name
 import kotlinx.android.synthetic.main.video_item_grid.view.medium_thumbnail
 
 class MediaAdapter(
-    activity: BaseSimpleActivity, var media: MutableList<ThumbnailItem>, val listener: MediaOperationsListener?, private val isAGetIntent: Boolean,
+    activity: BaseSimpleActivity, var media: List<ThumbnailItem>, val listener: MediaOperationsListener?, private val isAGetIntent: Boolean,
     private val allowMultiplePicks: Boolean, val path: String, recyclerView: MyRecyclerView, itemClick: (Any) -> Unit
 ) :
     MyRecyclerViewAdapter(activity, recyclerView, itemClick), RecyclerViewFastScroller.OnPopupTextUpdate {
@@ -515,7 +515,7 @@ class MediaAdapter(
                     removeMedia.add(medium)
                 }
 
-                media.removeAll(removeMedia.toSet())
+                media = media.filter { !removeMedia.contains(it) }
                 listener?.tryDeleteFiles(fileDirItems)
                 listener?.updateMediaGridDecoration(media)
                 removeSelectedItems(positions)
@@ -532,8 +532,8 @@ class MediaAdapter(
 
     private fun getItemWithKey(key: Int): Medium? = media.firstOrNull { (it as? Medium)?.path?.hashCode() == key } as? Medium
 
-    fun updateMedia(newMedia: ArrayList<ThumbnailItem>) {
-        val thumbnailItems = newMedia.clone() as ArrayList<ThumbnailItem>
+    fun updateMedia(newMedia: List<ThumbnailItem>) {
+        val thumbnailItems = newMedia
         if (thumbnailItems.hashCode() != currentMediaHash) {
             currentMediaHash = thumbnailItems.hashCode()
             media = thumbnailItems

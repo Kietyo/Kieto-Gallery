@@ -15,7 +15,7 @@ import com.simplemobiletools.gallery.pro.helpers.MEDIUM
 import com.simplemobiletools.gallery.pro.helpers.SHOULD_INIT_FRAGMENT
 import com.simplemobiletools.gallery.pro.models.Medium
 
-class MyPagerAdapter(val activity: ViewPagerActivity, fm: FragmentManager, val media: MutableList<Medium>) : FragmentStatePagerAdapter(fm) {
+class MyPagerAdapter(val activity: ViewPagerActivity, fm: FragmentManager, val media: List<Medium>) : FragmentStatePagerAdapter(fm) {
     private val fragments = HashMap<Int, ViewPagerFragment>()
     var shouldInitFragment = true
 

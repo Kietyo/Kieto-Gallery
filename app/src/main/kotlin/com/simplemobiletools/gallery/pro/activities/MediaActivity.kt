@@ -71,7 +71,7 @@ class MediaActivity : SimpleActivity(), MediaOperationsListener {
     private var mStoredThumbnailSpacing = 0
 
     companion object {
-        var mMedia = ArrayList<ThumbnailItem>()
+        var mMedia = emptyList<ThumbnailItem>()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -238,7 +238,7 @@ class MediaActivity : SimpleActivity(), MediaOperationsListener {
     override fun onActivityResult(requestCode: Int, resultCode: Int, resultData: Intent?) {
         if (requestCode == REQUEST_EDIT_IMAGE) {
             if (resultCode == Activity.RESULT_OK && resultData != null) {
-                mMedia.clear()
+                mMedia = emptyList()
                 refreshItems()
             }
         }
@@ -414,7 +414,7 @@ class MediaActivity : SimpleActivity(), MediaOperationsListener {
         if (currAdapter == null) {
             initZoomListener()
             MediaAdapter(
-                this, mMedia.clone() as ArrayList<ThumbnailItem>, this, mIsGetImageIntent || mIsGetVideoIntent || mIsGetAnyIntent,
+                this, mMedia, this, mIsGetImageIntent || mIsGetVideoIntent || mIsGetAnyIntent,
                 mAllowPickingMultiple, mPath, media_grid
             ) {
                 if (it is Medium && !isFinishing) {
@@ -584,7 +584,7 @@ class MediaActivity : SimpleActivity(), MediaOperationsListener {
         mCurrAsyncTask?.stopFetching()
         mCurrAsyncTask = GetMediaAsynctask(applicationContext, mPath, mIsGetImageIntent, mIsGetVideoIntent, mShowAll) {
             ensureBackgroundThread {
-                val oldMedia = mMedia.clone() as ArrayList<ThumbnailItem>
+                val oldMedia = mMedia
                 val newMedia = it
                 try {
                     gotMedia(newMedia, false)
@@ -710,7 +710,7 @@ class MediaActivity : SimpleActivity(), MediaOperationsListener {
         mZoomListener = null
     }
 
-    private fun handleGridSpacing(media: ArrayList<ThumbnailItem> = mMedia) {
+    private fun handleGridSpacing(media: List<ThumbnailItem> = mMedia) {
         val viewType = config.getFolderViewType(if (mShowAll) SHOW_ALL else mPath)
         if (viewType == VIEW_TYPE_GRID) {
             val spanCount = config.mediaColumnCnt
@@ -856,7 +856,7 @@ class MediaActivity : SimpleActivity(), MediaOperationsListener {
         }
     }
 
-    private fun gotMedia(media: ArrayList<ThumbnailItem>, isFromCache: Boolean) {
+    private fun gotMedia(media: List<ThumbnailItem>, isFromCache: Boolean) {
         mIsGettingMedia = false
         checkLastMediaChanged()
         mMedia = media
@@ -919,7 +919,11 @@ class MediaActivity : SimpleActivity(), MediaOperationsListener {
                 return@deleteFiles
             }
 
-            mMedia.removeAll { it -> filtered.map { it.path }.contains((it as? Medium)?.path) }
+            val filteredToPath = filtered.asSequence().map { it.path }.toSet()
+
+            mMedia = mMedia.filter {
+                !filteredToPath.contains((it as? Medium)?.path)
+            }
 
             ensureBackgroundThread {
                 val useRecycleBin = config.useRecycleBin

@@ -14,12 +14,12 @@ import com.simplemobiletools.gallery.pro.models.ThumbnailItem
 
 class GetMediaAsynctask(
     val context: Context, private val mPath: String, val isPickImage: Boolean = false, val isPickVideo: Boolean = false,
-    val showAll: Boolean, val callback: (media: ArrayList<ThumbnailItem>) -> Unit
+    val showAll: Boolean, val callback: (media: List<ThumbnailItem>) -> Unit
 ) :
-    AsyncTask<Void, Void, ArrayList<ThumbnailItem>>() {
+    AsyncTask<Void, Void, List<ThumbnailItem>>() {
     private val mediaFetcher = MediaFetcher(context)
 
-    override fun doInBackground(vararg params: Void): ArrayList<ThumbnailItem> {
+    override fun doInBackground(vararg params: Void): List<ThumbnailItem> {
         val pathToUse = if (showAll) SHOW_ALL else mPath
         val folderGrouping = context.config.getFolderGrouping(pathToUse)
         val folderSorting = context.config.getFolderSorting(pathToUse)
@@ -60,7 +60,7 @@ class GetMediaAsynctask(
         return mediaFetcher.groupMedia(media, pathToUse)
     }
 
-    override fun onPostExecute(media: ArrayList<ThumbnailItem>) {
+    override fun onPostExecute(media: List<ThumbnailItem>) {
         super.onPostExecute(media)
         callback(media)
     }

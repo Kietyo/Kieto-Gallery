@@ -798,14 +798,14 @@ class MediaFetcher(val context: Context) {
         }
     }
 
-    fun groupMedia(media: ArrayList<Medium>, path: String): ArrayList<ThumbnailItem> {
+    fun groupMedia(media: List<Medium>, path: String): List<ThumbnailItem> {
         val pathToCheck = path.ifEmpty { SHOW_ALL }
         val currentGrouping = context.config.getFolderGrouping(pathToCheck)
         if (currentGrouping and GROUP_BY_NONE != 0) {
-            return media as ArrayList<ThumbnailItem>
+            return media
         }
 
-        val thumbnailItems = ArrayList<ThumbnailItem>()
+        val thumbnailItems = mutableListOf<ThumbnailItem>()
         if (context.config.scrollHorizontally) {
             media.mapTo(thumbnailItems) { it }
             return thumbnailItems

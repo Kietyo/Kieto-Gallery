@@ -84,7 +84,7 @@ class ViewPagerActivity : SimpleActivity(), ViewPager.OnPageChangeListener, View
 
     private var mIsOrientationLocked = false
 
-    private var mMediaFiles = ArrayList<Medium>()
+    private val mMediaFiles = mutableListOf<Medium>()
     private var mFavoritePaths = ArrayList<String>()
     private var mIgnoredPaths = ArrayList<String>()
 
@@ -98,7 +98,7 @@ class ViewPagerActivity : SimpleActivity(), ViewPager.OnPageChangeListener, View
         window.decorView.setBackgroundColor(getProperBackgroundColor())
         top_shadow.layoutParams.height = statusBarHeight + actionBarHeight
         checkNotchSupport()
-        (MediaActivity.mMedia.clone() as ArrayList<ThumbnailItem>).filterIsInstanceTo(mMediaFiles, Medium::class.java)
+        MediaActivity.mMedia.filterIsInstanceTo(mMediaFiles)
 
         handlePermission(getPermissionToRequest()) {
             if (it) {
@@ -390,7 +390,7 @@ class ViewPagerActivity : SimpleActivity(), ViewPager.OnPageChangeListener, View
             val folder = mPath.getParentPath()
             val type = getTypeFromPath(mPath)
             val medium = Medium(null, filename, mPath, folder, 0, 0, 0, type, 0, false, 0L, 0L)
-            mMediaFiles.add(medium)
+            mMediaFiles += medium
             gotMedia(mMediaFiles as ArrayList<ThumbnailItem>, refetchViewPagerPosition = true)
         }
 
@@ -470,7 +470,7 @@ class ViewPagerActivity : SimpleActivity(), ViewPager.OnPageChangeListener, View
         }
     }
 
-    private fun updatePagerItems(media: MutableList<Medium>) {
+    private fun updatePagerItems(media: List<Medium>) {
         val pagerAdapter = MyPagerAdapter(this, supportFragmentManager, media)
         if (!isDestroyed) {
             pagerAdapter.shouldInitFragment = mPos < 5
@@ -1214,7 +1214,7 @@ class ViewPagerActivity : SimpleActivity(), ViewPager.OnPageChangeListener, View
         }
     }
 
-    private fun isDirEmpty(media: ArrayList<Medium>): Boolean {
+    private fun isDirEmpty(media: List<Medium>): Boolean {
         return if (media.isEmpty()) {
             deleteDirectoryIfEmpty()
             finish()
@@ -1261,10 +1261,10 @@ class ViewPagerActivity : SimpleActivity(), ViewPager.OnPageChangeListener, View
         }
     }
 
-    private fun gotMedia(thumbnailItems: ArrayList<ThumbnailItem>, ignorePlayingVideos: Boolean = false, refetchViewPagerPosition: Boolean = false) {
+    private fun gotMedia(thumbnailItems: List<ThumbnailItem>, ignorePlayingVideos: Boolean = false, refetchViewPagerPosition: Boolean = false) {
         val media = thumbnailItems.asSequence().filter {
             it is Medium && !mIgnoredPaths.contains(it.path)
-        }.map { it as Medium }.toMutableList() as ArrayList<Medium>
+        }.map { it as Medium }.toMutableList()
 
         if (isDirEmpty(media) || media.hashCode() == mPrevHashcode) {
             return
@@ -1278,9 +1278,10 @@ class ViewPagerActivity : SimpleActivity(), ViewPager.OnPageChangeListener, View
         refreshUI(media, refetchViewPagerPosition)
     }
 
-    private fun refreshUI(media: ArrayList<Medium>, refetchViewPagerPosition: Boolean) {
+    private fun refreshUI(media: List<Medium>, refetchViewPagerPosition: Boolean) {
         mPrevHashcode = media.hashCode()
-        mMediaFiles = media
+        mMediaFiles.clear()
+        mMediaFiles.addAll(media)
 
         if (refetchViewPagerPosition || mPos == -1) {
             mPos = getPositionInList(media)
@@ -1297,7 +1298,7 @@ class ViewPagerActivity : SimpleActivity(), ViewPager.OnPageChangeListener, View
         initBottomActions()
     }
 
-    private fun getPositionInList(items: MutableList<Medium>): Int {
+    private fun getPositionInList(items: List<Medium>): Int {
         mPos = 0
         for ((i, medium) in items.withIndex()) {
             val portraitPath = getPortraitPath()
@@ -1450,7 +1451,7 @@ class ViewPagerActivity : SimpleActivity(), ViewPager.OnPageChangeListener, View
         }
     }
 
-    private fun getCurrentMedia() = if (mAreSlideShowMediaVisible || mRandomSlideshowStopped) mSlideshowMedia else mMediaFiles
+    private fun getCurrentMedia(): MutableList<Medium> = if (mAreSlideShowMediaVisible || mRandomSlideshowStopped) mSlideshowMedia else mMediaFiles
 
     private fun getCurrentPath() = getCurrentMedium()?.path ?: ""
 

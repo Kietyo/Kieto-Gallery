@@ -737,7 +737,7 @@ fun Context.getCachedDirectories(
     }
 }
 
-fun Context.getCachedMedia(path: String, getVideosOnly: Boolean = false, getImagesOnly: Boolean = false, callback: (ArrayList<ThumbnailItem>) -> Unit) {
+fun Context.getCachedMedia(path: String, getVideosOnly: Boolean = false, getImagesOnly: Boolean = false, callback: (List<ThumbnailItem>) -> Unit) {
     ensureBackgroundThread {
         val mediaFetcher = MediaFetcher(this)
         val foldersToScan = if (path.isEmpty()) mediaFetcher.getFoldersToScan() else arrayListOf(path)
@@ -791,7 +791,7 @@ fun Context.getCachedMedia(path: String, getVideosOnly: Boolean = false, getImag
         val pathToUse = path.ifEmpty { SHOW_ALL }
         mediaFetcher.sortMedia(media, config.getFolderSorting(pathToUse))
         val grouped = mediaFetcher.groupMedia(media, pathToUse)
-        callback(grouped.clone() as ArrayList<ThumbnailItem>)
+        callback(grouped)
         val OTGPath = config.OTGPath
 
         try {

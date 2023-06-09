@@ -29,7 +29,7 @@ class SearchActivity : SimpleActivity(), MediaOperationsListener {
     private var mLastSearchedText = ""
 
     private var mCurrAsyncTask: GetMediaAsynctask? = null
-    private var mAllMedia = ArrayList<ThumbnailItem>()
+    private var mAllMedia = emptyList<ThumbnailItem>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         isMaterialActivity = true
@@ -131,7 +131,7 @@ class SearchActivity : SimpleActivity(), MediaOperationsListener {
         setupScrollDirection()
     }
 
-    private fun handleGridSpacing(media: ArrayList<ThumbnailItem>) {
+    private fun handleGridSpacing(media: List<ThumbnailItem>) {
         val viewType = config.getFolderViewType(SHOW_ALL)
         if (viewType == VIEW_TYPE_GRID) {
             if (search_grid.itemDecorationCount > 0) {
@@ -212,7 +212,7 @@ class SearchActivity : SimpleActivity(), MediaOperationsListener {
     private fun getAllMedia() {
         getCachedMedia("") {
             if (it.isNotEmpty()) {
-                mAllMedia = it.clone() as ArrayList<ThumbnailItem>
+                mAllMedia = it
             }
             runOnUiThread {
                 setupAdapter()
@@ -224,7 +224,7 @@ class SearchActivity : SimpleActivity(), MediaOperationsListener {
     private fun startAsyncTask(updateItems: Boolean) {
         mCurrAsyncTask?.stopFetching()
         mCurrAsyncTask = GetMediaAsynctask(applicationContext, "", showAll = true) {
-            mAllMedia = it.clone() as ArrayList<ThumbnailItem>
+            mAllMedia = it
             if (updateItems) {
                 textChanged(mLastSearchedText)
             }
@@ -268,7 +268,11 @@ class SearchActivity : SimpleActivity(), MediaOperationsListener {
                 return@deleteFiles
             }
 
-            mAllMedia.removeAll { it -> filtered.map { it.path }.contains((it as? Medium)?.path) }
+            val filteredToPaths = filtered.asSequence().map { it.path }.toSet()
+
+            mAllMedia = mAllMedia.filter {
+                !filteredToPaths.contains((it as? Medium)?.path)
+            }
 
             ensureBackgroundThread {
                 val useRecycleBin = config.useRecycleBin
