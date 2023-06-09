@@ -167,6 +167,14 @@ const val EXT_EXIF_PROPERTIES = 128
 const val EXT_GPS = 2048
 
 // media types
+enum class MediaTypeEnums {
+    IMAGES,
+    VIDEOS,
+    GIFS,
+    RAWS,
+    SVGS,
+    PORTRAITS
+}
 const val TYPE_IMAGES = 1
 const val TYPE_VIDEOS = 2
 const val TYPE_GIFS = 4
