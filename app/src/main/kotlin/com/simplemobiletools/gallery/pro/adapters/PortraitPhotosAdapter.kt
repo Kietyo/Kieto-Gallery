@@ -17,9 +17,9 @@ import kotlinx.android.synthetic.main.portrait_photo_item.view.*
 class PortraitPhotosAdapter(val context: Context, val photos: ArrayList<String>, val sideElementWidth: Int, val itemClick: (Int, Int) -> Unit) :
     RecyclerView.Adapter<PortraitPhotosAdapter.ViewHolder>() {
 
-    var currentSelectionIndex = -1
-    var views = HashMap<Int, View>()
-    private var strokeBackground = context.resources.getDrawable(R.drawable.stroke_background)
+    val currentSelectionIndex = -1
+    val views = HashMap<Int, View>()
+    private val strokeBackground = context.resources.getDrawable(R.drawable.stroke_background)
     private val itemWidth = context.resources.getDimension(R.dimen.portrait_photos_stripe_height).toInt()
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {

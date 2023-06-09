@@ -45,31 +45,31 @@ import kotlin.math.roundToLong
 class VideoFragment : ViewPagerFragment(), TextureView.SurfaceTextureListener, SeekBar.OnSeekBarChangeListener {
     private val PROGRESS = "progress"
 
-    private var mIsFullscreen = false
-    private var mWasFragmentInit = false
-    private var mIsPanorama = false
-    private var mIsFragmentVisible = false
-    private var mIsDragged = false
-    private var mWasVideoStarted = false
-    private var mWasPlayerInited = false
-    private var mWasLastPositionRestored = false
-    private var mPlayOnPrepared = false
-    private var mIsPlayerPrepared = false
-    private var mCurrTime = 0
-    private var mDuration = 0
-    private var mPositionWhenInit = 0
-    private var mPositionAtPause = 0L
-    var mIsPlaying = false
+    private val mIsFullscreen = false
+    private val mWasFragmentInit = false
+    private val mIsPanorama = false
+    private val mIsFragmentVisible = false
+    private val mIsDragged = false
+    private val mWasVideoStarted = false
+    private val mWasPlayerInited = false
+    private val mWasLastPositionRestored = false
+    private val mPlayOnPrepared = false
+    private val mIsPlayerPrepared = false
+    private val mCurrTime = 0
+    private val mDuration = 0
+    private val mPositionWhenInit = 0
+    private val mPositionAtPause = 0L
+    val mIsPlaying = false
 
-    private var mExoPlayer: SimpleExoPlayer? = null
-    private var mVideoSize = Point(1, 1)
-    private var mTimerHandler = Handler()
+    private val mExoPlayer: SimpleExoPlayer? = null
+    private val mVideoSize = Point(1, 1)
+    private val mTimerHandler = Handler()
 
-    private var mStoredShowExtendedDetails = false
-    private var mStoredHideExtendedDetails = false
-    private var mStoredBottomActions = true
-    private var mStoredExtendedDetails = 0
-    private var mStoredRememberLastVideoPosition = false
+    private val mStoredShowExtendedDetails = false
+    private val mStoredHideExtendedDetails = false
+    private val mStoredBottomActions = true
+    private val mStoredExtendedDetails = 0
+    private val mStoredRememberLastVideoPosition = false
 
     private lateinit var mTimeHolder: View
     private lateinit var mBrightnessSideScroll: MediaSideScroll
@@ -462,8 +462,8 @@ class VideoFragment : ViewPagerFragment(), TextureView.SurfaceTextureListener, S
     }
 
     private fun initTimeHolder() {
-        var right = 0
-        var bottom = requireContext().navigationBarHeight
+        val right = 0
+        val bottom = requireContext().navigationBarHeight
         if (mConfig.bottomActions) {
             bottom += resources.getDimension(R.dimen.bottom_actions_height).toInt()
         }
@@ -526,7 +526,7 @@ class VideoFragment : ViewPagerFragment(), TextureView.SurfaceTextureListener, S
     private fun getExtendedDetailsY(height: Int): Float {
         val smallMargin = context?.resources?.getDimension(R.dimen.small_margin) ?: return 0f
         val fullscreenOffset = smallMargin + if (mIsFullscreen) 0 else requireContext().navigationBarHeight
-        var actionsHeight = 0f
+        val actionsHeight = 0f
         if (!mIsFullscreen) {
             actionsHeight += resources.getDimension(R.dimen.video_player_play_pause_size)
             if (mConfig.bottomActions) {

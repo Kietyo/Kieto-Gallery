@@ -15,10 +15,10 @@ class ChangeSortingDialog(
     val path: String = "", val callback: () -> Unit
 ) :
     DialogInterface.OnClickListener {
-    private var currSorting = 0
-    private var config = activity.config
-    private var pathToUse = if (!isDirectorySorting && path.isEmpty()) SHOW_ALL else path
-    private var view: View
+    private val currSorting = 0
+    private val config = activity.config
+    private val pathToUse = if (!isDirectorySorting && path.isEmpty()) SHOW_ALL else path
+    private val view: View
 
     init {
         currSorting = if (isDirectorySorting) config.directorySorting else config.getFolderSorting(pathToUse)
@@ -71,7 +71,7 @@ class ChangeSortingDialog(
 
     private fun setupOrderRadio() {
         val orderRadio = view.sorting_dialog_radio_order
-        var orderBtn = orderRadio.sorting_dialog_radio_ascending
+        val orderBtn = orderRadio.sorting_dialog_radio_ascending
 
         if (currSorting and SORT_DESCENDING != 0) {
             orderBtn = orderRadio.sorting_dialog_radio_descending
@@ -81,7 +81,7 @@ class ChangeSortingDialog(
 
     override fun onClick(dialog: DialogInterface, which: Int) {
         val sortingRadio = view.sorting_dialog_radio_sorting
-        var sorting = when (sortingRadio.checkedRadioButtonId) {
+        val sorting = when (sortingRadio.checkedRadioButtonId) {
             R.id.sorting_dialog_radio_name -> SORT_BY_NAME
             R.id.sorting_dialog_radio_path -> SORT_BY_PATH
             R.id.sorting_dialog_radio_size -> SORT_BY_SIZE

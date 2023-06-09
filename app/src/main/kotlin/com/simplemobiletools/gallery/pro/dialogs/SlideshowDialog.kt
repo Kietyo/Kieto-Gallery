@@ -101,7 +101,7 @@ class SlideshowDialog(val activity: BaseSimpleActivity, val callback: () -> Unit
     }
 
     private fun storeValues() {
-        var interval = view.interval_value.text.toString()
+        val interval = view.interval_value.text.toString()
         if (interval.trim('0').isEmpty())
             interval = SLIDESHOW_DEFAULT_INTERVAL.toString()
 

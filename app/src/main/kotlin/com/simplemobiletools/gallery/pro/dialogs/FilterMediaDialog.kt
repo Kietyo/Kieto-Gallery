@@ -9,7 +9,7 @@ import com.simplemobiletools.gallery.pro.helpers.*
 import kotlinx.android.synthetic.main.dialog_filter_media.view.*
 
 class FilterMediaDialog(val activity: BaseSimpleActivity, val callback: (result: Int) -> Unit) {
-    private var view = activity.layoutInflater.inflate(R.layout.dialog_filter_media, null)
+    private val view = activity.layoutInflater.inflate(R.layout.dialog_filter_media, null)
 
     init {
         val filterMedia = activity.config.filterMedia

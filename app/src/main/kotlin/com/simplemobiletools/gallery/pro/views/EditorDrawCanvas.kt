@@ -10,19 +10,19 @@ import com.simplemobiletools.gallery.pro.R
 import com.simplemobiletools.gallery.pro.models.PaintOptions
 
 class EditorDrawCanvas(context: Context, attrs: AttributeSet) : View(context, attrs) {
-    private var mCurX = 0f
-    private var mCurY = 0f
-    private var mStartX = 0f
-    private var mStartY = 0f
-    private var mColor = 0
-    private var mWasMultitouch = false
+    private val mCurX = 0f
+    private val mCurY = 0f
+    private val mStartX = 0f
+    private val mStartY = 0f
+    private val mColor = 0
+    private val mWasMultitouch = false
 
-    private var mPaths = LinkedHashMap<Path, PaintOptions>()
-    private var mPaint = Paint()
-    private var mPath = Path()
-    private var mPaintOptions = PaintOptions()
+    private val mPaths = LinkedHashMap<Path, PaintOptions>()
+    private val mPaint = Paint()
+    private val mPath = Path()
+    private val mPaintOptions = PaintOptions()
 
-    private var backgroundBitmap: Bitmap? = null
+    private val backgroundBitmap: Bitmap? = null
 
     init {
         mColor = context.getProperPrimaryColor()

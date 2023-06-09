@@ -13,10 +13,10 @@ import kotlinx.android.synthetic.main.dialog_change_grouping.view.*
 
 class ChangeGroupingDialog(val activity: BaseSimpleActivity, val path: String = "", val callback: () -> Unit) :
     DialogInterface.OnClickListener {
-    private var currGrouping = 0
-    private var config = activity.config
+    private val currGrouping = 0
+    private val config = activity.config
     private val pathToUse = path.ifEmpty { SHOW_ALL }
-    private var view: View
+    private val view: View
 
     init {
         currGrouping = config.getFolderGrouping(pathToUse)
@@ -55,7 +55,7 @@ class ChangeGroupingDialog(val activity: BaseSimpleActivity, val path: String = 
 
     private fun setupOrderRadio() {
         val orderRadio = view.grouping_dialog_radio_order
-        var orderBtn = orderRadio.grouping_dialog_radio_ascending
+        val orderBtn = orderRadio.grouping_dialog_radio_ascending
 
         if (currGrouping and GROUP_DESCENDING != 0) {
             orderBtn = orderRadio.grouping_dialog_radio_descending
@@ -65,7 +65,7 @@ class ChangeGroupingDialog(val activity: BaseSimpleActivity, val path: String = 
 
     override fun onClick(dialog: DialogInterface, which: Int) {
         val groupingRadio = view.grouping_dialog_radio_grouping
-        var grouping = when (groupingRadio.checkedRadioButtonId) {
+        val grouping = when (groupingRadio.checkedRadioButtonId) {
             R.id.grouping_dialog_radio_none -> GROUP_BY_NONE
             R.id.grouping_dialog_radio_last_modified_daily -> GROUP_BY_LAST_MODIFIED_DAILY
             R.id.grouping_dialog_radio_last_modified_monthly -> GROUP_BY_LAST_MODIFIED_MONTHLY

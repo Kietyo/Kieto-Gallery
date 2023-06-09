@@ -17,7 +17,7 @@ import com.simplemobiletools.gallery.pro.models.Medium
 
 class MyPagerAdapter(val activity: ViewPagerActivity, fm: FragmentManager, val media: MutableList<Medium>) : FragmentStatePagerAdapter(fm) {
     private val fragments = HashMap<Int, ViewPagerFragment>()
-    var shouldInitFragment = true
+    val shouldInitFragment = true
 
     override fun getCount() = media.size
 

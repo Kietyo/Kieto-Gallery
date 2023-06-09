@@ -123,7 +123,7 @@ fun Context.getSortedDirectories(source: ArrayList<Directory>): ArrayList<Direct
         o1 as Directory
         o2 as Directory
 
-        var result = when {
+        val result = when {
             sorting and SORT_BY_NAME != 0 -> {
                 if (o1.sortValue.isEmpty()) {
                     o1.sortValue = o1.name.lowercase(Locale.getDefault())
@@ -218,7 +218,7 @@ fun Context.getDirectParentSubfolders(dirs: ArrayList<Directory>, currentPathPre
     val folders = dirs.map { it.path }.sorted().toMutableSet() as HashSet<String>
     val currentPaths = LinkedHashSet<String>()
     val foldersWithoutMediaFiles = ArrayList<String>()
-    var newDirId = 1000L
+    val newDirId = 1000L
 
     for (path in folders) {
         if (path == RECYCLE_BIN || path == FAVORITES) {
@@ -260,7 +260,7 @@ fun Context.getDirectParentSubfolders(dirs: ArrayList<Directory>, currentPathPre
                         subDirs.maxByOrNull { it.taken }?.taken
                     } ?: 0
 
-                    var mediaTypes = 0
+                    val mediaTypes = 0
                     subDirs.forEach {
                         mediaTypes = mediaTypes or it.types
                     }
@@ -290,7 +290,7 @@ fun Context.getDirectParentSubfolders(dirs: ArrayList<Directory>, currentPathPre
         }
     }
 
-    var areDirectSubfoldersAvailable = false
+    val areDirectSubfoldersAvailable = false
     currentPaths.forEach { it ->
         currentPaths.forEach {
             if (!foldersWithoutMediaFiles.contains(it) && !it.equals(it, true) && File(it).parent?.equals(it, true) == true) {
@@ -324,7 +324,7 @@ fun Context.getDirectParentSubfolders(dirs: ArrayList<Directory>, currentPathPre
 
 fun updateSubfolderCounts(children: ArrayList<Directory>, parentDirs: ArrayList<Directory>) {
     for (child in children) {
-        var longestSharedPath = ""
+        val longestSharedPath = ""
         for (parentDir in parentDirs) {
             if (parentDir.path == child.path) {
                 longestSharedPath = child.path
@@ -367,7 +367,7 @@ fun Context.getNoMediaFoldersSync(): ArrayList<String> {
     val sortOrder = "${Files.FileColumns.DATE_MODIFIED} DESC"
     val OTGPath = config.OTGPath
 
-    var cursor: Cursor? = null
+    val cursor: Cursor? = null
     try {
         cursor = contentResolver.query(uri, projection, selection, selectionArgs, sortOrder)
         if (cursor?.moveToFirst() == true) {
@@ -517,7 +517,7 @@ fun Context.loadPng(
         .format(DecodeFormat.PREFER_ARGB_8888)
 
     if (cropThumbnails) options.centerCrop() else options.fitCenter()
-    var builder = Glide.with(applicationContext)
+    val builder = Glide.with(applicationContext)
         .asBitmap()
         .load(path)
         .apply(options)
@@ -562,7 +562,7 @@ fun Context.loadJpg(
         .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
 
     if (cropThumbnails) options.centerCrop() else options.fitCenter()
-    var builder = Glide.with(applicationContext)
+    val builder = Glide.with(applicationContext)
         .load(path)
         .apply(options)
         .transition(DrawableTransitionOptions.withCrossFade())
@@ -591,7 +591,7 @@ fun Context.loadStaticGIF(
         .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
 
     if (cropThumbnails) options.centerCrop() else options.fitCenter()
-    var builder = Glide.with(applicationContext)
+    val builder = Glide.with(applicationContext)
         .asBitmap() // make sure the GIF wont animate
         .load(path)
         .apply(options)
@@ -609,7 +609,7 @@ fun Context.loadSVG(path: String, target: MySquareImageView, cropThumbnails: Boo
     target.scaleType = if (cropThumbnails) ImageView.ScaleType.CENTER_CROP else ImageView.ScaleType.FIT_CENTER
 
     val options = RequestOptions().signature(signature)
-    var builder = Glide.with(applicationContext)
+    val builder = Glide.with(applicationContext)
         .`as`(PictureDrawable::class.java)
         .listener(SvgSoftwareLayerSetter())
         .load(path)
@@ -627,11 +627,11 @@ fun Context.loadSVG(path: String, target: MySquareImageView, cropThumbnails: Boo
 
 // intended mostly for Android 11 issues, that fail loading PNG files bigger than 10 MB
 fun Context.tryLoadingWithPicasso(path: String, view: MySquareImageView, cropThumbnails: Boolean, roundCorners: Int, signature: ObjectKey) {
-    var pathToLoad = "file://$path"
+    val pathToLoad = "file://$path"
     pathToLoad = pathToLoad.replace("%", "%25").replace("#", "%23")
 
     try {
-        var builder = Picasso.get()
+        val builder = Picasso.get()
             .load(pathToLoad)
             .stableKey(signature.toString())
 
@@ -690,7 +690,7 @@ fun Context.getCachedDirectories(
             folderNoMediaStatuses["$folder/$NOMEDIA"] = true
         }
 
-        var filteredDirectories = directories.filter {
+        val filteredDirectories = directories.filter {
             it.path.shouldFolderBeVisible(excludedPaths, includedPaths, shouldShowHidden, folderNoMediaStatuses) { path, hasNoMedia ->
                 folderNoMediaStatuses[path] = hasNoMedia
             }
@@ -741,7 +741,7 @@ fun Context.getCachedMedia(path: String, getVideosOnly: Boolean = false, getImag
     ensureBackgroundThread {
         val mediaFetcher = MediaFetcher(this)
         val foldersToScan = if (path.isEmpty()) mediaFetcher.getFoldersToScan() else arrayListOf(path)
-        var media = ArrayList<Medium>()
+        val media = ArrayList<Medium>()
         if (path == FAVORITES) {
             media.addAll(mediaDB.getFavorites())
         }
@@ -926,8 +926,8 @@ fun Context.updateWidgets() {
 fun Context.parseFileChannel(path: String, fc: FileChannel, level: Int, start: Long, end: Long, callback: () -> Unit) {
     val FILE_CHANNEL_CONTAINERS = arrayListOf("moov", "trak", "mdia", "minf", "udta", "stbl")
     try {
-        var iteration = 0
-        var currEnd = end
+        val iteration = 0
+        val currEnd = end
         fc.position(start)
         if (currEnd <= 0) {
             currEnd = start + fc.size()
@@ -1014,7 +1014,7 @@ fun Context.createDirectoryFromMedia(
 ): Directory {
     val OTGPath = config.OTGPath
     val grouped = MediaFetcher(this).groupMedia(curMedia, path)
-    var thumbnail: String? = null
+    val thumbnail: String? = null
 
     albumCovers.forEach {
         if (it.path == path && getDoesFilePathExist(it.tmb, OTGPath)) {

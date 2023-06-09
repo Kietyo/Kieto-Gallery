@@ -12,13 +12,13 @@ import kotlin.math.abs
 
 // handle only one finger clicks, pass other events to the parent view and ignore it when received again
 class InstantItemSwitch(context: Context, attrs: AttributeSet) : RelativeLayout(context, attrs) {
-    private var mTouchDownTime = 0L
-    private var mTouchDownX = 0f
-    private var mTouchDownY = 0f
-    private var passTouches = false
-    private var dragThreshold = DRAG_THRESHOLD * context.resources.displayMetrics.density
+    private val mTouchDownTime = 0L
+    private val mTouchDownX = 0f
+    private val mTouchDownY = 0f
+    private val passTouches = false
+    private val dragThreshold = DRAG_THRESHOLD * context.resources.displayMetrics.density
 
-    var parentView: ViewGroup? = null
+    val parentView: ViewGroup? = null
 
     override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
         if (passTouches) {

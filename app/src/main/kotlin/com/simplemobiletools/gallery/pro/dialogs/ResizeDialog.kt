@@ -21,7 +21,7 @@ class ResizeDialog(val activity: BaseSimpleActivity, val size: Point, val callba
 
         widthView.onTextChangeListener {
             if (widthView.hasFocus()) {
-                var width = getViewValue(widthView)
+                val width = getViewValue(widthView)
                 if (width > size.x) {
                     widthView.setText(size.x.toString())
                     width = size.x
@@ -35,7 +35,7 @@ class ResizeDialog(val activity: BaseSimpleActivity, val size: Point, val callba
 
         heightView.onTextChangeListener {
             if (heightView.hasFocus()) {
-                var height = getViewValue(heightView)
+                val height = getViewValue(heightView)
                 if (height > size.y) {
                     heightView.setText(size.y.toString())
                     height = size.y

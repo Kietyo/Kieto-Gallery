@@ -12,9 +12,9 @@ import com.simplemobiletools.gallery.pro.extensions.config
 import kotlinx.android.synthetic.main.dialog_change_file_thumbnail_style.view.*
 
 class ChangeFileThumbnailStyleDialog(val activity: BaseSimpleActivity) : DialogInterface.OnClickListener {
-    private var config = activity.config
-    private var view: View
-    private var thumbnailSpacing = config.thumbnailSpacing
+    private val config = activity.config
+    private val view: View
+    private val thumbnailSpacing = config.thumbnailSpacing
 
     init {
         view = activity.layoutInflater.inflate(R.layout.dialog_change_file_thumbnail_style, null).apply {

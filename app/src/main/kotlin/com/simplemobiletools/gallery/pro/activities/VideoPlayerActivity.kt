@@ -39,28 +39,28 @@ import kotlin.math.roundToLong
 open class VideoPlayerActivity : SimpleActivity(), SeekBar.OnSeekBarChangeListener, TextureView.SurfaceTextureListener {
     private val PLAY_WHEN_READY_DRAG_DELAY = 100L
 
-    private var mIsFullscreen = false
-    private var mIsPlaying = false
-    private var mWasVideoStarted = false
-    private var mIsDragged = false
-    private var mIsOrientationLocked = false
-    private var mScreenWidth = 0
-    private var mCurrTime = 0
-    private var mDuration = 0
-    private var mDragThreshold = 0f
-    private var mTouchDownX = 0f
-    private var mTouchDownY = 0f
-    private var mTouchDownTime = 0L
-    private var mProgressAtDown = 0L
-    private var mCloseDownThreshold = 100f
+    private val mIsFullscreen = false
+    private val mIsPlaying = false
+    private val mWasVideoStarted = false
+    private val mIsDragged = false
+    private val mIsOrientationLocked = false
+    private val mScreenWidth = 0
+    private val mCurrTime = 0
+    private val mDuration = 0
+    private val mDragThreshold = 0f
+    private val mTouchDownX = 0f
+    private val mTouchDownY = 0f
+    private val mTouchDownTime = 0L
+    private val mProgressAtDown = 0L
+    private val mCloseDownThreshold = 100f
 
     private var mUri: Uri? = null
-    private var mExoPlayer: SimpleExoPlayer? = null
-    private var mVideoSize = Point(0, 0)
-    private var mTimerHandler = Handler()
-    private var mPlayWhenReadyHandler = Handler()
+    private val mExoPlayer: SimpleExoPlayer? = null
+    private val mVideoSize = Point(0, 0)
+    private val mTimerHandler = Handler()
+    private val mPlayWhenReadyHandler = Handler()
 
-    private var mIgnoreCloseDown = false
+    private val mIgnoreCloseDown = false
 
     public override fun onCreate(savedInstanceState: Bundle?) {
         showTransparentTop = true
@@ -493,8 +493,8 @@ open class VideoPlayerActivity : SimpleActivity(), SeekBar.OnSeekBarChangeListen
     }
 
     private fun initTimeHolder() {
-        var right = 0
-        var bottom = 0
+        val right = 0
+        val bottom = 0
 
         if (hasNavBar()) {
             if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
@@ -563,11 +563,11 @@ open class VideoPlayerActivity : SimpleActivity(), SeekBar.OnSeekBarChangeListen
                     }
                     mIgnoreCloseDown = true
                     mIsDragged = true
-                    var percent = ((diffX / mScreenWidth) * 100).toInt()
+                    val percent = ((diffX / mScreenWidth) * 100).toInt()
                     percent = min(100, max(-100, percent))
 
                     val skipLength = (mDuration * 1000f) * (percent / 100f)
-                    var newProgress = mProgressAtDown + skipLength
+                    val newProgress = mProgressAtDown + skipLength
                     newProgress = max(min(mExoPlayer!!.duration.toFloat(), newProgress), 0f)
                     val newSeconds = (newProgress / 1000).toInt()
                     setPosition(newSeconds)

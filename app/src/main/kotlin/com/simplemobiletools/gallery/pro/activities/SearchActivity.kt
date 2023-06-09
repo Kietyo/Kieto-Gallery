@@ -28,8 +28,8 @@ import java.io.File
 class SearchActivity : SimpleActivity(), MediaOperationsListener {
     private var mLastSearchedText = ""
 
-    private var mCurrAsyncTask: GetMediaAsynctask? = null
-    private var mAllMedia = ArrayList<ThumbnailItem>()
+    private val mCurrAsyncTask: GetMediaAsynctask? = null
+    private val mAllMedia = ArrayList<ThumbnailItem>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         isMaterialActivity = true

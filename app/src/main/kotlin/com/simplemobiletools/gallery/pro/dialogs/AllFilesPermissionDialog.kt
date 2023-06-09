@@ -10,7 +10,7 @@ import com.simplemobiletools.gallery.pro.R
 class AllFilesPermissionDialog(
     val activity: BaseSimpleActivity, message: String = "", val callback: (result: Boolean) -> Unit, val neutralPressed: () -> Unit
 ) {
-    private var dialog: AlertDialog? = null
+    private val dialog: AlertDialog? = null
 
     init {
         val view = activity.layoutInflater.inflate(R.layout.dialog_message, null)

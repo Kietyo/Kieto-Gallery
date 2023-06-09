@@ -21,12 +21,12 @@ import com.simplemobiletools.gallery.pro.models.ThumbnailSection
 import kotlinx.android.synthetic.main.dialog_medium_picker.view.*
 
 class PickMediumDialog(val activity: BaseSimpleActivity, val path: String, val callback: (path: String) -> Unit) {
-    private var dialog: AlertDialog? = null
-    private var shownMedia = emptyList<ThumbnailItem>()
+    private val dialog: AlertDialog? = null
+    private val shownMedia = emptyList<ThumbnailItem>()
     private val view = activity.layoutInflater.inflate(R.layout.dialog_medium_picker, null)
     private val config = activity.config
     private val viewType = config.getFolderViewType(if (config.showAll) SHOW_ALL else path)
-    private var isGridViewType = viewType == VIEW_TYPE_GRID
+    private val isGridViewType = viewType == VIEW_TYPE_GRID
 
     init {
         (view.media_grid.layoutManager as MyGridLayoutManager).apply {
@@ -93,7 +93,7 @@ class PickMediumDialog(val activity: BaseSimpleActivity, val path: String, val c
             val spacing = config.thumbnailSpacing
             val useGridPosition = media.firstOrNull() is ThumbnailSection
 
-            var currentGridDecoration: GridSpacingItemDecoration? = null
+            val currentGridDecoration: GridSpacingItemDecoration? = null
             if (view.media_grid.itemDecorationCount > 0) {
                 currentGridDecoration = view.media_grid.getItemDecorationAt(0) as GridSpacingItemDecoration
                 currentGridDecoration.items = media

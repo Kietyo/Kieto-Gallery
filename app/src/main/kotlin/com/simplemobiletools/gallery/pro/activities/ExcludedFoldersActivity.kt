@@ -36,7 +36,7 @@ class ExcludedFoldersActivity : SimpleActivity(), RefreshRecyclerViewListener {
     private fun updateFolders() {
         val folders = ArrayList<String>()
         config.excludedFolders.mapTo(folders) { it }
-        var placeholderText = getString(R.string.excluded_activity_placeholder)
+        val placeholderText = getString(R.string.excluded_activity_placeholder)
         manage_folders_placeholder.apply {
             beVisibleIf(folders.isEmpty())
             setTextColor(getProperTextColor())

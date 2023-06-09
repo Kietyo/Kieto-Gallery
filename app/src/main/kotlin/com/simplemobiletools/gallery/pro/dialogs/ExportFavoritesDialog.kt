@@ -15,7 +15,7 @@ class ExportFavoritesDialog(
 ) {
     init {
         val lastUsedFolder = activity.config.lastExportedFavoritesFolder
-        var folder = if (lastUsedFolder.isNotEmpty() && activity.getDoesFilePathExist(lastUsedFolder)) {
+        val folder = if (lastUsedFolder.isNotEmpty() && activity.getDoesFilePathExist(lastUsedFolder)) {
             lastUsedFolder
         } else {
             activity.internalStoragePath
@@ -44,7 +44,7 @@ class ExportFavoritesDialog(
             .apply {
                 activity.setupDialogStuff(view, this, R.string.export_favorite_paths) { alertDialog ->
                     alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
-                        var filename = view.export_favorites_filename.value
+                        val filename = view.export_favorites_filename.value
                         if (filename.isEmpty()) {
                             activity.toast(R.string.filename_cannot_be_empty)
                             return@setOnClickListener

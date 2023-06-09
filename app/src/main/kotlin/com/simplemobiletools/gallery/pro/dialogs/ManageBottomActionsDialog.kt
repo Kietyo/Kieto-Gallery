@@ -9,7 +9,7 @@ import com.simplemobiletools.gallery.pro.helpers.*
 import kotlinx.android.synthetic.main.dialog_manage_bottom_actions.view.*
 
 class ManageBottomActionsDialog(val activity: BaseSimpleActivity, val callback: (result: Int) -> Unit) {
-    private var view = activity.layoutInflater.inflate(R.layout.dialog_manage_bottom_actions, null)
+    private val view = activity.layoutInflater.inflate(R.layout.dialog_manage_bottom_actions, null)
 
     init {
         val actions = activity.config.visibleBottomActions

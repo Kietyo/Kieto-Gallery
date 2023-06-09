@@ -15,8 +15,8 @@ import kotlinx.android.synthetic.main.dialog_change_folder_thumbnail_style.view.
 import kotlinx.android.synthetic.main.directory_item_grid_square.view.*
 
 class ChangeFolderThumbnailStyleDialog(val activity: BaseSimpleActivity, val callback: () -> Unit) : DialogInterface.OnClickListener {
-    private var config = activity.config
-    private var view = activity.layoutInflater.inflate(R.layout.dialog_change_folder_thumbnail_style, null).apply {
+    private val config = activity.config
+    private val view = activity.layoutInflater.inflate(R.layout.dialog_change_folder_thumbnail_style, null).apply {
         dialog_folder_limit_title.isChecked = config.limitFolderTitle
     }
 
@@ -93,7 +93,7 @@ class ChangeFolderThumbnailStyleDialog(val activity: BaseSimpleActivity, val cal
             }
 
             val options = RequestOptions().centerCrop()
-            var builder = Glide.with(activity)
+            val builder = Glide.with(activity)
                 .load(R.drawable.sample_logo)
                 .apply(options)
 

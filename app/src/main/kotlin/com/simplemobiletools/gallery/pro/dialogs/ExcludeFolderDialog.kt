@@ -14,7 +14,7 @@ import kotlinx.android.synthetic.main.dialog_exclude_folder.view.*
 
 class ExcludeFolderDialog(val activity: BaseSimpleActivity, private val selectedPaths: List<String>, val callback: () -> Unit) {
     private val alternativePaths = getAlternativePathsList()
-    private var radioGroup: RadioGroup? = null
+    private val radioGroup: RadioGroup? = null
 
     init {
         val view = activity.layoutInflater.inflate(R.layout.dialog_exclude_folder, null).apply {
@@ -53,7 +53,7 @@ class ExcludeFolderDialog(val activity: BaseSimpleActivity, private val selected
             return pathsList
 
         val path = selectedPaths[0]
-        var basePath = path.getBasePath(activity)
+        val basePath = path.getBasePath(activity)
         val relativePath = path.substring(basePath.length)
         val parts = relativePath.split("/").filter(String::isNotEmpty)
         if (parts.isEmpty())

@@ -8,7 +8,7 @@ import com.simplemobiletools.gallery.pro.R
 import kotlinx.android.synthetic.main.dialog_confirm_delete_folder.view.*
 
 class ConfirmDeleteFolderDialog(activity: Activity, message: String, warningMessage: String, val callback: () -> Unit) {
-    private var dialog: AlertDialog? = null
+    private val dialog: AlertDialog? = null
 
     init {
         val view = activity.layoutInflater.inflate(R.layout.dialog_confirm_delete_folder, null)

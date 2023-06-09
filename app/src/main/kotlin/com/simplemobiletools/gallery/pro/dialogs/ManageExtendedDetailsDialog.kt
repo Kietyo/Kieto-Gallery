@@ -9,7 +9,7 @@ import com.simplemobiletools.gallery.pro.helpers.*
 import kotlinx.android.synthetic.main.dialog_manage_extended_details.view.*
 
 class ManageExtendedDetailsDialog(val activity: BaseSimpleActivity, val callback: (result: Int) -> Unit) {
-    private var view = activity.layoutInflater.inflate(R.layout.dialog_manage_extended_details, null)
+    private val view = activity.layoutInflater.inflate(R.layout.dialog_manage_extended_details, null)
 
     init {
         val details = activity.config.extendedDetails

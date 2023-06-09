@@ -22,13 +22,13 @@ import com.simplemobiletools.gallery.pro.models.Widget
 import kotlinx.android.synthetic.main.activity_widget_config.*
 
 class WidgetConfigureActivity : SimpleActivity() {
-    private var mBgAlpha = 0f
-    private var mWidgetId = 0
-    private var mBgColor = 0
-    private var mBgColorWithoutTransparency = 0
-    private var mTextColor = 0
-    private var mFolderPath = ""
-    private var mDirectories = ArrayList<Directory>()
+    private val mBgAlpha = 0f
+    private val mWidgetId = 0
+    private val mBgColor = 0
+    private val mBgColorWithoutTransparency = 0
+    private val mTextColor = 0
+    private val mFolderPath = ""
+    private val mDirectories = ArrayList<Directory>()
 
     public override fun onCreate(savedInstanceState: Bundle?) {
         useDynamicTheme = false

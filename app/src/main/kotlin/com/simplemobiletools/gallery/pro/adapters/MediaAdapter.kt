@@ -40,7 +40,7 @@ import kotlinx.android.synthetic.main.video_item_grid.view.medium_name
 import kotlinx.android.synthetic.main.video_item_grid.view.medium_thumbnail
 
 class MediaAdapter(
-    activity: BaseSimpleActivity, var media: MutableList<ThumbnailItem>, val listener: MediaOperationsListener?, private val isAGetIntent: Boolean,
+    activity: BaseSimpleActivity, val media: MutableList<ThumbnailItem>, val listener: MediaOperationsListener?, private val isAGetIntent: Boolean,
     private val allowMultiplePicks: Boolean, val path: String, recyclerView: MyRecyclerView, itemClick: (Any) -> Unit
 ) :
     MyRecyclerViewAdapter(activity, recyclerView, itemClick), RecyclerViewFastScroller.OnPopupTextUpdate {
@@ -54,22 +54,22 @@ class MediaAdapter(
     private val config = activity.config
     private val viewType = config.getFolderViewType(if (config.showAll) SHOW_ALL else path)
     private val isListViewType = viewType == VIEW_TYPE_LIST
-    private var visibleItemPaths = ArrayList<String>()
-    private var rotatedImagePaths = ArrayList<String>()
-    private var loadImageInstantly = false
-    private var delayHandler = Handler(Looper.getMainLooper())
-    private var currentMediaHash = media.hashCode()
+    private val visibleItemPaths = ArrayList<String>()
+    private val rotatedImagePaths = ArrayList<String>()
+    private val loadImageInstantly = false
+    private val delayHandler = Handler(Looper.getMainLooper())
+    private val currentMediaHash = media.hashCode()
     private val hasOTGConnected = activity.hasOTGConnected()
 
-    private var scrollHorizontally = config.scrollHorizontally
-    private var animateGifs = config.animateGifs
-    private var cropThumbnails = config.cropThumbnails
-    private var displayFilenames = config.displayFileNames
-    private var showFileTypes = config.showThumbnailFileTypes
+    private val scrollHorizontally = config.scrollHorizontally
+    private val animateGifs = config.animateGifs
+    private val cropThumbnails = config.cropThumbnails
+    private val displayFilenames = config.displayFileNames
+    private val showFileTypes = config.showThumbnailFileTypes
 
-    var sorting = config.getFolderSorting(if (config.showAll) SHOW_ALL else path)
-    var dateFormat = config.dateFormat
-    var timeFormat = activity.getTimeFormat()
+    val sorting = config.getFolderSorting(if (config.showAll) SHOW_ALL else path)
+    val dateFormat = config.dateFormat
+    val timeFormat = activity.getTimeFormat()
 
     init {
         setupDragListener(true)
@@ -327,7 +327,7 @@ class MediaAdapter(
     }
 
     private fun handleRotate(paths: List<String>, degrees: Int) {
-        var fileCnt = paths.size
+        val fileCnt = paths.size
         rotatedImagePaths.clear()
         activity.toast(R.string.saving)
         ensureBackgroundThread {
@@ -626,7 +626,7 @@ class MediaAdapter(
                 media_item_holder.isSelected = isSelected
             }
 
-            var path = medium.path
+            val path = medium.path
             if (hasOTGConnected && context.isPathOnOTG(path)) {
                 path = path.getOTGPublicPath(context)
             }
@@ -670,7 +670,7 @@ class MediaAdapter(
     }
 
     override fun onChange(position: Int): String {
-        var realIndex = position
+        val realIndex = position
         if (isASectionTitle(position)) {
             realIndex++
         }

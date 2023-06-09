@@ -83,7 +83,7 @@ class NewPhotoFetcher : JobService() {
                         selection.append("${Images.ImageColumns._ID} = '$id'")
                     }
 
-                    var cursor: Cursor? = null
+                    val cursor: Cursor? = null
                     try {
                         val projection = arrayOf(Images.ImageColumns.DATA)
                         val uris = arrayListOf(Images.Media.EXTERNAL_CONTENT_URI, Video.Media.EXTERNAL_CONTENT_URI)

@@ -15,7 +15,7 @@ class SaveAsDialog(
     val callback: (savePath: String) -> Unit
 ) {
     init {
-        var realPath = path.getParentPath()
+        val realPath = path.getParentPath()
         if (activity.isRestrictedWithSAFSdk30(realPath) && !activity.isInDownloadDir(realPath)) {
             realPath = activity.getPicturesDirectoryPath(realPath)
         }
@@ -25,7 +25,7 @@ class SaveAsDialog(
 
             val fullName = path.getFilenameFromPath()
             val dotAt = fullName.lastIndexOf(".")
-            var name = fullName
+            val name = fullName
 
             if (dotAt > 0) {
                 name = fullName.substring(0, dotAt)

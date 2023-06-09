@@ -12,8 +12,8 @@ import kotlinx.android.synthetic.main.editor_filter_item.view.*
 class FiltersAdapter(val context: Context, private val filterItems: ArrayList<FilterItem>, private val itemClick: (Int) -> Unit) :
     RecyclerView.Adapter<FiltersAdapter.ViewHolder>() {
 
-    private var currentSelection = filterItems.first()
-    private var strokeBackground = context.resources.getDrawable(R.drawable.stroke_background)
+    private val currentSelection = filterItems.first()
+    private val strokeBackground = context.resources.getDrawable(R.drawable.stroke_background)
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.bindView(filterItems[position])

@@ -43,41 +43,41 @@ import java.io.*
 
 class MainActivity : SimpleActivity(), DirectoryOperationsListener {
 
-    private var mIsPickImageIntent = false
-    private var mIsPickVideoIntent = false
-    private var mIsGetImageContentIntent = false
-    private var mIsGetVideoContentIntent = false
-    private var mIsGetAnyContentIntent = false
-    private var mIsSetWallpaperIntent = false
-    private var mAllowPickingMultiple = false
-    private var mIsThirdPartyIntent = false
-    private var mIsGettingDirs = false
-    private var mLoadedInitialPhotos = false
-    private var mIsPasswordProtectionPending = false
-    private var mWasProtectionHandled = false
-    private var mShouldStopFetching = false
-    private var mWasDefaultFolderChecked = false
-    private var mWasMediaManagementPromptShown = false
-    private var mWasUpgradedFromFreeShown = false
-    private var mLatestMediaId = 0L
-    private var mLatestMediaDateId = 0L
-    private var mCurrentPathPrefix = ""                 // used at "Group direct subfolders" for navigation
-    private var mOpenedSubfolders = arrayListOf("")     // used at "Group direct subfolders" for navigating Up with the back button
-    private var mDateFormat = ""
-    private var mTimeFormat = ""
-    private var mLastMediaHandler = Handler()
-    private var mTempShowHiddenHandler = Handler()
-    private var mZoomListener: MyRecyclerView.MyZoomListener? = null
-    private var mLastMediaFetcher: MediaFetcher? = null
-    private var mDirs = ArrayList<Directory>()
-    private var mDirsIgnoringSearch = ArrayList<Directory>()
+    private val mIsPickImageIntent = false
+    private val mIsPickVideoIntent = false
+    private val mIsGetImageContentIntent = false
+    private val mIsGetVideoContentIntent = false
+    private val mIsGetAnyContentIntent = false
+    private val mIsSetWallpaperIntent = false
+    private val mAllowPickingMultiple = false
+    private val mIsThirdPartyIntent = false
+    private val mIsGettingDirs = false
+    private val mLoadedInitialPhotos = false
+    private val mIsPasswordProtectionPending = false
+    private val mWasProtectionHandled = false
+    private val mShouldStopFetching = false
+    private val mWasDefaultFolderChecked = false
+    private val mWasMediaManagementPromptShown = false
+    private val mWasUpgradedFromFreeShown = false
+    private val mLatestMediaId = 0L
+    private val mLatestMediaDateId = 0L
+    private val mCurrentPathPrefix = ""                 // used at "Group direct subfolders" for navigation
+    private val mOpenedSubfolders = arrayListOf("")     // used at "Group direct subfolders" for navigating Up with the back button
+    private val mDateFormat = ""
+    private val mTimeFormat = ""
+    private val mLastMediaHandler = Handler()
+    private val mTempShowHiddenHandler = Handler()
+    private val mZoomListener: MyRecyclerView.MyZoomListener? = null
+    private val mLastMediaFetcher: MediaFetcher? = null
+    private val mDirs = ArrayList<Directory>()
+    private val mDirsIgnoringSearch = ArrayList<Directory>()
 
-    private var mStoredAnimateGifs = true
-    private var mStoredCropThumbnails = true
-    private var mStoredScrollHorizontally = true
-    private var mStoredTextColor = 0
-    private var mStoredPrimaryColor = 0
-    private var mStoredStyleString = ""
+    private val mStoredAnimateGifs = true
+    private val mStoredCropThumbnails = true
+    private val mStoredScrollHorizontally = true
+    private val mStoredTextColor = 0
+    private val mStoredPrimaryColor = 0
+    private val mStoredStyleString = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         isMaterialActivity = true
@@ -310,7 +310,7 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
         if (resultCode == Activity.RESULT_OK) {
             if (requestCode == Companion.PICK_MEDIA && resultData != null) {
                 val resultIntent = Intent()
-                var resultUri: Uri? = null
+                val resultUri: Uri? = null
                 if (mIsThirdPartyIntent) {
                     when {
                         intent.extras?.containsKey(MediaStore.EXTRA_OUTPUT) == true && intent.flags and Intent.FLAG_GRANT_WRITE_URI_PERMISSION != 0 -> {
@@ -832,8 +832,8 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
 
     private fun fillExtraOutput(resultData: Intent): Uri? {
         val file = File(resultData.data!!.path!!)
-        var inputStream: InputStream? = null
-        var outputStream: OutputStream? = null
+        val inputStream: InputStream? = null
+        val outputStream: OutputStream? = null
         try {
             val output = intent.extras!!.get(MediaStore.EXTRA_OUTPUT) as Uri
             inputStream = FileInputStream(file)
@@ -918,7 +918,7 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
             mDirs = dirs.clone() as ArrayList<Directory>
         }
 
-        var isPlaceholderVisible = dirs.isEmpty()
+        val isPlaceholderVisible = dirs.isEmpty()
 
         runOnUiThread {
             checkPlaceholderVisibility(dirs)
@@ -1231,7 +1231,7 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
         val currAdapter = directories_grid.adapter
         val distinctDirs = dirs.distinctBy { it.path.getDistinctPath() }.toMutableList() as ArrayList<Directory>
         val sortedDirs = getSortedDirectories(distinctDirs)
-        var dirsToShow = getDirsToShow(sortedDirs, mDirs, mCurrentPathPrefix).clone() as ArrayList<Directory>
+        val dirsToShow = getDirsToShow(sortedDirs, mDirs, mCurrentPathPrefix).clone() as ArrayList<Directory>
 
         if (currAdapter == null || forceRecreate) {
             mDirsIgnoringSearch = dirs
@@ -1407,7 +1407,7 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
                 val paths = mDirs.map { it.path.removePrefix(internalPath) }.toMutableList() as ArrayList<String>
                 paths.forEach { it ->
                     val parts = it.split("/")
-                    var currentString = ""
+                    val currentString = ""
                     for (element in parts) {
                         currentString += "${element}/"
 

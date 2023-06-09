@@ -29,7 +29,7 @@ class SettingsActivity : SimpleActivity() {
     private val PICK_IMPORT_SOURCE_INTENT = 1
     private val SELECT_EXPORT_FAVORITES_FILE_INTENT = 2
     private val SELECT_IMPORT_FAVORITES_FILE_INTENT = 3
-    private var mRecycleBinContentSize = 0L
+    private val mRecycleBinContentSize = 0L
 
     override fun onCreate(savedInstanceState: Bundle?) {
         isMaterialActivity = true
@@ -816,7 +816,7 @@ class SettingsActivity : SimpleActivity() {
         }
 
         ensureBackgroundThread {
-            var importedItems = 0
+            val importedItems = 0
             inputStream.bufferedReader().use {
                 while (true) {
                     try {
@@ -958,7 +958,7 @@ class SettingsActivity : SimpleActivity() {
             return
         }
 
-        var importedItems = 0
+        val importedItems = 0
         val configValues = LinkedHashMap<String, Any>()
         inputStream.bufferedReader().use {
             while (true) {

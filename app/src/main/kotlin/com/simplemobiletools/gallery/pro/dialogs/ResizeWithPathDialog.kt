@@ -13,13 +13,13 @@ import kotlinx.android.synthetic.main.dialog_resize_image_with_path.view.*
 
 class ResizeWithPathDialog(val activity: BaseSimpleActivity, val size: Point, val path: String, val callback: (newSize: Point, newPath: String) -> Unit) {
     init {
-        var realPath = path.getParentPath()
+        val realPath = path.getParentPath()
         val view = activity.layoutInflater.inflate(R.layout.dialog_resize_image_with_path, null).apply {
             folder.setText("${activity.humanizePath(realPath).trimEnd('/')}/")
 
             val fullName = path.getFilenameFromPath()
             val dotAt = fullName.lastIndexOf(".")
-            var name = fullName
+            val name = fullName
 
             if (dotAt > 0) {
                 name = fullName.substring(0, dotAt)
@@ -46,7 +46,7 @@ class ResizeWithPathDialog(val activity: BaseSimpleActivity, val size: Point, va
 
         widthView.onTextChangeListener {
             if (widthView.hasFocus()) {
-                var width = getViewValue(widthView)
+                val width = getViewValue(widthView)
                 if (width > size.x) {
                     widthView.setText(size.x.toString())
                     width = size.x
@@ -58,7 +58,7 @@ class ResizeWithPathDialog(val activity: BaseSimpleActivity, val size: Point, va
 
         heightView.onTextChangeListener {
             if (heightView.hasFocus()) {
-                var height = getViewValue(heightView)
+                val height = getViewValue(heightView)
                 if (height > size.y) {
                     heightView.setText(size.y.toString())
                     height = size.y

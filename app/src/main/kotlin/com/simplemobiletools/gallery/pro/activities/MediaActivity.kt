@@ -42,36 +42,36 @@ import java.io.IOException
 class MediaActivity : SimpleActivity(), MediaOperationsListener {
     private val LAST_MEDIA_CHECK_PERIOD = 3000L
 
-    private var mPath = ""
-    private var mIsGetImageIntent = false
-    private var mIsGetVideoIntent = false
-    private var mIsGetAnyIntent = false
-    private var mIsGettingMedia = false
-    private var mAllowPickingMultiple = false
-    private var mShowAll = false
-    private var mLoadedInitialPhotos = false
-    private var mWasFullscreenViewOpen = false
-    private var mWasUpgradedFromFreeShown = false
-    private var mLastSearchedText = ""
-    private var mLatestMediaId = 0L
-    private var mLatestMediaDateId = 0L
-    private var mLastMediaHandler = Handler()
-    private var mTempShowHiddenHandler = Handler()
-    private var mCurrAsyncTask: GetMediaAsynctask? = null
-    private var mZoomListener: MyRecyclerView.MyZoomListener? = null
+    private val mPath = ""
+    private val mIsGetImageIntent = false
+    private val mIsGetVideoIntent = false
+    private val mIsGetAnyIntent = false
+    private val mIsGettingMedia = false
+    private val mAllowPickingMultiple = false
+    private val mShowAll = false
+    private val mLoadedInitialPhotos = false
+    private val mWasFullscreenViewOpen = false
+    private val mWasUpgradedFromFreeShown = false
+    private val mLastSearchedText = ""
+    private val mLatestMediaId = 0L
+    private val mLatestMediaDateId = 0L
+    private val mLastMediaHandler = Handler()
+    private val mTempShowHiddenHandler = Handler()
+    private val mCurrAsyncTask: GetMediaAsynctask? = null
+    private val mZoomListener: MyRecyclerView.MyZoomListener? = null
 
-    private var mStoredAnimateGifs = true
-    private var mStoredCropThumbnails = true
-    private var mStoredScrollHorizontally = true
-    private var mStoredShowFileTypes = true
-    private var mStoredRoundedCorners = false
-    private var mStoredMarkFavoriteItems = true
-    private var mStoredTextColor = 0
-    private var mStoredPrimaryColor = 0
-    private var mStoredThumbnailSpacing = 0
+    private val mStoredAnimateGifs = true
+    private val mStoredCropThumbnails = true
+    private val mStoredScrollHorizontally = true
+    private val mStoredShowFileTypes = true
+    private val mStoredRoundedCorners = false
+    private val mStoredMarkFavoriteItems = true
+    private val mStoredTextColor = 0
+    private val mStoredPrimaryColor = 0
+    private val mStoredThumbnailSpacing = 0
 
     companion object {
-        var mMedia = ArrayList<ThumbnailItem>()
+        val mMedia = ArrayList<ThumbnailItem>()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -717,7 +717,7 @@ class MediaActivity : SimpleActivity(), MediaOperationsListener {
             val spacing = config.thumbnailSpacing
             val useGridPosition = media.firstOrNull() is ThumbnailSection
 
-            var currentGridDecoration: GridSpacingItemDecoration? = null
+            val currentGridDecoration: GridSpacingItemDecoration? = null
             if (media_grid.itemDecorationCount > 0) {
                 currentGridDecoration = media_grid.getItemDecorationAt(0) as GridSpacingItemDecoration
                 currentGridDecoration.items = media
@@ -951,7 +951,7 @@ class MediaActivity : SimpleActivity(), MediaOperationsListener {
     }
 
     override fun updateMediaGridDecoration(media: List<ThumbnailItem>) {
-        var currentGridPosition = 0
+        val currentGridPosition = 0
         media.forEach {
             if (it is Medium) {
                 it.gridPosition = currentGridPosition++

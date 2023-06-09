@@ -32,16 +32,16 @@ import kotlin.math.roundToLong
 open class PanoramaVideoActivity : SimpleActivity(), SeekBar.OnSeekBarChangeListener {
     private val CARDBOARD_DISPLAY_MODE = 3
 
-    private var mIsFullscreen = false
-    private var mIsExploreEnabled = true
-    private var mIsRendering = false
-    private var mIsPlaying = false
-    private var mIsDragged = false
-    private var mPlayOnReady = false
-    private var mDuration = 0
-    private var mCurrTime = 0
+    private val mIsFullscreen = false
+    private val mIsExploreEnabled = true
+    private val mIsRendering = false
+    private val mIsPlaying = false
+    private val mIsDragged = false
+    private val mPlayOnReady = false
+    private val mDuration = 0
+    private val mCurrTime = 0
 
-    private var mTimerHandler = Handler()
+    private val mTimerHandler = Handler()
 
     public override fun onCreate(savedInstanceState: Bundle?) {
         useDynamicTheme = false
@@ -240,8 +240,8 @@ open class PanoramaVideoActivity : SimpleActivity(), SeekBar.OnSeekBarChangeList
     }
 
     private fun setupButtons() {
-        var right = 0
-        var bottom = 0
+        val right = 0
+        val bottom = 0
 
         if (hasNavBar()) {
             if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {

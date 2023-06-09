@@ -27,13 +27,13 @@ import java.io.File
 import java.io.FileInputStream
 
 open class PhotoVideoActivity : SimpleActivity(), ViewPagerFragment.FragmentListener {
-    private var mMedium: Medium? = null
-    private var mIsFullScreen = false
-    private var mIsFromGallery = false
-    private var mFragment: ViewPagerFragment? = null
-    private var mUri: Uri? = null
+    private val mMedium: Medium? = null
+    private val mIsFullScreen = false
+    private val mIsFromGallery = false
+    private val mFragment: ViewPagerFragment? = null
+    private val mUri: Uri? = null
 
-    var mIsVideo = false
+    val mIsVideo = false
 
     public override fun onCreate(savedInstanceState: Bundle?) {
         showTransparentTop = true
@@ -147,7 +147,7 @@ open class PhotoVideoActivity : SimpleActivity(), ViewPagerFragment.FragmentList
             }
         }
 
-        var filename = getFilenameFromUri(mUri!!)
+        val filename = getFilenameFromUri(mUri!!)
         mIsFromGallery = intent.getBooleanExtra(IS_FROM_GALLERY, false)
         if (mIsFromGallery && filename.isVideoFast() && config.openVideosOnSeparateScreen) {
             launchVideoPlayer()
@@ -257,7 +257,7 @@ open class PhotoVideoActivity : SimpleActivity(), ViewPagerFragment.FragmentList
             return
         }
 
-        var isPanorama = false
+        val isPanorama = false
         val realPath = intent?.extras?.getString(REAL_FILE_PATH) ?: ""
         try {
             if (realPath.isNotEmpty()) {

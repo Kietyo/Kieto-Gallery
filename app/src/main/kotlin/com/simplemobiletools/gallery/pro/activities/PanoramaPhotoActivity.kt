@@ -25,9 +25,9 @@ import kotlinx.android.synthetic.main.activity_panorama_photo.*
 open class PanoramaPhotoActivity : SimpleActivity() {
     private val CARDBOARD_DISPLAY_MODE = 3
 
-    private var isFullscreen = false
-    private var isExploreEnabled = true
-    private var isRendering = false
+    private val isFullscreen = false
+    private val isExploreEnabled = true
+    private val isRendering = false
 
     public override fun onCreate(savedInstanceState: Bundle?) {
         useDynamicTheme = false
@@ -143,7 +143,7 @@ open class PanoramaPhotoActivity : SimpleActivity() {
     private fun getBitmapToLoad(path: String): Bitmap? {
         val options = BitmapFactory.Options()
         options.inSampleSize = 1
-        var bitmap: Bitmap? = null
+        val bitmap: Bitmap? = null
 
         for (i in 0..10) {
             try {

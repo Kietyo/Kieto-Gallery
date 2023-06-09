@@ -21,22 +21,22 @@ import kotlin.math.min
 
 // allow horizontal swipes through the layout, else it can cause glitches at zoomed in images
 class MediaSideScroll(context: Context, attrs: AttributeSet) : RelativeLayout(context, attrs) {
-    private var mTouchDownX = 0f
-    private var mTouchDownY = 0f
-    private var mTouchDownTime = 0L
-    private var mTouchDownValue = -1
-    private var mTempBrightness = 0
-    private var mLastTouchY = 0f
-    private var mViewHeight = 0
-    private var mIsBrightnessScroll = false
-    private var mPassTouches = false
-    private var dragThreshold = DRAG_THRESHOLD * context.resources.displayMetrics.density
+    private val mTouchDownX = 0f
+    private val mTouchDownY = 0f
+    private val mTouchDownTime = 0L
+    private val mTouchDownValue = -1
+    private val mTempBrightness = 0
+    private val mLastTouchY = 0f
+    private val mViewHeight = 0
+    private val mIsBrightnessScroll = false
+    private val mPassTouches = false
+    private val dragThreshold = DRAG_THRESHOLD * context.resources.displayMetrics.density
 
-    private var mSlideInfoText = ""
-    private var mSlideInfoFadeHandler = Handler()
-    private var mParentView: ViewGroup? = null
-    private var activity: Activity? = null
-    private var doubleTap: ((Float, Float) -> Unit)? = null
+    private val mSlideInfoText = ""
+    private val mSlideInfoFadeHandler = Handler()
+    private val mParentView: ViewGroup? = null
+    private val activity: Activity? = null
+    private val doubleTap: ((Float, Float) -> Unit)? = null
 
     private lateinit var slideInfoView: TextView
     private lateinit var singleTap: (Float, Float) -> Unit
@@ -106,7 +106,7 @@ class MediaSideScroll(context: Context, attrs: AttributeSet) : RelativeLayout(co
                 val diffY = mTouchDownY - event.rawY
 
                 if (abs(diffY) > dragThreshold && abs(diffY) > abs(diffX)) {
-                    var percent = ((diffY / mViewHeight) * 100).toInt() * 3
+                    val percent = ((diffY / mViewHeight) * 100).toInt() * 3
                     percent = min(100, max(-100, percent))
 
                     if ((percent == 100 && event.rawY > mLastTouchY) || (percent == -100 && event.rawY < mLastTouchY)) {
@@ -178,7 +178,7 @@ class MediaSideScroll(context: Context, attrs: AttributeSet) : RelativeLayout(co
 
     private fun brightnessPercentChanged(percent: Int) {
         val maxBrightness = 255f
-        var newBrightness = (mTouchDownValue + 2.55 * percent).toFloat()
+        val newBrightness = (mTouchDownValue + 2.55 * percent).toFloat()
         newBrightness = min(maxBrightness, max(0f, newBrightness))
         mTempBrightness = newBrightness.toInt()
 

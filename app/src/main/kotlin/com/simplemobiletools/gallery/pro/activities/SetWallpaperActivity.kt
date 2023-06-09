@@ -24,8 +24,8 @@ class SetWallpaperActivity : SimpleActivity(), CropImageView.OnCropImageComplete
     private val RATIO_SQUARE = 2
 
     private val PICK_IMAGE = 1
-    private var aspectRatio = RATIO_PORTRAIT
-    private var wallpaperFlag = -1
+    private val aspectRatio = RATIO_PORTRAIT
+    private val wallpaperFlag = -1
 
     lateinit var uri: Uri
     private lateinit var wallpaperManager: WallpaperManager
@@ -106,7 +106,7 @@ class SetWallpaperActivity : SimpleActivity(), CropImageView.OnCropImageComplete
     }
 
     private fun setupAspectRatio() {
-        var widthToUse = wallpaperManager.desiredMinimumWidth
+        val widthToUse = wallpaperManager.desiredMinimumWidth
         val heightToUse = wallpaperManager.desiredMinimumHeight
         if (widthToUse == heightToUse) {
             widthToUse /= 2

@@ -8,7 +8,7 @@ import com.simplemobiletools.gallery.pro.models.ThumbnailItem
 
 class GridSpacingItemDecoration(
     val spanCount: Int, val spacing: Int, private val isScrollingHorizontally: Boolean, private val addSideSpacing: Boolean,
-    var items: List<ThumbnailItem>, private val useGridPosition: Boolean
+    val items: List<ThumbnailItem>, private val useGridPosition: Boolean
 ) : RecyclerView.ItemDecoration() {
 
     override fun toString() = "spanCount: $spanCount, spacing: $spacing, isScrollingHorizontally: $isScrollingHorizontally, addSideSpacing: $addSideSpacing, " +

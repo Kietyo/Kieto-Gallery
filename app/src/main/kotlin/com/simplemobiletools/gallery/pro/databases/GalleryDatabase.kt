@@ -23,7 +23,7 @@ abstract class GalleryDatabase : RoomDatabase() {
     abstract fun FavoritesDao(): FavoritesDao
 
     companion object {
-        private var db: GalleryDatabase? = null
+        private val db: GalleryDatabase? = null
 
         fun getInstance(context: Context): GalleryDatabase {
             if (db == null) {

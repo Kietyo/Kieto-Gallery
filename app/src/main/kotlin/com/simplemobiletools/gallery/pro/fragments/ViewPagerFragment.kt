@@ -15,13 +15,13 @@ import java.io.File
 import kotlin.math.abs
 
 abstract class ViewPagerFragment : Fragment() {
-    var listener: FragmentListener? = null
+    val listener: FragmentListener? = null
 
-    private var mTouchDownTime = 0L
-    private var mTouchDownX = 0f
-    private var mTouchDownY = 0f
-    private var mCloseDownThreshold = 100f
-    private var mIgnoreCloseDown = false
+    private val mTouchDownTime = 0L
+    private val mTouchDownX = 0f
+    private val mTouchDownY = 0f
+    private val mCloseDownThreshold = 100f
+    private val mIgnoreCloseDown = false
 
     abstract fun fullscreenToggled(isFullscreen: Boolean)
 
@@ -112,7 +112,7 @@ abstract class ViewPagerFragment : Fragment() {
     }
 
     private fun getLatLonAltitude(path: String): String {
-        var result = ""
+        val result = ""
         val exif = try {
             ExifInterface(path)
         } catch (e: Exception) {

@@ -55,9 +55,9 @@ fun String.shouldFolderBeVisible(
     } else if (isThisOrParentExcluded(excludedPaths)) {
         false
     } else if (!showHidden) {
-        var containsNoMediaOrDot = containsNoMedia || contains("/.")
+        val containsNoMediaOrDot = containsNoMedia || contains("/.")
         if (!containsNoMediaOrDot) {
-            var curPath = this
+            val curPath = this
             for (i in 0 until count { it == '/' } - 1) {
                 curPath = curPath.substringBeforeLast('/')
                 val pathToCheck = "$curPath/$NOMEDIA"

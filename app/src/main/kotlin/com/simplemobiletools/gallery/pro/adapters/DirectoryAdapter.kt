@@ -54,29 +54,29 @@ import java.io.File
 import java.util.*
 
 class DirectoryAdapter(
-    activity: BaseSimpleActivity, var dirs: ArrayList<Directory>, val listener: DirectoryOperationsListener?, recyclerView: MyRecyclerView,
+    activity: BaseSimpleActivity, val dirs: ArrayList<Directory>, val listener: DirectoryOperationsListener?, recyclerView: MyRecyclerView,
     private val isPickIntent: Boolean, private val swipeRefreshLayout: SwipeRefreshLayout? = null, itemClick: (Any) -> Unit
 ) :
     MyRecyclerViewAdapter(activity, recyclerView, itemClick), ItemTouchHelperContract, RecyclerViewFastScroller.OnPopupTextUpdate {
 
     private val config = activity.config
     private val isListViewType = config.viewTypeFolders == VIEW_TYPE_LIST
-    private var pinnedFolders = config.pinnedFolders
-    private var scrollHorizontally = config.scrollHorizontally
-    private var animateGifs = config.animateGifs
-    private var cropThumbnails = config.cropThumbnails
-    private var groupDirectSubfolders = config.groupDirectSubfolders
-    private var currentDirectoriesHash = dirs.hashCode()
-    private var lockedFolderPaths = ArrayList<String>()
-    private var isDragAndDropping = false
-    private var startReorderDragListener: StartReorderDragListener? = null
+    private val pinnedFolders = config.pinnedFolders
+    private val scrollHorizontally = config.scrollHorizontally
+    private val animateGifs = config.animateGifs
+    private val cropThumbnails = config.cropThumbnails
+    private val groupDirectSubfolders = config.groupDirectSubfolders
+    private val currentDirectoriesHash = dirs.hashCode()
+    private val lockedFolderPaths = ArrayList<String>()
+    private val isDragAndDropping = false
+    private val startReorderDragListener: StartReorderDragListener? = null
 
-    private var showMediaCount = config.showFolderMediaCount
-    private var folderStyle = config.folderStyle
-    private var limitFolderTitle = config.limitFolderTitle
-    var directorySorting = config.directorySorting
-    var dateFormat = config.dateFormat
-    var timeFormat = activity.getTimeFormat()
+    private val showMediaCount = config.showFolderMediaCount
+    private val folderStyle = config.folderStyle
+    private val limitFolderTitle = config.limitFolderTitle
+    val directorySorting = config.directorySorting
+    val dateFormat = config.dateFormat
+    val timeFormat = activity.getTimeFormat()
 
     init {
         setupDragListener(true)
@@ -632,7 +632,7 @@ class DirectoryAdapter(
                     return@handleSAFDialogSdk30
                 }
 
-                var foldersToDelete = ArrayList<File>(selectedKeys.size)
+                val foldersToDelete = ArrayList<File>(selectedKeys.size)
                 selectedDirs.forEach {
                     if (it.areFavorites() || it.isRecycleBin()) {
                         if (it.isRecycleBin()) {
@@ -826,7 +826,7 @@ class DirectoryAdapter(
                 dir_name.ellipsize = TextUtils.TruncateAt.MIDDLE
             }
 
-            var nameCount = directory.name
+            val nameCount = directory.name
             if (showMediaCount == FOLDER_MEDIA_CNT_BRACKETS) {
                 nameCount += " (${directory.subfoldersMediaCount})"
             }

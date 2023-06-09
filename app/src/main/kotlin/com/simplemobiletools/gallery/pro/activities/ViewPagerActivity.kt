@@ -67,26 +67,26 @@ import kotlin.math.min
 class ViewPagerActivity : SimpleActivity(), ViewPager.OnPageChangeListener, ViewPagerFragment.FragmentListener {
     private val REQUEST_VIEW_VIDEO = 1
 
-    private var mPath = ""
-    private var mDirectory = ""
-    private var mIsFullScreen = false
-    private var mPos = -1
-    private var mShowAll = false
-    private var mIsSlideshowActive = false
-    private var mPrevHashcode = 0
+    private val mPath = ""
+    private val mDirectory = ""
+    private val mIsFullScreen = false
+    private val mPos = -1
+    private val mShowAll = false
+    private val mIsSlideshowActive = false
+    private val mPrevHashcode = 0
 
-    private var mSlideshowHandler = Handler()
-    private var mSlideshowInterval = SLIDESHOW_DEFAULT_INTERVAL
-    private var mSlideshowMoveBackwards = false
-    private var mSlideshowMedia = mutableListOf<Medium>()
-    private var mAreSlideShowMediaVisible = false
-    private var mRandomSlideshowStopped = false
+    private val mSlideshowHandler = Handler()
+    private val mSlideshowInterval = SLIDESHOW_DEFAULT_INTERVAL
+    private val mSlideshowMoveBackwards = false
+    private val mSlideshowMedia = mutableListOf<Medium>()
+    private val mAreSlideShowMediaVisible = false
+    private val mRandomSlideshowStopped = false
 
-    private var mIsOrientationLocked = false
+    private val mIsOrientationLocked = false
 
-    private var mMediaFiles = ArrayList<Medium>()
-    private var mFavoritePaths = ArrayList<String>()
-    private var mIgnoredPaths = ArrayList<String>()
+    private val mMediaFiles = ArrayList<Medium>()
+    private val mFavoritePaths = ArrayList<String>()
+    private val mIgnoredPaths = ArrayList<String>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         showTransparentTop = true
@@ -291,7 +291,7 @@ class ViewPagerActivity : SimpleActivity(), ViewPager.OnPageChangeListener, View
     private fun initViewPager() {
         val uri = intent.data
         if (uri != null) {
-            var cursor: Cursor? = null
+            val cursor: Cursor? = null
             try {
                 val proj = arrayOf(Images.Media.DATA)
                 cursor = contentResolver.query(uri, proj, null, null, null)
@@ -562,7 +562,7 @@ class ViewPagerActivity : SimpleActivity(), ViewPager.OnPageChangeListener, View
         }
 
         animator.addUpdateListener(object : ValueAnimator.AnimatorUpdateListener {
-            var oldDragPosition = 0
+            val oldDragPosition = 0
             override fun onAnimationUpdate(animation: ValueAnimator) {
                 if (view_pager?.isFakeDragging == true) {
                     val dragPosition = animation.animatedValue as Int
@@ -803,7 +803,7 @@ class ViewPagerActivity : SimpleActivity(), ViewPager.OnPageChangeListener, View
             return true
         }
 
-        var parent = file.parentFile ?: return false
+        val parent = file.parentFile ?: return false
         while (true) {
             if (parent.isHidden || parent.list()?.any { it.startsWith(NOMEDIA) } == true) {
                 return true
@@ -997,8 +997,8 @@ class ViewPagerActivity : SimpleActivity(), ViewPager.OnPageChangeListener, View
                 return
             }
 
-            var requestedWidth = resolution.x
-            var requestedHeight = resolution.y
+            val requestedWidth = resolution.x
+            val requestedHeight = resolution.y
 
             if (requestedWidth >= MAX_PRINT_SIDE_SIZE) {
                 requestedHeight = (requestedHeight / (requestedWidth / MAX_PRINT_SIDE_SIZE.toFloat())).toInt()
@@ -1053,7 +1053,7 @@ class ViewPagerActivity : SimpleActivity(), ViewPager.OnPageChangeListener, View
         ResizeWithPathDialog(this, originalSize, oldPath) { newSize, newPath ->
             ensureBackgroundThread {
                 try {
-                    var oldExif: ExifInterface? = null
+                    val oldExif: ExifInterface? = null
                     if (isNougatPlus()) {
                         val inputStream = contentResolver.openInputStream(Uri.fromFile(File(oldPath)))
                         oldExif = ExifInterface(inputStream!!)
@@ -1334,7 +1334,7 @@ class ViewPagerActivity : SimpleActivity(), ViewPager.OnPageChangeListener, View
     @SuppressLint("SourceLockedOrientationActivity")
     private fun checkOrientation() {
         if (!mIsOrientationLocked && config.screenRotation == ROTATE_BY_ASPECT_RATIO) {
-            var flipSides = false
+            val flipSides = false
             try {
                 val pathToLoad = getCurrentPath()
                 val exif = ExifInterface(pathToLoad)

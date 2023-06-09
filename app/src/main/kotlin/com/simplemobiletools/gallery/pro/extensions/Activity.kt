@@ -135,7 +135,7 @@ fun BaseSimpleActivity.handleMediaManagementPrompt(callback: () -> Unit) {
         if (Environment.isExternalStorageManager()) {
             callback()
         } else {
-            var messagePrompt = getString(R.string.access_storage_prompt)
+            val messagePrompt = getString(R.string.access_storage_prompt)
             messagePrompt += if (isSPlus()) {
                 "\n\n${getString(R.string.media_management_alternative)}"
             } else {
@@ -267,7 +267,7 @@ fun BaseSimpleActivity.removeNoMedia(path: String, callback: (() -> Unit)? = nul
 
 fun BaseSimpleActivity.toggleFileVisibility(oldPath: String, hide: Boolean, callback: ((newPath: String) -> Unit)? = null) {
     val path = oldPath.getParentPath()
-    var filename = oldPath.getFilenameFromPath()
+    val filename = oldPath.getFilenameFromPath()
     if ((hide && filename.startsWith('.')) || (!hide && !filename.startsWith('.'))) {
         callback?.invoke(oldPath)
         return
@@ -332,22 +332,22 @@ fun BaseSimpleActivity.tryDeleteFileDirItem(
 
 fun BaseSimpleActivity.movePathsInRecycleBin(paths: ArrayList<String>, callback: ((wasSuccess: Boolean) -> Unit)?) {
     ensureBackgroundThread {
-        var pathsCnt = paths.size
+        val pathsCnt = paths.size
         val OTGPath = config.OTGPath
 
         for (source in paths) {
             if (OTGPath.isNotEmpty() && source.startsWith(OTGPath)) {
-                var inputStream: InputStream? = null
-                var out: OutputStream? = null
+                val inputStream: InputStream? = null
+                val out: OutputStream? = null
                 try {
                     val destination = "$recycleBinPath/$source"
                     val fileDocument = getSomeDocumentFile(source)
                     inputStream = applicationContext.contentResolver.openInputStream(fileDocument?.uri!!)
                     out = getFileOutputStreamSync(destination, source.getMimeType())
 
-                    var copiedSize = 0L
+                    val copiedSize = 0L
                     val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
-                    var bytes = inputStream!!.read(buffer)
+                    val bytes = inputStream!!.read(buffer)
                     while (bytes >= 0) {
                         out!!.write(buffer, 0, bytes)
                         copiedSize += bytes
@@ -397,9 +397,9 @@ fun BaseSimpleActivity.restoreRecycleBinPath(path: String, callback: () -> Unit)
 fun BaseSimpleActivity.restoreRecycleBinPaths(paths: ArrayList<String>, callback: () -> Unit) {
     ensureBackgroundThread {
         val newPaths = ArrayList<String>()
-        var shownRestoringToPictures = false
+        val shownRestoringToPictures = false
         for (source in paths) {
-            var destination = source.removePrefix(recycleBinPath)
+            val destination = source.removePrefix(recycleBinPath)
 
             val destinationParent = destination.getParentPath()
             if (isRestrictedWithSAFSdk30(destinationParent) && !isInDownloadDir(destinationParent)) {
@@ -429,15 +429,15 @@ fun BaseSimpleActivity.restoreRecycleBinPaths(paths: ArrayList<String>, callback
                 destination = newFile.path
             }
 
-            var inputStream: InputStream? = null
-            var out: OutputStream? = null
+            val inputStream: InputStream? = null
+            val out: OutputStream? = null
             try {
                 out = getFileOutputStreamSync(destination, source.getMimeType())
                 inputStream = getFileInputStreamSync(source)
 
-                var copiedSize = 0L
+                val copiedSize = 0L
                 val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
-                var bytes = inputStream!!.read(buffer)
+                val bytes = inputStream!!.read(buffer)
                 while (bytes >= 0) {
                     out!!.write(buffer, 0, bytes)
                     copiedSize += bytes
@@ -535,7 +535,7 @@ fun AppCompatActivity.fixDateTaken(
 
     val pathsToRescan = ArrayList<String>()
     try {
-        var didUpdateFile = false
+        val didUpdateFile = false
         val operations = ArrayList<ContentProviderOperation>()
 
         ensureBackgroundThread {
@@ -631,7 +631,7 @@ fun AppCompatActivity.fixDateTaken(
 }
 
 fun BaseSimpleActivity.saveRotatedImageToFile(oldPath: String, newPath: String, degrees: Int, showToasts: Boolean, callback: () -> Unit) {
-    var newDegrees = degrees
+    val newDegrees = degrees
     if (newDegrees < 0) {
         newDegrees += 360
     }
@@ -724,8 +724,8 @@ fun Activity.fileRotatedSuccessfully(path: String, lastModified: Long) {
 }
 
 fun BaseSimpleActivity.copyFile(source: String, destination: String) {
-    var inputStream: InputStream? = null
-    var out: OutputStream? = null
+    val inputStream: InputStream? = null
+    val out: OutputStream? = null
     try {
         out = getFileOutputStreamSync(destination, source.getMimeType())
         inputStream = getFileInputStreamSync(source)

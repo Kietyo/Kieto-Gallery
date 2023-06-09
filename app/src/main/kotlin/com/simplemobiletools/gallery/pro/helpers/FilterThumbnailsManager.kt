@@ -4,8 +4,8 @@ import android.graphics.Bitmap
 import com.simplemobiletools.gallery.pro.models.FilterItem
 
 class FilterThumbnailsManager {
-    private var filterThumbnails = ArrayList<FilterItem>(10)
-    private var processedThumbnails = ArrayList<FilterItem>(10)
+    private val filterThumbnails = ArrayList<FilterItem>(10)
+    private val processedThumbnails = ArrayList<FilterItem>(10)
 
     fun addThumb(filterItem: FilterItem) {
         filterThumbnails.add(filterItem)

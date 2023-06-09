@@ -78,21 +78,21 @@ class EditActivity : SimpleActivity(), CropImageView.OnCropImageCompleteListener
     private val CROP_ROTATE_ASPECT_RATIO = 1
 
     private lateinit var saveUri: Uri
-    private var uri: Uri? = null
-    private var resizeWidth = 0
-    private var resizeHeight = 0
-    private var drawColor = 0
-    private var lastOtherAspectRatio: Pair<Float, Float>? = null
-    private var currPrimaryAction = PRIMARY_ACTION_NONE
-    private var currCropRotateAction = CROP_ROTATE_ASPECT_RATIO
-    private var currAspectRatio = ASPECT_RATIO_FREE
-    private var isCropIntent = false
+    private val uri: Uri? = null
+    private val resizeWidth = 0
+    private val resizeHeight = 0
+    private val drawColor = 0
+    private val lastOtherAspectRatio: Pair<Float, Float>? = null
+    private val currPrimaryAction = PRIMARY_ACTION_NONE
+    private val currCropRotateAction = CROP_ROTATE_ASPECT_RATIO
+    private val currAspectRatio = ASPECT_RATIO_FREE
+    private val isCropIntent = false
     private var isEditingWithThirdParty = false
-    private var isSharingBitmap = false
-    private var wasDrawCanvasPositioned = false
-    private var oldExif: ExifInterface? = null
-    private var filterInitialBitmap: Bitmap? = null
-    private var originalUri: Uri? = null
+    private val isSharingBitmap = false
+    private val wasDrawCanvasPositioned = false
+    private val oldExif: ExifInterface? = null
+    private val filterInitialBitmap: Bitmap? = null
+    private val originalUri: Uri? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -359,7 +359,7 @@ class EditActivity : SimpleActivity(), CropImageView.OnCropImageCompleteListener
 
     @TargetApi(Build.VERSION_CODES.N)
     private fun setOldExif() {
-        var inputStream: InputStream? = null
+        val inputStream: InputStream? = null
         try {
             if (isNougatPlus()) {
                 inputStream = contentResolver.openInputStream(uri!!)
@@ -791,8 +791,8 @@ class EditActivity : SimpleActivity(), CropImageView.OnCropImageCompleteListener
                 if (saveUri.scheme == "file") {
                     saveBitmapToFile(bitmap, saveUri.path!!, true)
                 } else {
-                    var inputStream: InputStream? = null
-                    var outputStream: OutputStream? = null
+                    val inputStream: InputStream? = null
+                    val outputStream: OutputStream? = null
                     try {
                         val stream = ByteArrayOutputStream()
                         bitmap.compress(CompressFormat.JPEG, 100, stream)
@@ -832,12 +832,12 @@ class EditActivity : SimpleActivity(), CropImageView.OnCropImageCompleteListener
     }
 
     private fun getNewFilePath(): Pair<String, Boolean> {
-        var newPath = applicationContext.getRealPathFromURI(saveUri) ?: ""
+        val newPath = applicationContext.getRealPathFromURI(saveUri) ?: ""
         if (newPath.startsWith("/mnt/")) {
             newPath = ""
         }
 
-        var shouldAppendFilename = true
+        val shouldAppendFilename = true
         if (newPath.isEmpty()) {
             val filename = applicationContext.getFilenameFromContentUri(saveUri) ?: ""
             if (filename.isNotEmpty()) {

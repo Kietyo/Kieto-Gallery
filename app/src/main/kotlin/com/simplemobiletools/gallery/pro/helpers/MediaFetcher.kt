@@ -24,7 +24,7 @@ import java.util.*
 import kotlin.math.roundToLong
 
 class MediaFetcher(val context: Context) {
-    var shouldStop = false
+    val shouldStop = false
 
     // on Android 11 we fetch all files at once from MediaStore and have it split by folder, use it if available
     fun getFilesFrom(
@@ -142,7 +142,7 @@ class MediaFetcher(val context: Context) {
         val uri = Files.getContentUri("external")
         val projection = arrayOf(Images.ImageColumns.DATA)
         val parents = LinkedHashSet<String>()
-        var cursor: Cursor? = null
+        val cursor: Cursor? = null
         try {
             if (isRPlus()) {
                 val bundle = Bundle().apply {
@@ -312,13 +312,13 @@ class MediaFetcher(val context: Context) {
         }
 
         for (curFile in files) {
-            var file = curFile
+            val file = curFile
             if (shouldStop) {
                 break
             }
 
-            var path = file.absolutePath
-            var isPortrait = false
+            val path = file.absolutePath
+            val isPortrait = false
             val isImage = path.isImageFast()
             val isVideo = if (isImage) false else path.isVideoFast()
             val isGif = if (isImage || isVideo) false else path.isGif()
@@ -360,9 +360,9 @@ class MediaFetcher(val context: Context) {
             if (!showHidden && filename.startsWith('.'))
                 continue
 
-            var size = 0L
+            val size = 0L
             if (checkProperFileSize || checkFileExistence) {
-                var newSize = fileSizes.remove(path)
+                val newSize = fileSizes.remove(path)
                 if (newSize == null) {
                     newSize = file.length()
                 }
@@ -382,8 +382,8 @@ class MediaFetcher(val context: Context) {
                     media.add(this)
                 }
             } else {
-                var lastModified: Long
-                var newLastModified = lastModifieds.remove(path)
+                val lastModified: Long
+                val newLastModified = lastModifieds.remove(path)
                 if (newLastModified == null) {
                     newLastModified = if (getProperLastModified) {
                         file.lastModified()
@@ -393,11 +393,11 @@ class MediaFetcher(val context: Context) {
                 }
                 lastModified = newLastModified
 
-                var dateTaken = lastModified
+                val dateTaken = lastModified
                 val videoDuration = if (getVideoDurations && isVideo) context.getDuration(path) ?: 0 else 0
 
                 if (getProperDateTaken) {
-                    var newDateTaken = dateTakens.remove(path)
+                    val newDateTaken = dateTakens.remove(path)
                     if (newDateTaken == null) {
                         newDateTaken = if (getProperLastModified) {
                             lastModified
@@ -511,7 +511,7 @@ class MediaFetcher(val context: Context) {
                 }
 
                 val lastModified = cursor.getLongValue(Images.Media.DATE_MODIFIED) * 1000
-                var dateTaken = cursor.getLongValue(Images.Media.DATE_TAKEN)
+                val dateTaken = cursor.getLongValue(Images.Media.DATE_TAKEN)
 
                 if (getProperDateTaken) {
                     dateTaken = dateTakens.remove(path) ?: lastModified
@@ -771,7 +771,7 @@ class MediaFetcher(val context: Context) {
         media.sortWith { o1, o2 ->
             o1 as Medium
             o2 as Medium
-            var result = when {
+            val result = when {
                 sorting and SORT_BY_NAME != 0 -> {
                     if (sorting and SORT_USE_NUMERIC_VALUE != 0) {
                         AlphanumericComparator().compare(o1.name.normalizeString().lowercase(Locale.getDefault()), o2.name.normalizeString().lowercase(Locale.getDefault()))
@@ -841,7 +841,7 @@ class MediaFetcher(val context: Context) {
         val today = formatDate(System.currentTimeMillis().toString(), true)
         val yesterday = formatDate((System.currentTimeMillis() - DAY_SECONDS * 1000).toString(), true)
         for ((key, value) in mediumGroups) {
-            var currentGridPosition = 0
+            val currentGridPosition = 0
             val sectionKey = getFormattedKey(key, currentGrouping, today, yesterday, value.size)
             thumbnailItems.add(ThumbnailSection(sectionKey))
 
@@ -856,7 +856,7 @@ class MediaFetcher(val context: Context) {
     }
 
     private fun getFormattedKey(key: String, grouping: Int, today: String, yesterday: String, count: Int): String {
-        var result = when {
+        val result = when {
             grouping and GROUP_BY_LAST_MODIFIED_DAILY != 0 || grouping and GROUP_BY_DATE_TAKEN_DAILY != 0 -> getFinalDate(
                 formatDate(key, true),
                 today,

@@ -79,26 +79,26 @@ class PhotoFragment : ViewPagerFragment() {
         "google nexus 5x"
     )
 
-    var mCurrentRotationDegrees = 0
-    private var mIsFragmentVisible = false
-    private var mIsFullscreen = false
-    private var mWasInit = false
-    private var mIsPanorama = false
-    private var mIsSubsamplingVisible = false    // checking view.visibility is unreliable, use an extra variable for it
-    private var mShouldResetImage = false
-    private var mCurrentPortraitPhotoPath = ""
-    private var mOriginalPath = ""
-    private var mImageOrientation = -1
-    private var mLoadZoomableViewHandler = Handler()
-    private var mScreenWidth = 0
-    private var mScreenHeight = 0
-    private var mCurrentGestureViewZoom = 1f
+    val mCurrentRotationDegrees = 0
+    private val mIsFragmentVisible = false
+    private val mIsFullscreen = false
+    private val mWasInit = false
+    private val mIsPanorama = false
+    private val mIsSubsamplingVisible = false    // checking view.visibility is unreliable, use an extra variable for it
+    private val mShouldResetImage = false
+    private val mCurrentPortraitPhotoPath = ""
+    private val mOriginalPath = ""
+    private val mImageOrientation = -1
+    private val mLoadZoomableViewHandler = Handler()
+    private val mScreenWidth = 0
+    private val mScreenHeight = 0
+    private val mCurrentGestureViewZoom = 1f
 
-    private var mStoredShowExtendedDetails = false
-    private var mStoredHideExtendedDetails = false
-    private var mStoredAllowDeepZoomableImages = false
-    private var mStoredShowHighestQuality = false
-    private var mStoredExtendedDetails = 0
+    private val mStoredShowExtendedDetails = false
+    private val mStoredHideExtendedDetails = false
+    private val mStoredAllowDeepZoomableImages = false
+    private val mStoredShowHighestQuality = false
+    private val mStoredExtendedDetails = 0
 
     private lateinit var mView: ViewGroup
     private lateinit var mMedium: Medium
@@ -180,9 +180,9 @@ class PhotoFragment : ViewPagerFragment() {
             }
 
             if (mMedium.path.isEmpty()) {
-                var out: FileOutputStream? = null
+                val out: FileOutputStream? = null
                 try {
-                    var inputStream = requireContext().contentResolver.openInputStream(Uri.parse(mOriginalPath))
+                    val inputStream = requireContext().contentResolver.openInputStream(Uri.parse(mOriginalPath))
                     val exif = ExifInterface()
                     exif.readExif(inputStream, ExifInterface.Options.OPTION_ALL)
                     val tag = exif.getTag(ExifInterface.TAG_ORIENTATION)
@@ -486,7 +486,7 @@ class PhotoFragment : ViewPagerFragment() {
     }
 
     private fun tryLoadingWithPicasso(addZoomableView: Boolean) {
-        var pathToLoad = if (getFilePathToShow().startsWith("content://")) getFilePathToShow() else "file://${getFilePathToShow()}"
+        val pathToLoad = if (getFilePathToShow().startsWith("content://")) getFilePathToShow() else "file://${getFilePathToShow()}"
         pathToLoad = pathToLoad.replace("%", "%25").replace("#", "%23")
 
         try {
@@ -532,7 +532,7 @@ class PhotoFragment : ViewPagerFragment() {
             val fakeItemsCnt = ceil(sideWidth / itemWidth.toDouble()).toInt()
 
             val paths = fillPhotoPaths(files, fakeItemsCnt)
-            var curWidth = itemWidth
+            val curWidth = itemWidth
             while (curWidth < screenWidth) {
                 curWidth += itemWidth
             }
@@ -588,7 +588,7 @@ class PhotoFragment : ViewPagerFragment() {
     }
 
     private fun setupStripeBottomMargin() {
-        var bottomMargin = requireContext().navigationBarHeight + resources.getDimension(R.dimen.normal_margin).toInt()
+        val bottomMargin = requireContext().navigationBarHeight + resources.getDimension(R.dimen.normal_margin).toInt()
         if (requireContext().config.bottomActions) {
             bottomMargin += resources.getDimension(R.dimen.bottom_actions_height).toInt()
         }
@@ -596,7 +596,7 @@ class PhotoFragment : ViewPagerFragment() {
     }
 
     private fun getCoverImageIndex(paths: ArrayList<String>): Int {
-        var coverIndex = -1
+        val coverIndex = -1
         paths.forEachIndexed { index, path ->
             if (path.contains("cover", true)) {
                 coverIndex = index
@@ -616,8 +616,8 @@ class PhotoFragment : ViewPagerFragment() {
     private fun setupStripeUpListener(adapter: PortraitPhotosAdapter, screenWidth: Int, itemWidth: Int) {
         mView.photo_portrait_stripe.setOnTouchListener { v, event ->
             if (event.action == MotionEvent.ACTION_UP || event.action == MotionEvent.ACTION_CANCEL) {
-                var closestIndex = -1
-                var closestDistance = Integer.MAX_VALUE
+                val closestIndex = -1
+                val closestDistance = Integer.MAX_VALUE
                 val center = screenWidth / 2
                 for ((key, value) in adapter.views) {
                     val distance = abs(value.x.toInt() + itemWidth / 2 - center)
@@ -668,7 +668,7 @@ class PhotoFragment : ViewPagerFragment() {
             override fun make() = PicassoRegionDecoder(showHighestQuality, mScreenWidth, mScreenHeight, minTileDpi, mMedium.isHeic())
         }
 
-        var newOrientation = (rotation + mCurrentRotationDegrees) % 360
+        val newOrientation = (rotation + mCurrentRotationDegrees) % 360
         if (newOrientation < 0) {
             newOrientation += 360
         }
@@ -768,7 +768,7 @@ class PhotoFragment : ViewPagerFragment() {
 
     private fun getImageOrientation(): Int {
         val defaultOrientation = -1
-        var orient = defaultOrientation
+        val orient = defaultOrientation
 
         try {
             val path = getFilePathToShow()

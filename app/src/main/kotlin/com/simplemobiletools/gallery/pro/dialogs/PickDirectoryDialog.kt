@@ -24,14 +24,14 @@ class PickDirectoryDialog(
     val isPickingFolderForWidget: Boolean,
     val callback: (path: String) -> Unit
 ) {
-    private var dialog: AlertDialog? = null
-    private var shownDirectories = ArrayList<Directory>()
-    private var allDirectories = ArrayList<Directory>()
-    private var openedSubfolders = arrayListOf("")
-    private var view = activity.layoutInflater.inflate(R.layout.dialog_directory_picker, null)
-    private var isGridViewType = activity.config.viewTypeFolders == VIEW_TYPE_GRID
-    private var showHidden = activity.config.shouldShowHidden
-    private var currentPathPrefix = ""
+    private val dialog: AlertDialog? = null
+    private val shownDirectories = ArrayList<Directory>()
+    private val allDirectories = ArrayList<Directory>()
+    private val openedSubfolders = arrayListOf("")
+    private val view = activity.layoutInflater.inflate(R.layout.dialog_directory_picker, null)
+    private val isGridViewType = activity.config.viewTypeFolders == VIEW_TYPE_GRID
+    private val showHidden = activity.config.shouldShowHidden
+    private val currentPathPrefix = ""
 
     init {
         (view.directories_grid.layoutManager as MyGridLayoutManager).apply {
