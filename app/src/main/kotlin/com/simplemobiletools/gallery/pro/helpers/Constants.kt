@@ -167,20 +167,31 @@ const val EXT_EXIF_PROPERTIES = 128
 const val EXT_GPS = 2048
 
 // media types
-enum class MediaTypeEnums {
-    IMAGES,
-    VIDEOS,
-    GIFS,
-    RAWS,
-    SVGS,
-    PORTRAITS
-}
+//enum class MediaTypeEnums {
+//    IMAGES,
+//    VIDEOS,
+//    GIFS,
+//    RAWS,
+//    SVGS,
+//    PORTRAITS
+//}
+//val TYPE_IMAGES = MediaTypeEnums.IMAGES
+//val TYPE_VIDEOS = MediaTypeEnums.VIDEOS
+//val TYPE_GIFS = MediaTypeEnums.GIFS
+//val TYPE_RAWS = MediaTypeEnums.RAWS
+//val TYPE_SVGS = MediaTypeEnums.SVGS
+//val TYPE_PORTRAITS = MediaTypeEnums.PORTRAITS
+
+//@JvmInline
+//value class MediaTypeConstants(private val data: Int)
+//
 const val TYPE_IMAGES = 1
 const val TYPE_VIDEOS = 2
 const val TYPE_GIFS = 4
 const val TYPE_RAWS = 8
 const val TYPE_SVGS = 16
 const val TYPE_PORTRAITS = 32
+
 
 fun getDefaultFileFilter() = TYPE_IMAGES or TYPE_VIDEOS or TYPE_GIFS or TYPE_RAWS or TYPE_SVGS
 

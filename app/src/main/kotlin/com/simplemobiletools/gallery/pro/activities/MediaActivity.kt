@@ -372,6 +372,7 @@ class MediaActivity : SimpleActivity(), MediaOperationsListener {
 
     private fun tryLoadGallery() {
         handlePermission(getPermissionToRequest()) {
+            println("kiet here, loading gallery")
             if (it) {
                 val dirName = when (mPath) {
                     FAVORITES -> getString(R.string.favorites)

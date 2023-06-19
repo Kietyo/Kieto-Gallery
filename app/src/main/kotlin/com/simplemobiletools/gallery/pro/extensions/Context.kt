@@ -67,40 +67,43 @@ val Context.dateTakensDB: DateTakensDao get() = GalleryDatabase.getInstance(appl
 
 val Context.recycleBin: File get() = filesDir
 
-fun Context.movePinnedDirectoriesToFront(dirs: ArrayList<Directory>): ArrayList<Directory> {
+fun Context.movePinnedDirectoriesToFront(dirs: List<Directory>): MutableList<Directory> {
     val foundFolders = ArrayList<Directory>()
     val pinnedFolders = config.pinnedFolders
 
+    // TODO: Optimize this
     dirs.forEach {
         if (pinnedFolders.contains(it.path)) {
             foundFolders.add(it)
         }
     }
 
-    dirs.removeAll(foundFolders.toSet())
-    dirs.addAll(0, foundFolders)
+    val newDirs = dirs.toMutableList()
+
+    newDirs.removeAll(foundFolders.toSet())
+    newDirs.addAll(0, foundFolders)
     if (config.tempFolderPath.isNotEmpty()) {
         val newFolder = dirs.firstOrNull { it.path == config.tempFolderPath }
         if (newFolder != null) {
-            dirs.remove(newFolder)
-            dirs.add(0, newFolder)
+            newDirs.remove(newFolder)
+            newDirs.add(0, newFolder)
         }
     }
 
     if (config.showRecycleBinAtFolders && config.showRecycleBinLast) {
         val binIndex = dirs.indexOfFirst { it.isRecycleBin() }
         if (binIndex != -1) {
-            val bin = dirs.removeAt(binIndex)
-            dirs.add(bin)
+            val bin = newDirs.removeAt(binIndex)
+            newDirs.add(bin)
         }
     }
-    return dirs
+    return newDirs
 }
 
 @Suppress("UNCHECKED_CAST")
-fun Context.getSortedDirectories(source: ArrayList<Directory>): ArrayList<Directory> {
+fun Context.getSortedDirectories(source: List<Directory>): MutableList<Directory> {
     val sorting = config.directorySorting
-    val dirs = source.clone() as ArrayList<Directory>
+    val dirs = source.toMutableList()
 
     if (sorting and SORT_BY_RANDOM != 0) {
         dirs.shuffle()
@@ -187,7 +190,7 @@ fun Context.getSortedDirectories(source: ArrayList<Directory>): ArrayList<Direct
     return movePinnedDirectoriesToFront(dirs)
 }
 
-fun Context.getDirsToShow(dirs: ArrayList<Directory>, allDirs: ArrayList<Directory>, currentPathPrefix: String): ArrayList<Directory> {
+fun Context.getDirsToShow(dirs: MutableList<Directory>, allDirs: List<Directory>, currentPathPrefix: String): List<Directory> {
     return if (config.groupDirectSubfolders) {
         dirs.forEach {
             it.subfoldersCount = 0
@@ -214,10 +217,10 @@ fun Context.getDirsToShow(dirs: ArrayList<Directory>, allDirs: ArrayList<Directo
     }
 }
 
-fun Context.getDirectParentSubfolders(dirs: ArrayList<Directory>, currentPathPrefix: String): ArrayList<Directory> {
-    val folders = dirs.map { it.path }.sorted().toMutableSet() as HashSet<String>
-    val currentPaths = LinkedHashSet<String>()
-    val foldersWithoutMediaFiles = ArrayList<String>()
+fun Context.getDirectParentSubfolders(dirs: MutableList<Directory>, currentPathPrefix: String): MutableList<Directory> {
+    val folders = dirs.asSequence().map { it.path }.sorted().toMutableSet()
+    val currentPaths = mutableSetOf<String>()
+    val foldersWithoutMediaFiles = mutableListOf<String>()
     var newDirId = 1000L
 
     for (path in folders) {
@@ -322,7 +325,7 @@ fun Context.getDirectParentSubfolders(dirs: ArrayList<Directory>, currentPathPre
     }
 }
 
-fun updateSubfolderCounts(children: ArrayList<Directory>, parentDirs: ArrayList<Directory>) {
+fun updateSubfolderCounts(children: List<Directory>, parentDirs: List<Directory>) {
     for (child in children) {
         var longestSharedPath = ""
         for (parentDir in parentDirs) {
@@ -480,16 +483,16 @@ fun Context.loadImage(
     }
 }
 
-fun Context.addTempFolderIfNeeded(dirs: ArrayList<Directory>): ArrayList<Directory> {
+fun Context.addTempFolderIfNeeded(dirs: List<Directory>): MutableList<Directory> {
     val tempFolderPath = config.tempFolderPath
     return if (tempFolderPath.isNotEmpty()) {
-        val directories = ArrayList<Directory>()
+        val directories = mutableListOf<Directory>()
         val newFolder = Directory(null, tempFolderPath, "", tempFolderPath.getFilenameFromPath(), 0, 0, 0, 0L, getPathLocation(tempFolderPath), 0, "")
         directories.add(newFolder)
         directories.addAll(dirs)
         directories
     } else {
-        dirs
+        dirs.toMutableList()
     }
 }
 

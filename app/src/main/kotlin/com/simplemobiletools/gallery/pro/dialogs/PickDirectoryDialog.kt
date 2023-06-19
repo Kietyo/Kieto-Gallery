@@ -25,9 +25,9 @@ class PickDirectoryDialog(
     val callback: (path: String) -> Unit
 ) {
     private var dialog: AlertDialog? = null
-    private var shownDirectories = ArrayList<Directory>()
-    private var allDirectories = ArrayList<Directory>()
-    private var openedSubfolders = arrayListOf("")
+    private var shownDirectories = listOf<Directory>()
+    private var allDirectories = mutableListOf<Directory>()
+    private var openedSubfolders = mutableListOf("")
     private var view = activity.layoutInflater.inflate(R.layout.dialog_directory_picker, null)
     private var isGridViewType = activity.config.viewTypeFolders == VIEW_TYPE_GRID
     private var showHidden = activity.config.shouldShowHidden
@@ -96,21 +96,21 @@ class PickDirectoryDialog(
         }
     }
 
-    private fun gotDirectories(newDirs: ArrayList<Directory>) {
+    private fun gotDirectories(newDirs: MutableList<Directory>) {
         if (allDirectories.isEmpty()) {
-            allDirectories = newDirs.clone() as ArrayList<Directory>
+            allDirectories = newDirs.toMutableList()
         }
 
         val distinctDirs = newDirs.filter { showFavoritesBin || (!it.isRecycleBin() && !it.areFavorites()) }.distinctBy { it.path.getDistinctPath() }
             .toMutableList() as ArrayList<Directory>
         val sortedDirs = activity.getSortedDirectories(distinctDirs)
-        val dirs = activity.getDirsToShow(sortedDirs, allDirectories, currentPathPrefix).clone() as ArrayList<Directory>
+        val dirs = activity.getDirsToShow(sortedDirs, allDirectories, currentPathPrefix)
         if (dirs.hashCode() == shownDirectories.hashCode()) {
             return
         }
 
         shownDirectories = dirs
-        val adapter = DirectoryAdapter(activity, dirs.clone() as ArrayList<Directory>, null, view.directories_grid, true) {
+        val adapter = DirectoryAdapter(activity, dirs.toMutableList(), null, view.directories_grid, true) {
             val clickedDir = it as Directory
             val path = clickedDir.path
             if (clickedDir.subfoldersCount == 1 || !activity.config.groupDirectSubfolders) {

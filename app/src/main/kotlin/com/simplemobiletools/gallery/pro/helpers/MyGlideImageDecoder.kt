@@ -3,6 +3,7 @@ package com.simplemobiletools.gallery.pro.helpers
 import android.content.Context
 import android.graphics.Bitmap
 import android.net.Uri
+import android.util.Log
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.DecodeFormat
 import com.bumptech.glide.request.RequestOptions
@@ -13,6 +14,8 @@ import com.davemorrissey.labs.subscaleview.ImageDecoder
 class MyGlideImageDecoder(private val degrees: Int, val signature: ObjectKey) : ImageDecoder {
 
     override fun decode(context: Context, uri: Uri): Bitmap {
+        println("kiet here, testing.")
+        Log.i("kiet", "Decoding URI: $uri")
         val options = RequestOptions()
             .format(DecodeFormat.PREFER_ARGB_8888)
             .signature(signature)
