@@ -67,7 +67,8 @@ val Context.dateTakensDB: DateTakensDao get() = GalleryDatabase.getInstance(appl
 
 val Context.recycleBin: File get() = filesDir
 
-fun Context.movePinnedDirectoriesToFront(dirs: List<Directory>): List<Directory> {
+fun Context.movePinnedDirectoriesToFront(dirs_: List<Directory>): List<Directory> {
+    val dirs = dirs_.toMutableList()
     val pinnedFolders = config.pinnedFolders
     val foundFolders = dirs.filter { pinnedFolders.contains(it.path) }
 
@@ -212,11 +213,12 @@ fun Context.getDirsToShow(dirs: List<Directory>, allDirs: List<Directory>, curre
     }
 }
 
-fun Context.getDirectParentSubfolders(dirs: List<Directory>, currentPathPrefix: String): List<Directory> {
-    val folders = dirs.map { it.path }.sorted().toMutableSet() as HashSet<String>
-    val currentPaths = LinkedHashSet<String>()
-    val foldersWithoutMediaFiles = ArrayList<String>()
+fun Context.getDirectParentSubfolders(dirss: List<Directory>, currentPathPrefix: String): List<Directory> {
+    val folders = dirss.map { it.path }.sorted().toSet()
     var newDirId = 1000L
+    val currentPaths = mutableSetOf<String>()
+    val foldersWithoutMediaFiles = mutableListOf<String>()
+    val dirsCopy = dirss.toMutableList()
 
     for (path in folders) {
         if (path == RECYCLE_BIN || path == FAVORITES) {
@@ -233,18 +235,20 @@ fun Context.getDirectParentSubfolders(dirs: List<Directory>, currentPathPrefix: 
             }
         }
 
-        if (currentPathPrefix.isNotEmpty() && path.equals(currentPathPrefix, true) || File(path).parent.equals(currentPathPrefix, true)) {
+        val asFile = File(path)
+
+        if (currentPathPrefix.isNotEmpty() && path.equals(currentPathPrefix, true) || asFile.parent.equals(currentPathPrefix, true)) {
             currentPaths.add(path)
-        } else if (folders.any { !it.equals(path, true) && (File(path).parent.equals(it, true) || File(it).parent.equals(File(path).parent, true)) }) {
+        } else if (folders.any { !it.equals(path, true) && (asFile.parent.equals(it, true) || File(it).parent.equals(asFile.parent, true)) }) {
             // if we have folders like
             // /storage/emulated/0/Pictures/Images and
             // /storage/emulated/0/Pictures/Screenshots,
             // but /storage/emulated/0/Pictures is empty, still Pictures with the first folders thumbnails and proper other info
-            val parent = File(path).parent
-            if (parent != null && !folders.contains(parent) && dirs.none { it.path.equals(parent, true) }) {
+            val parent = asFile.parent
+            if (parent != null && !folders.contains(parent) && dirsCopy.none { it.path.equals(parent, true) }) {
                 currentPaths.add(parent)
                 val isSortingAscending = config.sorting.isSortingAscending()
-                val subDirs = dirs.filter { File(it.path).parent.equals(File(path).parent, true) } as ArrayList<Directory>
+                val subDirs = dirsCopy.filter { File(it.path).parent.equals(asFile.parent, true) }
                 if (subDirs.isNotEmpty()) {
                     val lastModified = if (isSortingAscending) {
                         subDirs.minByOrNull { it.modified }?.modified
@@ -278,7 +282,7 @@ fun Context.getDirectParentSubfolders(dirs: List<Directory>, currentPathPrefix: 
                     )
 
                     directory.containsMediaFilesDirectly = false
-                    dirs.add(directory)
+                    dirsCopy.add(directory)
                     currentPaths.add(parent)
                     foldersWithoutMediaFiles.add(parent)
                 }
@@ -290,11 +294,12 @@ fun Context.getDirectParentSubfolders(dirs: List<Directory>, currentPathPrefix: 
 
     var areDirectSubfoldersAvailable = false
     currentPaths.forEach { it ->
-        currentPaths.forEach {
-            if (!foldersWithoutMediaFiles.contains(it) && !it.equals(it, true) && File(it).parent?.equals(it, true) == true) {
+        // TODO: Check if commenting out this is ok
+//        currentPaths.forEach {
+            if (!foldersWithoutMediaFiles.contains(it) && !it.equals(it, true) && (File(it).parent?.equals(it, true) == true)) {
                 areDirectSubfoldersAvailable = true
             }
-        }
+//        }
     }
 
     if (currentPathPrefix.isEmpty() && folders.contains(RECYCLE_BIN)) {
@@ -306,13 +311,10 @@ fun Context.getDirectParentSubfolders(dirs: List<Directory>, currentPathPrefix: 
     }
 
     if (folders.size == currentPaths.size) {
-        return dirs.filter { currentPaths.contains(it.path) } as ArrayList<Directory>
+        return dirsCopy.filter { currentPaths.contains(it.path) }
     }
 
-    folders.clear()
-    folders.addAll(currentPaths)
-
-    val dirsToShow = dirs.filter { folders.contains(it.path) } as ArrayList<Directory>
+    val dirsToShow = dirsCopy.filter { currentPaths.contains(it.path) }
     return if (areDirectSubfoldersAvailable) {
         getDirectParentSubfolders(dirsToShow, currentPathPrefix)
     } else {

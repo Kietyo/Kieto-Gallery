@@ -914,7 +914,7 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
             }
         }
 
-        val dirs = getSortedDirectories(newDirs)
+        val dirs = getSortedDirectories(newDirs).toMutableList()
         if (config.groupDirectSubfolders) {
             mDirs = dirs
         }
@@ -1150,14 +1150,11 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
         }
 
         val excludedFolders = config.excludedFolders
-        val everShownFolders = config.everShownFolders.toMutableSet() as HashSet<String>
+        val everShownFolders = config.everShownFolders.toMutableSet()
 
         // do not add excluded folders and their subfolders at everShownFolders
-        dirs.filter { dir ->
-            if (excludedFolders.any { dir.path.startsWith(it) }) {
-                return@filter false
-            }
-            return@filter true
+        dirs.asSequence().filter { dir ->
+            return@filter !excludedFolders.any { dir.path.startsWith(it) }
         }.mapTo(everShownFolders) { it.path }
 
         try {
@@ -1234,7 +1231,7 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
 
     private fun setupAdapter(dirs: List<Directory>, textToSearch: String = main_menu.getCurrentQuery(), forceRecreate: Boolean = false) {
         val currAdapter = directories_grid.adapter
-        val distinctDirs = dirs.distinctBy { it.path.getDistinctPath() }.toMutableList() as ArrayList<Directory>
+        val distinctDirs = dirs.distinctBy { it.path.getDistinctPath() }
         val sortedDirs = getSortedDirectories(distinctDirs)
         var dirsToShow = getDirsToShow(sortedDirs, mDirs, mCurrentPathPrefix)
 
@@ -1294,8 +1291,8 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
         directories_fastscroller.setScrollVertically(!scrollHorizontally)
     }
 
-    fun calculateInvalidDirs(dirs: List<Directory>): List<Directory> {
-        val invalidDirs = mutableListOf<Directory>()
+    private fun calculateInvalidDirs(dirs: List<Directory>): Set<Directory> {
+        val invalidDirs = mutableSetOf<Directory>()
         val OTGPath = config.OTGPath
         dirs.filter { !it.areFavorites() && !it.isRecycleBin() }.forEach { it ->
             if (!getDoesFilePathExist(it.path, OTGPath)) {
@@ -1338,10 +1335,10 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
         return invalidDirs
     }
 
-    private fun checkInvalidDirectories(dirs: List<Directory>) {
+    private fun checkInvalidDirectories(dirs: MutableList<Directory>) {
         val invalidDirs = calculateInvalidDirs(dirs)
         if (invalidDirs.isNotEmpty()) {
-            dirs.removeAll(invalidDirs.toSet())
+            dirs.removeAll(invalidDirs)
             setupAdapter(dirs)
             invalidDirs.forEach {
                 try {
