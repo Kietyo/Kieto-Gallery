@@ -901,7 +901,8 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
         }
     }
 
-    private fun gotDirectories(newDirs: List<Directory>) {
+    private fun gotDirectories(newDirss: List<Directory>) {
+        val newDirs = newDirss.toMutableList()
         mIsGettingDirs = false
         mShouldStopFetching = false
 

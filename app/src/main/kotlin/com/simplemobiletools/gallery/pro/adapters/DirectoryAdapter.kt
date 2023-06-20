@@ -209,8 +209,10 @@ class DirectoryAdapter(
         selectedKeys.reversed().forEach { key ->
             val position = dirs.indexOfFirst { it.path.hashCode() == key }
             val tempItem = dirs[position]
-            dirs.removeAt(position)
-            dirs.add(0, tempItem)
+            val newDirs = dirs.toMutableList()
+            newDirs.removeAt(position)
+            newDirs.add(0, tempItem)
+            dirs = newDirs
         }
 
         notifyDataSetChanged()
@@ -220,8 +222,10 @@ class DirectoryAdapter(
         selectedKeys.forEach { key ->
             val position = dirs.indexOfFirst { it.path.hashCode() == key }
             val tempItem = dirs[position]
-            dirs.removeAt(position)
-            dirs.add(dirs.size, tempItem)
+            val newDirs = dirs.toMutableList()
+            newDirs.removeAt(position)
+            newDirs.add(dirs.size, tempItem)
+            dirs = newDirs
         }
 
         notifyDataSetChanged()
