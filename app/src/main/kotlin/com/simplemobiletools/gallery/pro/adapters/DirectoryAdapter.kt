@@ -54,7 +54,7 @@ import java.io.File
 import java.util.*
 
 class DirectoryAdapter(
-    activity: BaseSimpleActivity, var dirs: ArrayList<Directory>, val listener: DirectoryOperationsListener?, recyclerView: MyRecyclerView,
+    activity: BaseSimpleActivity, var dirs: List<Directory>, val listener: DirectoryOperationsListener?, recyclerView: MyRecyclerView,
     private val isPickIntent: Boolean, private val swipeRefreshLayout: SwipeRefreshLayout? = null, itemClick: (Any) -> Unit
 ) :
     MyRecyclerViewAdapter(activity, recyclerView, itemClick), ItemTouchHelperContract, RecyclerViewFastScroller.OnPopupTextUpdate {
@@ -727,8 +727,8 @@ class DirectoryAdapter(
         }
     }
 
-    fun updateDirs(newDirs: ArrayList<Directory>) {
-        val directories = newDirs.clone() as ArrayList<Directory>
+    fun updateDirs(newDirs: List<Directory>) {
+        val directories = newDirs
         if (directories.hashCode() != currentDirectoriesHash) {
             currentDirectoriesHash = directories.hashCode()
             dirs = directories

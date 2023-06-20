@@ -28,7 +28,7 @@ class WidgetConfigureActivity : SimpleActivity() {
     private var mBgColorWithoutTransparency = 0
     private var mTextColor = 0
     private var mFolderPath = ""
-    private var mDirectories = ArrayList<Directory>()
+    private var mDirectories = listOf<Directory>()
 
     public override fun onCreate(savedInstanceState: Bundle?) {
         useDynamicTheme = false

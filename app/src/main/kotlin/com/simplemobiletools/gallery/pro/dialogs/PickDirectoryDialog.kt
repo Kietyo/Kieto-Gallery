@@ -25,8 +25,8 @@ class PickDirectoryDialog(
     val callback: (path: String) -> Unit
 ) {
     private var dialog: AlertDialog? = null
-    private var shownDirectories = ArrayList<Directory>()
-    private var allDirectories = ArrayList<Directory>()
+    private var shownDirectories = listOf<Directory>()
+    private var allDirectories = listOf<Directory>()
     private var openedSubfolders = arrayListOf("")
     private var view = activity.layoutInflater.inflate(R.layout.dialog_directory_picker, null)
     private var isGridViewType = activity.config.viewTypeFolders == VIEW_TYPE_GRID
@@ -96,21 +96,21 @@ class PickDirectoryDialog(
         }
     }
 
-    private fun gotDirectories(newDirs: ArrayList<Directory>) {
+    private fun gotDirectories(newDirs: List<Directory>) {
         if (allDirectories.isEmpty()) {
-            allDirectories = newDirs.clone() as ArrayList<Directory>
+            allDirectories = newDirs
         }
 
         val distinctDirs = newDirs.filter { showFavoritesBin || (!it.isRecycleBin() && !it.areFavorites()) }.distinctBy { it.path.getDistinctPath() }
             .toMutableList() as ArrayList<Directory>
         val sortedDirs = activity.getSortedDirectories(distinctDirs)
-        val dirs = activity.getDirsToShow(sortedDirs, allDirectories, currentPathPrefix).clone() as ArrayList<Directory>
+        val dirs = activity.getDirsToShow(sortedDirs, allDirectories, currentPathPrefix)
         if (dirs.hashCode() == shownDirectories.hashCode()) {
             return
         }
 
         shownDirectories = dirs
-        val adapter = DirectoryAdapter(activity, dirs.clone() as ArrayList<Directory>, null, view.directories_grid, true) {
+        val adapter = DirectoryAdapter(activity, dirs, null, view.directories_grid, true) {
             val clickedDir = it as Directory
             val path = clickedDir.path
             if (clickedDir.subfoldersCount == 1 || !activity.config.groupDirectSubfolders) {

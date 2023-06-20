@@ -69,8 +69,8 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
     private var mTempShowHiddenHandler = Handler()
     private var mZoomListener: MyRecyclerView.MyZoomListener? = null
     private var mLastMediaFetcher: MediaFetcher? = null
-    private var mDirs = ArrayList<Directory>()
-    private var mDirsIgnoringSearch = ArrayList<Directory>()
+    private var mDirs = listOf<Directory>()
+    private var mDirsIgnoringSearch = listOf<Directory>()
 
     private var mStoredAnimateGifs = true
     private var mStoredCropThumbnails = true
@@ -901,7 +901,7 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
         }
     }
 
-    private fun gotDirectories(newDirs: ArrayList<Directory>) {
+    private fun gotDirectories(newDirs: List<Directory>) {
         mIsGettingDirs = false
         mShouldStopFetching = false
 
@@ -915,14 +915,14 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
 
         val dirs = getSortedDirectories(newDirs)
         if (config.groupDirectSubfolders) {
-            mDirs = dirs.clone() as ArrayList<Directory>
+            mDirs = dirs
         }
 
         var isPlaceholderVisible = dirs.isEmpty()
 
         runOnUiThread {
             checkPlaceholderVisibility(dirs)
-            setupAdapter(dirs.clone() as ArrayList<Directory>)
+            setupAdapter(dirs)
         }
 
         // cached folders have been loaded, recheck folders one by one starting with the first displayed
@@ -969,7 +969,11 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
         }
 
         // fetch files from MediaStore only, unless the app has the MANAGE_EXTERNAL_STORAGE permission on Android 11+
-        val android11Files = mLastMediaFetcher?.getAndroid11FolderMedia(getImagesOnly, getVideosOnly, favoritePaths, false, true, dateTakens)
+        val android11Files = mLastMediaFetcher?.getAndroid11FolderMedia(getImagesOnly, getVideosOnly, favoritePaths,
+            getFavoritePathsOnly = false,
+            getProperDateTaken = true,
+            dateTakens = dateTakens
+        )
         try {
             for (directory in dirs) {
                 if (mShouldStopFetching || isDestroyed || isFinishing) {
@@ -1167,7 +1171,7 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
             config.everShownFolders = HashSet()
         }
 
-        mDirs = dirs.clone() as ArrayList<Directory>
+        mDirs = dirs
     }
 
     private fun setAsDefaultFolder() {
@@ -1193,7 +1197,7 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
         }
     }
 
-    private fun checkPlaceholderVisibility(dirs: ArrayList<Directory>) {
+    private fun checkPlaceholderVisibility(dirs: List<Directory>) {
         directories_empty_placeholder.beVisibleIf(dirs.isEmpty() && mLoadedInitialPhotos)
         directories_empty_placeholder_2.beVisibleIf(dirs.isEmpty() && mLoadedInitialPhotos)
 
@@ -1227,11 +1231,11 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
         directories_fastscroller.beVisibleIf(directories_empty_placeholder.isGone())
     }
 
-    private fun setupAdapter(dirs: ArrayList<Directory>, textToSearch: String = main_menu.getCurrentQuery(), forceRecreate: Boolean = false) {
+    private fun setupAdapter(dirs: List<Directory>, textToSearch: String = main_menu.getCurrentQuery(), forceRecreate: Boolean = false) {
         val currAdapter = directories_grid.adapter
         val distinctDirs = dirs.distinctBy { it.path.getDistinctPath() }.toMutableList() as ArrayList<Directory>
         val sortedDirs = getSortedDirectories(distinctDirs)
-        var dirsToShow = getDirsToShow(sortedDirs, mDirs, mCurrentPathPrefix).clone() as ArrayList<Directory>
+        var dirsToShow = getDirsToShow(sortedDirs, mDirs, mCurrentPathPrefix)
 
         if (currAdapter == null || forceRecreate) {
             mDirsIgnoringSearch = dirs
@@ -1289,8 +1293,8 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
         directories_fastscroller.setScrollVertically(!scrollHorizontally)
     }
 
-    private fun checkInvalidDirectories(dirs: ArrayList<Directory>) {
-        val invalidDirs = ArrayList<Directory>()
+    private fun checkInvalidDirectories(dirs: List<Directory>) {
+        val invalidDirs = listOf<Directory>()
         val OTGPath = config.OTGPath
         dirs.filter { !it.areFavorites() && !it.isRecycleBin() }.forEach { it ->
             if (!getDoesFilePathExist(it.path, OTGPath)) {
@@ -1470,7 +1474,7 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
         }
     }
 
-    override fun updateDirectories(directories: ArrayList<Directory>) {
+    override fun updateDirectories(directories: List<Directory>) {
         ensureBackgroundThread {
             storeDirectoryItems(directories)
             removeInvalidDBDirectories()
