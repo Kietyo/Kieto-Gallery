@@ -91,29 +91,33 @@ fun Context.movePinnedDirectoriesToFront(dirs: List<Directory>): List<Directory>
     return dirs
 }
 
-@Suppress("UNCHECKED_CAST")
-fun Context.getSortedDirectories(source: List<Directory>): List<Directory> {
-    val sorting = config.directorySorting
-    val dirs = source
-
-    if (sorting and SORT_BY_RANDOM != 0) {
-        dirs.shuffle()
-        return movePinnedDirectoriesToFront(dirs)
-    } else if (sorting and SORT_BY_CUSTOM != 0) {
-        val newDirsOrdered = listOf<Directory>()
-        config.customFoldersOrder.split("|||").forEach { path ->
-            val index = dirs.indexOfFirst { it.path == path }
-            if (index != -1) {
-                val dir = dirs.removeAt(index)
-                newDirsOrdered.add(dir)
-            }
+fun Context.calculateDirsSortedByCustomOrder(dirs: List<Directory>): List<Directory> {
+    val dirCopy = dirs.toMutableList()
+    val newDirsOrdered = mutableListOf<Directory>()
+    config.customFoldersOrder.split("|||").forEach { path ->
+        val index = dirCopy.indexOfFirst { it.path == path }
+        if (index != -1) {
+            val dir = dirCopy.removeAt(index)
+            newDirsOrdered.add(dir)
         }
-
-        dirs.mapTo(newDirsOrdered) { it }
-        return newDirsOrdered
     }
 
-    dirs.sortWith { o1, o2 ->
+    dirCopy.mapTo(newDirsOrdered) { it }
+    return newDirsOrdered
+}
+
+fun Context.getSortedDirectories(source: List<Directory>): List<Directory> {
+    val sorting = config.directorySorting
+    var dirs = source
+
+    if (sorting and SORT_BY_RANDOM != 0) {
+        dirs = dirs.shuffled()
+        return movePinnedDirectoriesToFront(dirs)
+    } else if (sorting and SORT_BY_CUSTOM != 0) {
+        return calculateDirsSortedByCustomOrder(dirs)
+    }
+
+    val sortedDirs = dirs.sortedWith { o1, o2 ->
         o1 as Directory
         o2 as Directory
 
@@ -178,7 +182,7 @@ fun Context.getSortedDirectories(source: List<Directory>): List<Directory> {
         result
     }
 
-    return movePinnedDirectoriesToFront(dirs)
+    return movePinnedDirectoriesToFront(sortedDirs)
 }
 
 fun Context.getDirsToShow(dirs: List<Directory>, allDirs: List<Directory>, currentPathPrefix: String): List<Directory> {
@@ -188,7 +192,7 @@ fun Context.getDirsToShow(dirs: List<Directory>, allDirs: List<Directory>, curre
             it.subfoldersMediaCount = it.mediaCnt
         }
 
-        val parentDirs = getDirectParentSubfolders(dirs, currentPathPrefix)
+        var parentDirs = getDirectParentSubfolders(dirs, currentPathPrefix)
         updateSubfolderCounts(dirs, parentDirs)
 
         // show the current folder as an available option too, not just subfolders
@@ -197,7 +201,7 @@ fun Context.getDirsToShow(dirs: List<Directory>, allDirs: List<Directory>, curre
                 allDirs.firstOrNull { it -> parentDirs.firstOrNull { it.path.equals(currentPathPrefix, true) } == null && it.path.equals(currentPathPrefix, true) }
             currentFolder?.apply {
                 subfoldersCount = 1
-                parentDirs.add(this)
+                parentDirs = parentDirs + this
             }
         }
 
