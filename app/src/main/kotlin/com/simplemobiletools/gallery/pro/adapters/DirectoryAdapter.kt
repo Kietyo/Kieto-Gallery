@@ -97,7 +97,7 @@ class DirectoryAdapter(
 
     override fun onBindViewHolder(holder: MyRecyclerViewAdapter.ViewHolder, position: Int) {
         val dir = dirs.getOrNull(position) ?: return
-        holder.bindView(dir, true, !isPickIntent) { itemView, adapterPosition ->
+        holder.bindView(dir, true, !isPickIntent) { itemView, _ ->
             setupView(itemView, dir, holder)
         }
         bindViewHolder(holder)

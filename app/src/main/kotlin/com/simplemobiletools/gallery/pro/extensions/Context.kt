@@ -11,6 +11,7 @@ import android.media.AudioManager
 import android.os.Process
 import android.provider.MediaStore.Files
 import android.provider.MediaStore.Images
+import android.util.Log
 import android.widget.ImageView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.Priority
@@ -509,6 +510,7 @@ fun Context.loadPng(
     signature: ObjectKey,
     skipMemoryCacheAtPaths: ArrayList<String>? = null
 ) {
+    Log.i("kiet", "loading path: $path")
     val options = RequestOptions()
         .signature(signature)
         .skipMemoryCache(skipMemoryCacheAtPaths?.contains(path) == true)
@@ -523,6 +525,7 @@ fun Context.loadPng(
         .apply(options)
         .listener(object : RequestListener<Bitmap> {
             override fun onLoadFailed(e: GlideException?, model: Any?, targetBitmap: Target<Bitmap>?, isFirstResource: Boolean): Boolean {
+                Log.i("kiet", "Failed to load $path, got exception: $e")
                 tryLoadingWithPicasso(path, target, cropThumbnails, roundCorners, signature)
                 return true
             }
