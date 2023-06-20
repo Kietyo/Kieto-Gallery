@@ -8,15 +8,15 @@ import java.io.File
 import java.io.IOException
 import java.util.*
 
-fun String.isThisOrParentIncluded(includedPaths: MutableSet<String>) =
+fun String.isThisOrParentIncluded(includedPaths: Set<String>) =
     includedPaths.any { equals(it, true) } || includedPaths.any { "$this/".startsWith("$it/", true) }
 
-fun String.isThisOrParentExcluded(excludedPaths: MutableSet<String>) =
+fun String.isThisOrParentExcluded(excludedPaths: Set<String>) =
     excludedPaths.any { equals(it, true) } || excludedPaths.any { "$this/".startsWith("$it/", true) }
 
 // cache which folders contain .nomedia files to avoid checking them over and over again
 fun String.shouldFolderBeVisible(
-    excludedPaths: MutableSet<String>, includedPaths: MutableSet<String>, showHidden: Boolean,
+    excludedPaths: Set<String>, includedPaths: Set<String>, showHidden: Boolean,
     folderNoMediaStatuses: HashMap<String, Boolean>, callback: (path: String, hasNoMedia: Boolean) -> Unit
 ): Boolean {
     if (isEmpty()) {

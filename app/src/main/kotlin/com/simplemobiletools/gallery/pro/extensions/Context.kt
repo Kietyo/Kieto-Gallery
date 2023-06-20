@@ -517,8 +517,10 @@ fun Context.loadPng(
         .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
         .priority(Priority.LOW)
         .format(DecodeFormat.PREFER_ARGB_8888)
+        .run {
+            if (cropThumbnails) centerCrop() else fitCenter()
+        }
 
-    if (cropThumbnails) options.centerCrop() else options.fitCenter()
     var builder = Glide.with(applicationContext)
         .asBitmap()
         .load(path)
@@ -660,7 +662,7 @@ fun Context.getCachedDirectories(
     getImagesOnly: Boolean = false,
     forceShowHidden: Boolean = false,
     forceShowExcluded: Boolean = false,
-    callback: (ArrayList<Directory>) -> Unit
+    callback: (List<Directory>) -> Unit
 ) {
     ensureBackgroundThread {
         try {
@@ -668,19 +670,19 @@ fun Context.getCachedDirectories(
         } catch (ignored: Exception) {
         }
 
-        val directories = try {
-            directoryDB.getAll() as ArrayList<Directory>
+        var directories = try {
+            directoryDB.getAll()
         } catch (e: Exception) {
-            ArrayList()
+            listOf()
         }
 
         if (!config.showRecycleBinAtFolders) {
-            directories.removeAll { it.isRecycleBin() }
+            directories = directories.filter { !it.isRecycleBin() }
         }
 
         val shouldShowHidden = config.shouldShowHidden || forceShowHidden
         val excludedPaths = if (config.temporarilyShowExcluded || forceShowExcluded) {
-            HashSet()
+            setOf()
         } else {
             config.excludedFolders
         }
@@ -697,7 +699,7 @@ fun Context.getCachedDirectories(
             it.path.shouldFolderBeVisible(excludedPaths, includedPaths, shouldShowHidden, folderNoMediaStatuses) { path, hasNoMedia ->
                 folderNoMediaStatuses[path] = hasNoMedia
             }
-        } as ArrayList<Directory>
+        }
         val filterMedia = config.filterMedia
 
         filteredDirectories = (when {
@@ -711,7 +713,7 @@ fun Context.getCachedDirectories(
                     (filterMedia and TYPE_SVGS != 0 && it.types and TYPE_SVGS != 0) ||
                     (filterMedia and TYPE_PORTRAITS != 0 && it.types and TYPE_PORTRAITS != 0)
             }
-        }) as ArrayList<Directory>
+        })
 
         if (shouldShowHidden) {
             val hiddenString = resources.getString(R.string.hidden)
@@ -734,8 +736,8 @@ fun Context.getCachedDirectories(
             }
         }
 
-        val clone = filteredDirectories.clone() as ArrayList<Directory>
-        callback(clone.distinctBy { it.path.getDistinctPath() } as ArrayList<Directory>)
+        val clone = filteredDirectories
+        callback(clone.distinctBy { it.path.getDistinctPath() })
         removeInvalidDBDirectories(filteredDirectories)
     }
 }

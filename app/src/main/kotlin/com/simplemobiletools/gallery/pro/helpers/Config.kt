@@ -119,7 +119,7 @@ class Config(context: Context) : BaseConfig(context) {
         excludedFolders = currExcludedFolders
     }
 
-    var excludedFolders: MutableSet<String>
+    var excludedFolders: Set<String>
         get() = prefs.getStringSet(EXCLUDED_FOLDERS, HashSet())!!
         set(excludedFolders) = prefs.edit().remove(EXCLUDED_FOLDERS).putStringSet(EXCLUDED_FOLDERS, excludedFolders).apply()
 
