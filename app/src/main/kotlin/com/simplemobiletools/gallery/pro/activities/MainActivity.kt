@@ -316,6 +316,7 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
                         intent.extras?.containsKey(MediaStore.EXTRA_OUTPUT) == true && intent.flags and Intent.FLAG_GRANT_WRITE_URI_PERMISSION != 0 -> {
                             resultUri = fillExtraOutput(resultData)
                         }
+
                         resultData.extras?.containsKey(PICKED_PATHS) == true -> fillPickedPaths(resultData, resultIntent)
                         else -> fillIntentPath(resultData, resultIntent)
                     }
@@ -587,7 +588,10 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
             refreshMenuItems()
             setupLayoutManager()
             directories_grid.adapter = null
-            setupAdapter(getRecyclerAdapter()?.dirs ?: mDirs)
+            setupAdapter(
+                getRecyclerAdapter()?.dirs
+                    ?: mDirs
+            )
         }
     }
 
@@ -643,6 +647,7 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
                     showErrorToast(e)
                 }
             }
+
             else -> {
                 val baseString = if (config.useRecycleBin) R.plurals.moving_items_into_bin else R.plurals.delete_items
                 val deletingItems = resources.getQuantityString(baseString, fileDirItems.size, fileDirItems.size)
@@ -970,7 +975,8 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
         }
 
         // fetch files from MediaStore only, unless the app has the MANAGE_EXTERNAL_STORAGE permission on Android 11+
-        val android11Files = mLastMediaFetcher?.getAndroid11FolderMedia(getImagesOnly, getVideosOnly, favoritePaths,
+        val android11Files = mLastMediaFetcher?.getAndroid11FolderMedia(
+            getImagesOnly, getVideosOnly, favoritePaths,
             getFavoritePathsOnly = false,
             getProperDateTaken = true,
             dateTakens = dateTakens
@@ -1271,8 +1277,8 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
         } else {
             runOnUiThread {
                 if (textToSearch.isNotEmpty()) {
-                    dirsToShow = dirsToShow.filter { it.name.contains(textToSearch, true) }.sortedBy { !it.name.startsWith(textToSearch, true) }
-                        .toMutableList() as ArrayList
+                    dirsToShow = dirsToShow.asSequence().filter { it.name.contains(textToSearch, true) }.sortedBy { !it.name.startsWith(textToSearch, true) }
+                        .toList()
                 }
                 checkPlaceholderVisibility(dirsToShow)
 
@@ -1307,7 +1313,8 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
 
                 val hasMediaFile = children?.any {
                     it != null && (it.isMediaFile() || (it.startsWith("img_", true) && File(it).isDirectory))
-                } ?: false
+                }
+                    ?: false
 
                 if (!hasMediaFile) {
                     invalidDirs.add(it)
@@ -1349,7 +1356,8 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
         }
     }
 
-    private fun getCurrentlyDisplayedDirs() = getRecyclerAdapter()?.dirs ?: ArrayList()
+    private fun getCurrentlyDisplayedDirs() = getRecyclerAdapter()?.dirs
+        ?: ArrayList()
 
     private fun setupLatestMediaId() {
         ensureBackgroundThread {
@@ -1456,7 +1464,10 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
                     if (file.isDirectory && !file.startsWith("${config.internalStoragePath}/Android")) {
                         folders.addAll(getFoldersWithMedia(file.absolutePath))
                     } else if (file.isFile && file.isMediaFile()) {
-                        folders.add(file.parent ?: "")
+                        folders.add(
+                            file.parent
+                                ?: ""
+                        )
                         break
                     }
                 }
