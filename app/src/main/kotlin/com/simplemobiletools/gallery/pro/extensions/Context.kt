@@ -68,14 +68,8 @@ val Context.dateTakensDB: DateTakensDao get() = GalleryDatabase.getInstance(appl
 val Context.recycleBin: File get() = filesDir
 
 fun Context.movePinnedDirectoriesToFront(dirs: List<Directory>): List<Directory> {
-    val foundFolders = listOf<Directory>()
     val pinnedFolders = config.pinnedFolders
-
-    dirs.forEach {
-        if (pinnedFolders.contains(it.path)) {
-            foundFolders.add(it)
-        }
-    }
+    val foundFolders = dirs.filter { pinnedFolders.contains(it.path) }
 
     dirs.removeAll(foundFolders.toSet())
     dirs.addAll(0, foundFolders)
@@ -483,7 +477,7 @@ fun Context.loadImage(
 fun Context.addTempFolderIfNeeded(dirs: List<Directory>): List<Directory> {
     val tempFolderPath = config.tempFolderPath
     return if (tempFolderPath.isNotEmpty()) {
-        val directories = listOf<Directory>()
+        val directories = mutableListOf<Directory>()
         val newFolder = Directory(null, tempFolderPath, "", tempFolderPath.getFilenameFromPath(), 0, 0, 0, 0L, getPathLocation(tempFolderPath), 0, "")
         directories.add(newFolder)
         directories.addAll(dirs)

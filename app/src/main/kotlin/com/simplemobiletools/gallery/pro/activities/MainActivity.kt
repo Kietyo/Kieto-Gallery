@@ -1293,8 +1293,8 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
         directories_fastscroller.setScrollVertically(!scrollHorizontally)
     }
 
-    private fun checkInvalidDirectories(dirs: List<Directory>) {
-        val invalidDirs = listOf<Directory>()
+    fun calculateInvalidDirs(dirs: List<Directory>): List<Directory> {
+        val invalidDirs = mutableListOf<Directory>()
         val OTGPath = config.OTGPath
         dirs.filter { !it.areFavorites() && !it.isRecycleBin() }.forEach { it ->
             if (!getDoesFilePathExist(it.path, OTGPath)) {
@@ -1334,6 +1334,11 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
             }
         }
 
+        return invalidDirs
+    }
+
+    private fun checkInvalidDirectories(dirs: List<Directory>) {
+        val invalidDirs = calculateInvalidDirs(dirs)
         if (invalidDirs.isNotEmpty()) {
             dirs.removeAll(invalidDirs.toSet())
             setupAdapter(dirs)
