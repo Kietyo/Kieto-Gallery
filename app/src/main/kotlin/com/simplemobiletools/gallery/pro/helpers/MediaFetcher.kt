@@ -82,7 +82,7 @@ class MediaFetcher(val context: Context) {
         return curMedia
     }
 
-    fun getFoldersToScan(): ArrayList<String> {
+    fun getFoldersToScan(): MutableList<String> {
         return try {
             val OTGPath = context.config.OTGPath
             val folders = getLatestFileFolders()
@@ -132,9 +132,9 @@ class MediaFetcher(val context: Context) {
                 it.shouldFolderBeVisible(excludedPaths, includedPaths, shouldShowHidden, folderNoMediaStatuses) { path, hasNoMedia ->
                     folderNoMediaStatuses[path] = hasNoMedia
                 }
-            }.toMutableList() as ArrayList<String>
+            }.toMutableList()
         } catch (e: Exception) {
-            ArrayList()
+            mutableListOf()
         }
     }
 

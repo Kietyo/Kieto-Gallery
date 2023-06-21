@@ -745,21 +745,20 @@ fun Context.getCachedDirectories(
 fun Context.getCachedMedia(path: String, getVideosOnly: Boolean = false, getImagesOnly: Boolean = false, callback: (List<ThumbnailItem>) -> Unit) {
     ensureBackgroundThread {
         val mediaFetcher = MediaFetcher(this)
-        val foldersToScan = if (path.isEmpty()) mediaFetcher.getFoldersToScan() else arrayListOf(path)
-        var media = ArrayList<Medium>()
+        val foldersToScan = if (path.isEmpty()) mediaFetcher.getFoldersToScan() else mutableListOf(path)
+        var media = mutableListOf<Medium>()
         if (path == FAVORITES) {
             media.addAll(mediaDB.getFavorites())
         }
-
         if (path == RECYCLE_BIN) {
             media.addAll(getUpdatedDeletedMedia())
         }
 
         if (config.filterMedia and TYPE_PORTRAITS != 0) {
-            val foldersToAdd = ArrayList<String>()
+            val foldersToAdd = mutableListOf<String>()
             for (folder in foldersToScan) {
                 val allFiles = File(folder).listFiles() ?: continue
-                allFiles.filter { it.name.startsWith("img_", true) && it.isDirectory }.forEach {
+                allFiles.asSequence().filter { it.name.startsWith("img_", true) && it.isDirectory }.forEach {
                     foldersToAdd.add(it.absolutePath)
                 }
             }

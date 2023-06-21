@@ -968,7 +968,6 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
         val noMediaFolders = getNoMediaFoldersSync()
         val tempFolderPath = config.tempFolderPath
         val getProperFileSize = config.directorySorting and SORT_BY_SIZE != 0
-        val dirPathsToRemove = emptyList<String>()
         val lastModifieds = mLastMediaFetcher!!.getLastModifieds()
         val dateTakens = mLastMediaFetcher!!.getDateTakens()
 
@@ -980,6 +979,7 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
             dateTakens = dateTakens
         )
         try {
+            val dirPathsToRemove = mutableSetOf<String>()
             for (directory in dirs) {
                 if (mShouldStopFetching || isDestroyed || isFinishing) {
                     return
@@ -1068,22 +1068,19 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
         } catch (ignored: Exception) {
         }
 
-        val foldersToScan = mLastMediaFetcher!!.getFoldersToScan()
-        foldersToScan.remove(FAVORITES)
-        foldersToScan.add(0, FAVORITES)
-        if (config.showRecycleBinAtFolders) {
-            if (foldersToScan.contains(RECYCLE_BIN)) {
-                foldersToScan.remove(RECYCLE_BIN)
-                foldersToScan.add(0, RECYCLE_BIN)
-            } else {
-                foldersToScan.add(0, RECYCLE_BIN)
-            }
-        } else {
-            foldersToScan.remove(RECYCLE_BIN)
-        }
+        val foldersToScan: List<String> = mLastMediaFetcher!!.getFoldersToScan().apply {
+            remove(FAVORITES)
+            add(0, FAVORITES)
+            remove(RECYCLE_BIN)
 
-        dirs.filterNot { it.path == RECYCLE_BIN || it.path == FAVORITES }.forEach {
-            foldersToScan.remove(it.path)
+            if (config.showRecycleBinAtFolders) {
+                add(0, RECYCLE_BIN)
+            }
+
+            // Remove the folders that we've already scanned?
+            dirs.asSequence().filterNot { it.path == RECYCLE_BIN || it.path == FAVORITES }.forEach {
+                remove(it.path)
+            }
         }
 
         // check the remaining folders which were not cached at all yet
