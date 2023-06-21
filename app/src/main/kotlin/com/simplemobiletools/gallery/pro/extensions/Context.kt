@@ -71,9 +71,9 @@ val Context.recycleBin: File get() = filesDir
 fun Context.movePinnedDirectoriesToFront(dirs_: List<Directory>): List<Directory> {
     val dirs = dirs_.toMutableList()
     val pinnedFolders = config.pinnedFolders
-    val foundFolders = dirs.filter { pinnedFolders.contains(it.path) }
+    val foundFolders = dirs.filter { pinnedFolders.contains(it.path) }.toSet()
 
-    dirs.removeAll(foundFolders.toSet())
+    dirs.removeAll(foundFolders)
     dirs.addAll(0, foundFolders)
     if (config.tempFolderPath.isNotEmpty()) {
         val newFolder = dirs.firstOrNull { it.path == config.tempFolderPath }

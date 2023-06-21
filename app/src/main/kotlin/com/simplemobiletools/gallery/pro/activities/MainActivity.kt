@@ -9,6 +9,7 @@ import android.os.Handler
 import android.provider.MediaStore
 import android.provider.MediaStore.Images
 import android.provider.MediaStore.Video
+import android.util.Log
 import android.view.ViewGroup
 import android.widget.RelativeLayout
 import android.widget.Toast
@@ -907,19 +908,43 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
     }
 
     private fun gotDirectories(newDirss: List<Directory>) {
-        val newDirs = newDirss.toMutableList()
         mIsGettingDirs = false
         mShouldStopFetching = false
+        var newDirs = newDirss
 
         // if hidden item showing is disabled but all Favorite items are hidden, hide the Favorites folder
         if (!config.shouldShowHidden) {
             val favoritesFolder = newDirs.firstOrNull { it.areFavorites() }
             if (favoritesFolder != null && favoritesFolder.tmb.getFilenameFromPath().startsWith('.')) {
-                newDirs.remove(favoritesFolder)
+                newDirs = newDirs.filterNot { it == favoritesFolder }
             }
         }
 
-        val dirs = getSortedDirectories(newDirs).toMutableList()
+        var dirs: List<Directory> = getSortedDirectories(newDirs).toMutableList().apply {
+            val hasRecycleBin = any { it.path == RECYCLE_BIN }
+            if (config.showRecycleBinAtFolders && !config.showRecycleBinLast && !hasRecycleBin) {
+                if (mediaDB.getDeletedMediaCount() > 0) {
+                    val recycleBin = Directory().apply {
+                        path = RECYCLE_BIN
+                        name = getString(R.string.recycle_bin)
+                        location = LOCATION_INTERNAL
+                    }
+                    add(0, recycleBin)
+                }
+            }
+            val hasFavorites = any { it.path == FAVORITES }
+            if (hasFavorites) {
+                if (mediaDB.getFavoritesCount() > 0) {
+                    val favorites = Directory().apply {
+                        path = FAVORITES
+                        name = getString(R.string.favorites)
+                        location = LOCATION_INTERNAL
+                    }
+                    add(0, favorites)
+                }
+            }
+        }
+
         if (config.groupDirectSubfolders) {
             mDirs = dirs
         }
@@ -943,36 +968,9 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
         val noMediaFolders = getNoMediaFoldersSync()
         val tempFolderPath = config.tempFolderPath
         val getProperFileSize = config.directorySorting and SORT_BY_SIZE != 0
-        val dirPathsToRemove = ArrayList<String>()
+        val dirPathsToRemove = emptyList<String>()
         val lastModifieds = mLastMediaFetcher!!.getLastModifieds()
         val dateTakens = mLastMediaFetcher!!.getDateTakens()
-
-        if (config.showRecycleBinAtFolders && !config.showRecycleBinLast && !dirs.map { it.path }.contains(RECYCLE_BIN)) {
-            try {
-                if (mediaDB.getDeletedMediaCount() > 0) {
-                    val recycleBin = Directory().apply {
-                        path = RECYCLE_BIN
-                        name = getString(R.string.recycle_bin)
-                        location = LOCATION_INTERNAL
-                    }
-
-                    dirs.add(0, recycleBin)
-                }
-            } catch (ignored: Exception) {
-            }
-        }
-
-        if (dirs.map { it.path }.contains(FAVORITES)) {
-            if (mediaDB.getFavoritesCount() > 0) {
-                val favorites = Directory().apply {
-                    path = FAVORITES
-                    name = getString(R.string.favorites)
-                    location = LOCATION_INTERNAL
-                }
-
-                dirs.add(0, favorites)
-            }
-        }
 
         // fetch files from MediaStore only, unless the app has the MANAGE_EXTERNAL_STORAGE permission on Android 11+
         val android11Files = mLastMediaFetcher?.getAndroid11FolderMedia(
@@ -1060,11 +1058,11 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
             }
 
             if (dirPathsToRemove.isNotEmpty()) {
-                val dirsToRemove = dirs.filter { dirPathsToRemove.contains(it.path) }
+                val dirsToRemove = dirs.asSequence().filter { dirPathsToRemove.contains(it.path) }.toSet()
                 dirsToRemove.forEach {
                     directoryDB.deleteDirPath(it.path)
                 }
-                dirs.removeAll(dirsToRemove.toSet())
+                dirs = dirs - dirsToRemove
                 setupAdapter(dirs)
             }
         } catch (ignored: Exception) {
@@ -1125,7 +1123,7 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
             }
 
             val newDir = createDirectoryFromMedia(folder, newMedia, albumCovers, hiddenString, includedFolders, getProperFileSize, noMediaFolders)
-            dirs.add(newDir)
+            dirs += newDir
             setupAdapter(dirs)
 
             // make sure to create a new thread for these operations, dont just use the common bg thread
@@ -1150,7 +1148,17 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
             checkPlaceholderVisibility(dirs)
         }
 
-        checkInvalidDirectories(dirs)
+        val invalidDirs = calculateInvalidDirs(dirs)
+        if (invalidDirs.isNotEmpty()) {
+            dirs -= invalidDirs
+            setupAdapter(dirs)
+            invalidDirs.forEach {
+                try {
+                    directoryDB.deleteDirPath(it.path)
+                } catch (ignored: Exception) {
+                }
+            }
+        }
         if (mDirs.size > 50) {
             excludeSpamFolders()
         }
@@ -1342,22 +1350,8 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
         return invalidDirs
     }
 
-    private fun checkInvalidDirectories(dirs: MutableList<Directory>) {
-        val invalidDirs = calculateInvalidDirs(dirs)
-        if (invalidDirs.isNotEmpty()) {
-            dirs.removeAll(invalidDirs)
-            setupAdapter(dirs)
-            invalidDirs.forEach {
-                try {
-                    directoryDB.deleteDirPath(it.path)
-                } catch (ignored: Exception) {
-                }
-            }
-        }
-    }
-
     private fun getCurrentlyDisplayedDirs() = getRecyclerAdapter()?.dirs
-        ?: ArrayList()
+        ?: emptyList()
 
     private fun setupLatestMediaId() {
         ensureBackgroundThread {
