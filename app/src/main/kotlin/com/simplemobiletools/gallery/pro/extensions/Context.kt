@@ -352,14 +352,14 @@ fun updateSubfolderCounts(children: List<Directory>, parentDirs: List<Directory>
     }
 }
 
-fun Context.getNoMediaFolders(callback: (folders: ArrayList<String>) -> Unit) {
+fun Context.getNoMediaFolders(callback: (folders: List<String>) -> Unit) {
     ensureBackgroundThread {
         callback(getNoMediaFoldersSync())
     }
 }
 
-fun Context.getNoMediaFoldersSync(): ArrayList<String> {
-    val folders = ArrayList<String>()
+fun Context.getNoMediaFoldersSync(): List<String> {
+    val noMediaFolders = mutableListOf<String>()
 
     val uri = Files.getContentUri("external")
     val projection = arrayOf(Files.FileColumns.DATA)
@@ -376,7 +376,7 @@ fun Context.getNoMediaFoldersSync(): ArrayList<String> {
                 val path = cursor.getStringValue(Files.FileColumns.DATA) ?: continue
                 val noMediaFile = File(path)
                 if (getDoesFilePathExist(noMediaFile.absolutePath, OTGPath) && noMediaFile.name == NOMEDIA) {
-                    folders.add(noMediaFile.parent)
+                    noMediaFile.parent?.let { noMediaFolders.add(it) }
                 }
             } while (cursor.moveToNext())
         }
@@ -385,7 +385,7 @@ fun Context.getNoMediaFoldersSync(): ArrayList<String> {
         cursor?.close()
     }
 
-    return folders
+    return noMediaFolders
 }
 
 fun Context.rescanFolderMedia(path: String) {
@@ -423,7 +423,7 @@ fun Context.storeDirectoryItems(items: List<Directory>) {
     }
 }
 
-fun Context.checkAppendingHidden(path: String, hidden: String, includedFolders: MutableSet<String>, noMediaFolders: ArrayList<String>): String {
+fun Context.checkAppendingHidden(path: String, hidden: String, includedFolders: MutableSet<String>, noMediaFolders: List<String>): String {
     val dirName = getFolderNameFromPath(path)
     val folderNoMediaStatuses = HashMap<String, Boolean>()
     noMediaFolders.forEach { folder ->
@@ -1015,7 +1015,7 @@ fun Context.addPathToDB(path: String) {
 
 fun Context.createDirectoryFromMedia(
     path: String, curMedia: ArrayList<Medium>, albumCovers: ArrayList<AlbumCover>, hiddenString: String,
-    includedFolders: MutableSet<String>, getProperFileSize: Boolean, noMediaFolders: ArrayList<String>
+    includedFolders: MutableSet<String>, getProperFileSize: Boolean, noMediaFolders: List<String>
 ): Directory {
     val OTGPath = config.OTGPath
     val grouped = MediaFetcher(this).groupMedia(curMedia, path)

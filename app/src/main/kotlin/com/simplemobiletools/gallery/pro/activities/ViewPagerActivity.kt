@@ -85,8 +85,8 @@ class ViewPagerActivity : SimpleActivity(), ViewPager.OnPageChangeListener, View
     private var mIsOrientationLocked = false
 
     private val mMediaFiles = mutableListOf<Medium>()
-    private var mFavoritePaths = ArrayList<String>()
-    private var mIgnoredPaths = ArrayList<String>()
+    private var mFavoritePaths = mutableListOf<String>()
+    private var mIgnoredPaths = mutableListOf<String>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         showTransparentTop = true

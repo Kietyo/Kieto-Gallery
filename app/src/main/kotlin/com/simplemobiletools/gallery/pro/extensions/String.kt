@@ -17,7 +17,7 @@ fun String.isThisOrParentExcluded(excludedPaths: Set<String>) =
 // cache which folders contain .nomedia files to avoid checking them over and over again
 fun String.shouldFolderBeVisible(
     excludedPaths: Set<String>, includedPaths: Set<String>, showHidden: Boolean,
-    folderNoMediaStatuses: HashMap<String, Boolean>, callback: (path: String, hasNoMedia: Boolean) -> Unit
+    folderNoMediaStatuses: Map<String, Boolean>, callback: (path: String, hasNoMedia: Boolean) -> Unit
 ): Boolean {
     if (isEmpty()) {
         return false

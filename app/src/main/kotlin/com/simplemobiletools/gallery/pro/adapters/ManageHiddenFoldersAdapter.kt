@@ -14,7 +14,7 @@ import com.simplemobiletools.gallery.pro.extensions.removeNoMedia
 import kotlinx.android.synthetic.main.item_manage_folder.view.*
 
 class ManageHiddenFoldersAdapter(
-    activity: BaseSimpleActivity, var folders: ArrayList<String>, val listener: RefreshRecyclerViewListener?,
+    activity: BaseSimpleActivity, var folders: List<String>, val listener: RefreshRecyclerViewListener?,
     recyclerView: MyRecyclerView, itemClick: (Any) -> Unit
 ) : MyRecyclerViewAdapter(activity, recyclerView, itemClick) {
 
@@ -56,7 +56,7 @@ class ManageHiddenFoldersAdapter(
 
     override fun getItemCount() = folders.size
 
-    private fun getSelectedItems() = folders.filter { selectedKeys.contains(it.hashCode()) } as ArrayList<String>
+    private fun getSelectedItems() = folders.filter { selectedKeys.contains(it.hashCode()) }
 
     private fun setupView(view: View, folder: String) {
         view.apply {
@@ -69,34 +69,28 @@ class ManageHiddenFoldersAdapter(
     }
 
     private fun tryUnhideFolders() {
-        val removeFolders = ArrayList<String>(selectedKeys.size)
+        val firstSdCardPathsOrNull = getSelectedItems().asSequence().filter {
+            activity.isPathOnSD(it)
+        }.firstOrNull()
 
-        val sdCardPaths = ArrayList<String>()
-        getSelectedItems().forEach {
-            if (activity.isPathOnSD(it)) {
-                sdCardPaths.add(it)
-            }
-        }
-
-        if (sdCardPaths.isNotEmpty()) {
-            activity.handleSAFDialog(sdCardPaths.first()) {
+        if (firstSdCardPathsOrNull != null) {
+            activity.handleSAFDialog(firstSdCardPathsOrNull) {
                 if (it) {
-                    unhideFolders(removeFolders)
+                    unhideFolders()
                 }
             }
         } else {
-            unhideFolders(removeFolders)
+            unhideFolders()
         }
     }
 
-    private fun unhideFolders(removeFolders: ArrayList<String>) {
+    private fun unhideFolders() {
         val position = getSelectedItemPositions()
-        getSelectedItems().forEach {
-            removeFolders.add(it)
+        val removeFolders = getSelectedItems().toSet()
+        removeFolders.forEach {
             activity.removeNoMedia(it)
         }
-
-        folders.removeAll(removeFolders.toSet())
+        folders = folders - removeFolders
         removeSelectedItems(position)
         if (folders.isEmpty()) {
             listener?.refreshItems()

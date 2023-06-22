@@ -4,15 +4,16 @@ import android.app.Activity
 import android.content.ClipData
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.provider.MediaStore
 import android.provider.MediaStore.Images
 import android.provider.MediaStore.Video
-import android.util.Log
 import android.view.ViewGroup
 import android.widget.RelativeLayout
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.recyclerview.widget.RecyclerView
 import com.simplemobiletools.commons.dialogs.ConfirmationDialog
 import com.simplemobiletools.commons.dialogs.CreateNewFolderDialog
@@ -519,6 +520,7 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.N)
     private fun getDirectories() {
         if (mIsGettingDirs) {
             return
@@ -907,20 +909,20 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
         }
     }
 
-    private fun gotDirectories(newDirss: List<Directory>) {
+    @RequiresApi(Build.VERSION_CODES.N)
+    private fun gotDirectories(newDirs: List<Directory>) {
         mIsGettingDirs = false
         mShouldStopFetching = false
-        var newDirs = newDirss
-
-        // if hidden item showing is disabled but all Favorite items are hidden, hide the Favorites folder
-        if (!config.shouldShowHidden) {
-            val favoritesFolder = newDirs.firstOrNull { it.areFavorites() }
-            if (favoritesFolder != null && favoritesFolder.tmb.getFilenameFromPath().startsWith('.')) {
-                newDirs = newDirs.filterNot { it == favoritesFolder }
-            }
-        }
 
         var dirs: List<Directory> = getSortedDirectories(newDirs).toMutableList().apply {
+            // if hidden item showing is disabled but all Favorite items are hidden, hide the Favorites folder
+            if (!config.shouldShowHidden) {
+                val favoritesFolder = newDirs.firstOrNull { it.areFavorites() }
+                if (favoritesFolder != null && favoritesFolder.tmb.getFilenameFromPath().startsWith('.')) {
+                    removeIf { it == favoritesFolder }
+                }
+            }
+
             val hasRecycleBin = any { it.path == RECYCLE_BIN }
             if (config.showRecycleBinAtFolders && !config.showRecycleBinLast && !hasRecycleBin) {
                 if (mediaDB.getDeletedMediaCount() > 0) {
