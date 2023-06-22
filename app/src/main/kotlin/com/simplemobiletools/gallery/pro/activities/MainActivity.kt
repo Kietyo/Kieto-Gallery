@@ -978,94 +978,92 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
             getProperDateTaken = true,
             dateTakens = dateTakens
         )
-        try {
-            val dirPathsToRemove = mutableSetOf<String>()
-            for (directory in dirs) {
-                if (mShouldStopFetching || isDestroyed || isFinishing) {
-                    return
+
+        val dirPathsToRemove = mutableSetOf<String>()
+        for (directory in dirs) {
+            if (mShouldStopFetching || isDestroyed || isFinishing) {
+                return
+            }
+
+            val sorting = config.getFolderSorting(directory.path)
+            val grouping = config.getFolderGrouping(directory.path)
+            val getProperDateTaken = config.directorySorting and SORT_BY_DATE_TAKEN != 0 ||
+                sorting and SORT_BY_DATE_TAKEN != 0 ||
+                grouping and GROUP_BY_DATE_TAKEN_DAILY != 0 ||
+                grouping and GROUP_BY_DATE_TAKEN_MONTHLY != 0
+
+            val getProperLastModified = config.directorySorting and SORT_BY_DATE_MODIFIED != 0 ||
+                sorting and SORT_BY_DATE_MODIFIED != 0 ||
+                grouping and GROUP_BY_LAST_MODIFIED_DAILY != 0 ||
+                grouping and GROUP_BY_LAST_MODIFIED_MONTHLY != 0
+
+            val curMedia = mLastMediaFetcher!!.getFilesFrom(
+                directory.path, getImagesOnly, getVideosOnly, getProperDateTaken, getProperLastModified,
+                getProperFileSize, favoritePaths, false, lastModifieds, dateTakens, android11Files
+            )
+
+            val newDir = if (curMedia.isEmpty()) {
+                if (directory.path != tempFolderPath) {
+                    dirPathsToRemove.add(directory.path)
                 }
+                directory
+            } else {
+                createDirectoryFromMedia(directory.path, curMedia, albumCovers, hiddenString, includedFolders, getProperFileSize, noMediaFolders)
+            }
 
-                val sorting = config.getFolderSorting(directory.path)
-                val grouping = config.getFolderGrouping(directory.path)
-                val getProperDateTaken = config.directorySorting and SORT_BY_DATE_TAKEN != 0 ||
-                    sorting and SORT_BY_DATE_TAKEN != 0 ||
-                    grouping and GROUP_BY_DATE_TAKEN_DAILY != 0 ||
-                    grouping and GROUP_BY_DATE_TAKEN_MONTHLY != 0
+            // we are looping through the already displayed folders looking for changes, do not do anything if nothing changed
+            if (directory.copy(subfoldersCount = 0, subfoldersMediaCount = 0) == newDir) {
+                continue
+            }
 
-                val getProperLastModified = config.directorySorting and SORT_BY_DATE_MODIFIED != 0 ||
-                    sorting and SORT_BY_DATE_MODIFIED != 0 ||
-                    grouping and GROUP_BY_LAST_MODIFIED_DAILY != 0 ||
-                    grouping and GROUP_BY_LAST_MODIFIED_MONTHLY != 0
+            directory.apply {
+                tmb = newDir.tmb
+                name = newDir.name
+                mediaCnt = newDir.mediaCnt
+                modified = newDir.modified
+                taken = newDir.taken
+                this@apply.size = newDir.size
+                types = newDir.types
+                sortValue = getDirectorySortingValue(curMedia, path, name, size)
+            }
 
-                val curMedia = mLastMediaFetcher!!.getFilesFrom(
-                    directory.path, getImagesOnly, getVideosOnly, getProperDateTaken, getProperLastModified,
-                    getProperFileSize, favoritePaths, false, lastModifieds, dateTakens, android11Files
-                )
+            setupAdapter(dirs)
 
-                val newDir = if (curMedia.isEmpty()) {
-                    if (directory.path != tempFolderPath) {
-                        dirPathsToRemove.add(directory.path)
+            // update directories and media files in the local db, delete invalid items. Intentionally creating a new thread
+            updateDBDirectory(directory)
+            if (!directory.isRecycleBin() && !directory.areFavorites()) {
+                Thread {
+                    try {
+                        mediaDB.insertAll(curMedia)
+                    } catch (ignored: Exception) {
                     }
-                    directory
-                } else {
-                    createDirectoryFromMedia(directory.path, curMedia, albumCovers, hiddenString, includedFolders, getProperFileSize, noMediaFolders)
-                }
+                }.start()
+            }
 
-                // we are looping through the already displayed folders looking for changes, do not do anything if nothing changed
-                if (directory.copy(subfoldersCount = 0, subfoldersMediaCount = 0) == newDir) {
-                    continue
-                }
-
-                directory.apply {
-                    tmb = newDir.tmb
-                    name = newDir.name
-                    mediaCnt = newDir.mediaCnt
-                    modified = newDir.modified
-                    taken = newDir.taken
-                    this@apply.size = newDir.size
-                    types = newDir.types
-                    sortValue = getDirectorySortingValue(curMedia, path, name, size)
-                }
-
-                setupAdapter(dirs)
-
-                // update directories and media files in the local db, delete invalid items. Intentionally creating a new thread
-                updateDBDirectory(directory)
-                if (!directory.isRecycleBin() && !directory.areFavorites()) {
-                    Thread {
-                        try {
-                            mediaDB.insertAll(curMedia)
-                        } catch (ignored: Exception) {
-                        }
-                    }.start()
-                }
-
-                if (!directory.isRecycleBin()) {
-                    getCachedMedia(directory.path, getVideosOnly, getImagesOnly) { it ->
-                        val mediaToDelete = ArrayList<Medium>()
-                        it.forEach {
-                            if (!curMedia.contains(it)) {
-                                val medium = it as? Medium
-                                val path = medium?.path
-                                if (path != null) {
-                                    mediaToDelete.add(medium)
-                                }
+            if (!directory.isRecycleBin()) {
+                getCachedMedia(directory.path, getVideosOnly, getImagesOnly) { it ->
+                    val mediaToDelete = ArrayList<Medium>()
+                    it.forEach {
+                        if (!curMedia.contains(it)) {
+                            val medium = it as? Medium
+                            val path = medium?.path
+                            if (path != null) {
+                                mediaToDelete.add(medium)
                             }
                         }
-                        mediaDB.deleteMedia(*mediaToDelete.toTypedArray())
                     }
+                    mediaDB.deleteMedia(*mediaToDelete.toTypedArray())
                 }
             }
+        }
 
-            if (dirPathsToRemove.isNotEmpty()) {
-                val dirsToRemove = dirs.asSequence().filter { dirPathsToRemove.contains(it.path) }.toSet()
-                dirsToRemove.forEach {
-                    directoryDB.deleteDirPath(it.path)
-                }
-                dirs = dirs - dirsToRemove
-                setupAdapter(dirs)
+        if (dirPathsToRemove.isNotEmpty()) {
+            val dirsToRemove = dirs.asSequence().filter { dirPathsToRemove.contains(it.path) }.toSet()
+            dirsToRemove.forEach {
+                directoryDB.deleteDirPath(it.path)
             }
-        } catch (ignored: Exception) {
+            dirs = dirs - dirsToRemove
+            setupAdapter(dirs)
         }
 
         val foldersToScan: List<String> = mLastMediaFetcher!!.getFoldersToScan().apply {
@@ -1121,7 +1119,6 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
 
             val newDir = createDirectoryFromMedia(folder, newMedia, albumCovers, hiddenString, includedFolders, getProperFileSize, noMediaFolders)
             dirs += newDir
-            setupAdapter(dirs)
 
             // make sure to create a new thread for these operations, dont just use the common bg thread
             Thread {
@@ -1134,6 +1131,8 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
                 }
             }.start()
         }
+
+        setupAdapter(dirs)
 
         mLoadedInitialPhotos = true
         if (config.appRunCount > 1) {

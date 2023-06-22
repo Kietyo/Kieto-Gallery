@@ -517,9 +517,10 @@ fun Context.loadPng(
         .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
         .priority(Priority.LOW)
         .format(DecodeFormat.PREFER_ARGB_8888)
-        .run {
-            if (cropThumbnails) centerCrop() else fitCenter()
-        }
+    // TODO: Provide ability to change these in settings
+//        .run {
+//            if (cropThumbnails) centerCrop() else fitCenter()
+//        }
 
     var builder = Glide.with(applicationContext)
         .asBitmap()
