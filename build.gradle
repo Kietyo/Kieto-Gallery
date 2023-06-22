@@ -2,13 +2,13 @@
 
 buildscript {
     // needed only if we are including commons locally from our pc, not via Jitpack
-    /*ext {
+    ext {
         propCompileSdkVersion = 33
         propMinSdkVersion = 23
         propTargetSdkVersion = propCompileSdkVersion
         propVersionCode = 1
         propVersionName = '5.34.26'
-    }*/
+    }
 
     ext.kotlin_version = '1.6.21'
     ext.is_proprietary = gradle.startParameter.taskNames.any { task -> task.contains("Proprietary") }
