@@ -11,7 +11,9 @@ import com.google.gson.reflect.TypeToken
 import com.simplemobiletools.commons.dialogs.*
 import com.simplemobiletools.commons.extensions.*
 import com.simplemobiletools.commons.helpers.*
+import com.simplemobiletools.commons.models.PackedInt
 import com.simplemobiletools.commons.models.RadioItem
+import com.simplemobiletools.commons.models.toPackedInt
 import com.simplemobiletools.gallery.pro.R
 import com.simplemobiletools.gallery.pro.dialogs.*
 import com.simplemobiletools.gallery.pro.enums.FileLoadingPriorityEnum
@@ -1033,8 +1035,8 @@ class SettingsActivity : SimpleActivity() {
                 USE_RECYCLE_BIN -> config.useRecycleBin = value.toBoolean()
                 SHOW_RECYCLE_BIN_AT_FOLDERS -> config.showRecycleBinAtFolders = value.toBoolean()
                 SHOW_RECYCLE_BIN_LAST -> config.showRecycleBinLast = value.toBoolean()
-                SORT_ORDER -> config.sorting = value.toInt()
-                DIRECTORY_SORT_ORDER -> config.directorySorting = value.toInt()
+                SORT_ORDER -> config.sorting = value.toInt().toPackedInt()
+                DIRECTORY_SORT_ORDER -> config.directorySorting = PackedInt(value.toInt())
                 GROUP_BY -> config.groupBy = value.toInt()
                 GROUP_DIRECT_SUBFOLDERS -> config.groupDirectSubfolders = value.toBoolean()
                 PINNED_FOLDERS -> config.addPinnedFolders(value.toStringSet())

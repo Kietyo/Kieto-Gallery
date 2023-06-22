@@ -174,7 +174,7 @@ class MediaActivity : SimpleActivity(), MediaOperationsListener {
         media_empty_text_placeholder_2.bringToFront()
 
         // do not refresh Random sorted files after opening a fullscreen image and going Back
-        val isRandomSorting = config.getFolderSorting(mPath) and SORT_BY_RANDOM != 0
+        val isRandomSorting = config.getFolderSorting(mPath) has SORT_BY_RANDOM
         if (mMedia.isEmpty() || !isRandomSorting || (isRandomSorting && !mWasFullscreenViewOpen)) {
             if (shouldSkipAuthentication()) {
                 tryLoadGallery()
@@ -449,7 +449,7 @@ class MediaActivity : SimpleActivity(), MediaOperationsListener {
     }
 
     private fun checkLastMediaChanged() {
-        if (isDestroyed || config.getFolderSorting(mPath) and SORT_BY_RANDOM != 0) {
+        if (isDestroyed || config.getFolderSorting(mPath) has SORT_BY_RANDOM) {
             return
         }
 

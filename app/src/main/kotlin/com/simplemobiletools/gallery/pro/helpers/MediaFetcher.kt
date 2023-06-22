@@ -13,6 +13,7 @@ import android.provider.MediaStore.Images
 import android.text.format.DateFormat
 import com.simplemobiletools.commons.extensions.*
 import com.simplemobiletools.commons.helpers.*
+import com.simplemobiletools.commons.models.PackedInt
 import com.simplemobiletools.gallery.pro.R
 import com.simplemobiletools.gallery.pro.enums.FileLoadingPriorityEnum
 import com.simplemobiletools.gallery.pro.extensions.*
@@ -762,8 +763,8 @@ class MediaFetcher(val context: Context) {
         return sizes
     }
 
-    fun sortMedia(media: ArrayList<Medium>, sorting: Int) {
-        if (sorting and SORT_BY_RANDOM != 0) {
+    fun sortMedia(media: ArrayList<Medium>, sorting: PackedInt) {
+        if (sorting has SORT_BY_RANDOM) {
             media.shuffle()
             return
         }
@@ -772,26 +773,26 @@ class MediaFetcher(val context: Context) {
             o1 as Medium
             o2 as Medium
             var result = when {
-                sorting and SORT_BY_NAME != 0 -> {
-                    if (sorting and SORT_USE_NUMERIC_VALUE != 0) {
+                sorting has SORT_BY_NAME -> {
+                    if (sorting has SORT_USE_NUMERIC_VALUE) {
                         AlphanumericComparator().compare(o1.name.normalizeString().lowercase(Locale.getDefault()), o2.name.normalizeString().lowercase(Locale.getDefault()))
                     } else {
                         o1.name.normalizeString().lowercase(Locale.getDefault()).compareTo(o2.name.normalizeString().lowercase(Locale.getDefault()))
                     }
                 }
-                sorting and SORT_BY_PATH != 0 -> {
-                    if (sorting and SORT_USE_NUMERIC_VALUE != 0) {
+                sorting has SORT_BY_PATH -> {
+                    if (sorting has SORT_USE_NUMERIC_VALUE) {
                         AlphanumericComparator().compare(o1.path.lowercase(Locale.getDefault()), o2.path.lowercase(Locale.getDefault()))
                     } else {
                         o1.path.lowercase(Locale.getDefault()).compareTo(o2.path.lowercase(Locale.getDefault()))
                     }
                 }
-                sorting and SORT_BY_SIZE != 0 -> o1.size.compareTo(o2.size)
-                sorting and SORT_BY_DATE_MODIFIED != 0 -> o1.modified.compareTo(o2.modified)
+                sorting has SORT_BY_SIZE -> o1.size.compareTo(o2.size)
+                sorting has SORT_BY_DATE_MODIFIED -> o1.modified.compareTo(o2.modified)
                 else -> o1.taken.compareTo(o2.taken)
             }
 
-            if (sorting and SORT_DESCENDING != 0) {
+            if (sorting has SORT_DESCENDING) {
                 result *= -1
             }
             result

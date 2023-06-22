@@ -28,6 +28,7 @@ import com.simplemobiletools.commons.interfaces.ItemMoveCallback
 import com.simplemobiletools.commons.interfaces.ItemTouchHelperContract
 import com.simplemobiletools.commons.interfaces.StartReorderDragListener
 import com.simplemobiletools.commons.models.FileDirItem
+import com.simplemobiletools.commons.models.toPackedInt
 import com.simplemobiletools.commons.views.MyRecyclerView
 import com.simplemobiletools.gallery.pro.R
 import com.simplemobiletools.gallery.pro.activities.MediaActivity
@@ -178,7 +179,7 @@ class DirectoryAdapter(
 
             val reorderedFoldersList = dirs.map { it.path }
             config.customFoldersOrder = TextUtils.join("|||", reorderedFoldersList)
-            config.directorySorting = SORT_BY_CUSTOM
+            config.directorySorting = SORT_BY_CUSTOM.toPackedInt()
         }
 
         isDragAndDropping = false

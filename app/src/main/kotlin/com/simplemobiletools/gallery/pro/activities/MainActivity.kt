@@ -10,6 +10,7 @@ import android.os.Handler
 import android.provider.MediaStore
 import android.provider.MediaStore.Images
 import android.provider.MediaStore.Video
+import android.util.Log
 import android.view.ViewGroup
 import android.widget.RelativeLayout
 import android.widget.Toast
@@ -138,7 +139,7 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
 
         if (!config.wasSortingByNumericValueAdded) {
             config.wasSortingByNumericValueAdded = true
-            config.sorting = config.sorting or SORT_USE_NUMERIC_VALUE
+            config.sorting = config.sorting + SORT_USE_NUMERIC_VALUE
         }
 
         updateWidgets()
@@ -550,7 +551,7 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
     private fun showSortingDialog() {
         ChangeSortingDialog(this, true, false) {
             directories_grid.adapter = null
-            if (config.directorySorting and SORT_BY_DATE_MODIFIED != 0 || config.directorySorting and SORT_BY_DATE_TAKEN != 0) {
+            if (config.directorySorting has SORT_BY_DATE_MODIFIED || config.directorySorting has SORT_BY_DATE_TAKEN) {
                 getDirectories()
             } else {
                 ensureBackgroundThread {
@@ -911,6 +912,7 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
 
     @RequiresApi(Build.VERSION_CODES.N)
     private fun gotDirectories(newDirs: List<Directory>) {
+        Log.i("kiet", "gotDirectories called")
         mIsGettingDirs = false
         mShouldStopFetching = false
 
@@ -969,7 +971,7 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
         val includedFolders = config.includedFolders
         val noMediaFolders = getNoMediaFoldersSync()
         val tempFolderPath = config.tempFolderPath
-        val getProperFileSize = config.directorySorting and SORT_BY_SIZE != 0
+        val getProperFileSize = config.directorySorting has SORT_BY_SIZE
         val lastModifieds = mLastMediaFetcher!!.getLastModifieds()
         val dateTakens = mLastMediaFetcher!!.getDateTakens()
 
@@ -989,13 +991,13 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
 
             val sorting = config.getFolderSorting(directory.path)
             val grouping = config.getFolderGrouping(directory.path)
-            val getProperDateTaken = config.directorySorting and SORT_BY_DATE_TAKEN != 0 ||
-                sorting and SORT_BY_DATE_TAKEN != 0 ||
+            val getProperDateTaken = config.directorySorting has SORT_BY_DATE_TAKEN ||
+                sorting.has(SORT_BY_DATE_TAKEN) ||
                 grouping and GROUP_BY_DATE_TAKEN_DAILY != 0 ||
                 grouping and GROUP_BY_DATE_TAKEN_MONTHLY != 0
 
-            val getProperLastModified = config.directorySorting and SORT_BY_DATE_MODIFIED != 0 ||
-                sorting and SORT_BY_DATE_MODIFIED != 0 ||
+            val getProperLastModified = config.directorySorting has SORT_BY_DATE_MODIFIED ||
+                sorting.has(SORT_BY_DATE_MODIFIED) ||
                 grouping and GROUP_BY_LAST_MODIFIED_DAILY != 0 ||
                 grouping and GROUP_BY_LAST_MODIFIED_MONTHLY != 0
 
@@ -1091,13 +1093,13 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
 
             val sorting = config.getFolderSorting(folder)
             val grouping = config.getFolderGrouping(folder)
-            val getProperDateTaken = config.directorySorting and SORT_BY_DATE_TAKEN != 0 ||
-                sorting and SORT_BY_DATE_TAKEN != 0 ||
+            val getProperDateTaken = config.directorySorting has SORT_BY_DATE_TAKEN ||
+                sorting.has(SORT_BY_DATE_TAKEN) ||
                 grouping and GROUP_BY_DATE_TAKEN_DAILY != 0 ||
                 grouping and GROUP_BY_DATE_TAKEN_MONTHLY != 0
 
-            val getProperLastModified = config.directorySorting and SORT_BY_DATE_MODIFIED != 0 ||
-                sorting and SORT_BY_DATE_MODIFIED != 0 ||
+            val getProperLastModified = config.directorySorting has SORT_BY_DATE_MODIFIED ||
+                sorting.has(SORT_BY_DATE_MODIFIED) ||
                 grouping and GROUP_BY_LAST_MODIFIED_DAILY != 0 ||
                 grouping and GROUP_BY_LAST_MODIFIED_MONTHLY != 0
 
@@ -1242,6 +1244,7 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
     }
 
     private fun setupAdapter(dirs: List<Directory>, textToSearch: String = main_menu.getCurrentQuery(), forceRecreate: Boolean = false) {
+        Log.i("kiet", "setupAdapter called")
         val currAdapter = directories_grid.adapter
         val distinctDirs = dirs.distinctBy { it.path.getDistinctPath() }
         val sortedDirs = getSortedDirectories(distinctDirs)
@@ -1336,12 +1339,9 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
         }
 
         if (config.useRecycleBin) {
-            try {
-                val binFolder = dirs.firstOrNull { it.path == RECYCLE_BIN }
-                if (binFolder != null && mediaDB.getDeletedMedia().isEmpty()) {
-                    invalidDirs.add(binFolder)
-                }
-            } catch (ignored: Exception) {
+            val binFolder = dirs.firstOrNull { it.path == RECYCLE_BIN }
+            if (binFolder != null && mediaDB.getDeletedMedia().isEmpty()) {
+                invalidDirs.add(binFolder)
             }
         }
 

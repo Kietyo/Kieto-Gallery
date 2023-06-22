@@ -6,6 +6,7 @@ import android.os.Environment
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.simplemobiletools.commons.helpers.*
+import com.simplemobiletools.commons.models.PackedInt
 import com.simplemobiletools.gallery.pro.R
 import com.simplemobiletools.gallery.pro.enums.FileLoadingPriorityEnum
 import com.simplemobiletools.gallery.pro.models.AlbumCover
@@ -16,9 +17,9 @@ class Config(context: Context) : BaseConfig(context) {
         fun newInstance(context: Context) = Config(context)
     }
 
-    var directorySorting: Int
-        get(): Int = prefs.getInt(DIRECTORY_SORT_ORDER, SORT_BY_DATE_MODIFIED or SORT_DESCENDING)
-        set(order) = prefs.edit().putInt(DIRECTORY_SORT_ORDER, order).apply()
+    var directorySorting: PackedInt
+        get(): PackedInt = PackedInt(prefs.getInt(DIRECTORY_SORT_ORDER, SORT_BY_DATE_MODIFIED or SORT_DESCENDING))
+        set(order) = prefs.edit().putInt(DIRECTORY_SORT_ORDER, order.data).apply()
 
     fun saveFolderGrouping(path: String, value: Int) {
         if (path.isEmpty()) {

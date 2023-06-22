@@ -112,10 +112,10 @@ fun Context.getSortedDirectories(source: List<Directory>): List<Directory> {
     val sorting = config.directorySorting
     var dirs = source
 
-    if (sorting and SORT_BY_RANDOM != 0) {
+    if (sorting has SORT_BY_RANDOM) {
         dirs = dirs.shuffled()
         return movePinnedDirectoriesToFront(dirs)
-    } else if (sorting and SORT_BY_CUSTOM != 0) {
+    } else if (sorting has SORT_BY_CUSTOM) {
         return calculateDirsSortedByCustomOrder(dirs)
     }
 
@@ -124,7 +124,7 @@ fun Context.getSortedDirectories(source: List<Directory>): List<Directory> {
         o2 as Directory
 
         var result = when {
-            sorting and SORT_BY_NAME != 0 -> {
+            sorting has SORT_BY_NAME -> {
                 if (o1.sortValue.isEmpty()) {
                     o1.sortValue = o1.name.lowercase(Locale.getDefault())
                 }
@@ -133,7 +133,7 @@ fun Context.getSortedDirectories(source: List<Directory>): List<Directory> {
                     o2.sortValue = o2.name.lowercase(Locale.getDefault())
                 }
 
-                if (sorting and SORT_USE_NUMERIC_VALUE != 0) {
+                if (sorting has SORT_USE_NUMERIC_VALUE) {
                     AlphanumericComparator().compare(
                         o1.sortValue.normalizeString().lowercase(Locale.getDefault()),
                         o2.sortValue.normalizeString().lowercase(Locale.getDefault())
@@ -142,7 +142,7 @@ fun Context.getSortedDirectories(source: List<Directory>): List<Directory> {
                     o1.sortValue.normalizeString().lowercase(Locale.getDefault()).compareTo(o2.sortValue.normalizeString().lowercase(Locale.getDefault()))
                 }
             }
-            sorting and SORT_BY_PATH != 0 -> {
+            sorting has SORT_BY_PATH -> {
                 if (o1.sortValue.isEmpty()) {
                     o1.sortValue = o1.path.lowercase(Locale.getDefault())
                 }
@@ -151,22 +151,22 @@ fun Context.getSortedDirectories(source: List<Directory>): List<Directory> {
                     o2.sortValue = o2.path.lowercase(Locale.getDefault())
                 }
 
-                if (sorting and SORT_USE_NUMERIC_VALUE != 0) {
+                if (sorting has SORT_USE_NUMERIC_VALUE) {
                     AlphanumericComparator().compare(o1.sortValue.lowercase(Locale.getDefault()), o2.sortValue.lowercase(Locale.getDefault()))
                 } else {
                     o1.sortValue.lowercase(Locale.getDefault()).compareTo(o2.sortValue.lowercase(Locale.getDefault()))
                 }
             }
-            sorting and SORT_BY_PATH != 0 -> AlphanumericComparator().compare(
+            sorting has SORT_BY_PATH -> AlphanumericComparator().compare(
                 o1.sortValue.lowercase(Locale.getDefault()),
                 o2.sortValue.lowercase(Locale.getDefault())
             )
-            sorting and SORT_BY_SIZE != 0 -> (o1.sortValue.toLongOrNull()
+            sorting has SORT_BY_SIZE -> (o1.sortValue.toLongOrNull()
                 ?: 0).compareTo(
                 o2.sortValue.toLongOrNull()
                     ?: 0
             )
-            sorting and SORT_BY_DATE_MODIFIED != 0 -> (o1.sortValue.toLongOrNull()
+            sorting has SORT_BY_DATE_MODIFIED -> (o1.sortValue.toLongOrNull()
                 ?: 0).compareTo(
                 o2.sortValue.toLongOrNull()
                     ?: 0
@@ -178,7 +178,7 @@ fun Context.getSortedDirectories(source: List<Directory>): List<Directory> {
             )
         }
 
-        if (sorting and SORT_DESCENDING != 0) {
+        if (sorting has SORT_DESCENDING) {
             result *= -1
         }
         result
@@ -1052,11 +1052,11 @@ fun Context.createDirectoryFromMedia(
 fun Context.getDirectorySortingValue(media: ArrayList<Medium>, path: String, name: String, size: Long): String {
     val sorting = config.directorySorting
     val sorted = when {
-        sorting and SORT_BY_NAME != 0 -> return name
-        sorting and SORT_BY_PATH != 0 -> return path
-        sorting and SORT_BY_SIZE != 0 -> return size.toString()
-        sorting and SORT_BY_DATE_MODIFIED != 0 -> media.sortedBy { it.modified }
-        sorting and SORT_BY_DATE_TAKEN != 0 -> media.sortedBy { it.taken }
+        sorting has SORT_BY_NAME -> return name
+        sorting has SORT_BY_PATH -> return path
+        sorting has SORT_BY_SIZE -> return size.toString()
+        sorting has SORT_BY_DATE_MODIFIED -> media.sortedBy { it.modified }
+        sorting has SORT_BY_DATE_TAKEN -> media.sortedBy { it.taken }
         else -> media
     }
 
@@ -1067,8 +1067,8 @@ fun Context.getDirectorySortingValue(media: ArrayList<Medium>, path: String, nam
     }
 
     val result: Any = when {
-        sorting and SORT_BY_DATE_MODIFIED != 0 -> relevantMedium.modified
-        sorting and SORT_BY_DATE_TAKEN != 0 -> relevantMedium.taken
+        sorting has SORT_BY_DATE_MODIFIED -> relevantMedium.modified
+        sorting has SORT_BY_DATE_TAKEN -> relevantMedium.taken
         else -> 0
     }
 
@@ -1086,17 +1086,17 @@ fun Context.updateDirectoryPath(path: String) {
 
     val sorting = config.getFolderSorting(path)
     val grouping = config.getFolderGrouping(path)
-    val getProperDateTaken = config.directorySorting and SORT_BY_DATE_TAKEN != 0 ||
-        sorting and SORT_BY_DATE_TAKEN != 0 ||
+    val getProperDateTaken = config.directorySorting has SORT_BY_DATE_TAKEN ||
+        sorting has SORT_BY_DATE_TAKEN ||
         grouping and GROUP_BY_DATE_TAKEN_DAILY != 0 ||
         grouping and GROUP_BY_DATE_TAKEN_MONTHLY != 0
 
-    val getProperLastModified = config.directorySorting and SORT_BY_DATE_MODIFIED != 0 ||
-        sorting and SORT_BY_DATE_MODIFIED != 0 ||
+    val getProperLastModified = config.directorySorting has SORT_BY_DATE_MODIFIED||
+        sorting has SORT_BY_DATE_MODIFIED||
         grouping and GROUP_BY_LAST_MODIFIED_DAILY != 0 ||
         grouping and GROUP_BY_LAST_MODIFIED_MONTHLY != 0
 
-    val getProperFileSize = config.directorySorting and SORT_BY_SIZE != 0
+    val getProperFileSize = config.directorySorting has SORT_BY_SIZE
 
     val lastModifieds = if (getProperLastModified) mediaFetcher.getFolderLastModifieds(path) else HashMap()
     val dateTakens = mediaFetcher.getFolderDateTakens(path)

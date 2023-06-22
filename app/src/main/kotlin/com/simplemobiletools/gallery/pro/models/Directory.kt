@@ -6,6 +6,7 @@ import com.bumptech.glide.signature.ObjectKey
 import com.simplemobiletools.commons.extensions.formatDate
 import com.simplemobiletools.commons.extensions.formatSize
 import com.simplemobiletools.commons.helpers.*
+import com.simplemobiletools.commons.models.PackedInt
 import com.simplemobiletools.gallery.pro.helpers.RECYCLE_BIN
 
 @Entity(tableName = "directories", indices = [Index(value = ["path"], unique = true)])
@@ -30,12 +31,12 @@ data class Directory(
 
     constructor() : this(null, "", "", "", 0, 0L, 0L, 0L, 0, 0, "", 0, 0)
 
-    fun getBubbleText(sorting: Int, context: Context, dateFormat: String? = null, timeFormat: String? = null) = when {
-        sorting and SORT_BY_NAME != 0 -> name
-        sorting and SORT_BY_PATH != 0 -> path
-        sorting and SORT_BY_SIZE != 0 -> size.formatSize()
-        sorting and SORT_BY_DATE_MODIFIED != 0 -> modified.formatDate(context, dateFormat, timeFormat)
-        sorting and SORT_BY_RANDOM != 0 -> name
+    fun getBubbleText(sorting: PackedInt, context: Context, dateFormat: String? = null, timeFormat: String? = null) = when {
+        sorting has SORT_BY_NAME -> name
+        sorting has SORT_BY_PATH -> path
+        sorting has SORT_BY_SIZE -> size.formatSize()
+        sorting has SORT_BY_DATE_MODIFIED -> modified.formatDate(context, dateFormat, timeFormat)
+        sorting has SORT_BY_RANDOM -> name
         else -> taken.formatDate(context)
     }
 

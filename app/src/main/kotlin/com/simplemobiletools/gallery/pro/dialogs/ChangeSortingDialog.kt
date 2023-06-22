@@ -5,6 +5,8 @@ import android.view.View
 import com.simplemobiletools.commons.activities.BaseSimpleActivity
 import com.simplemobiletools.commons.extensions.*
 import com.simplemobiletools.commons.helpers.*
+import com.simplemobiletools.commons.models.PackedInt
+import com.simplemobiletools.commons.models.toPackedInt
 import com.simplemobiletools.gallery.pro.R
 import com.simplemobiletools.gallery.pro.extensions.config
 import com.simplemobiletools.gallery.pro.helpers.SHOW_ALL
@@ -15,7 +17,7 @@ class ChangeSortingDialog(
     val path: String = "", val callback: () -> Unit
 ) :
     DialogInterface.OnClickListener {
-    private var currSorting = 0
+    private var currSorting = PackedInt(0)
     private var config = activity.config
     private var pathToUse = if (!isDirectorySorting && path.isEmpty()) SHOW_ALL else path
     private var view: View
@@ -23,10 +25,10 @@ class ChangeSortingDialog(
     init {
         currSorting = if (isDirectorySorting) config.directorySorting else config.getFolderSorting(pathToUse)
         view = activity.layoutInflater.inflate(R.layout.dialog_change_sorting, null).apply {
-            use_for_this_folder_divider.beVisibleIf(showFolderCheckbox || (currSorting and SORT_BY_NAME != 0 || currSorting and SORT_BY_PATH != 0))
+            use_for_this_folder_divider.beVisibleIf(showFolderCheckbox || (currSorting has SORT_BY_NAME || currSorting has SORT_BY_PATH))
 
-            sorting_dialog_numeric_sorting.beVisibleIf(showFolderCheckbox && (currSorting and SORT_BY_NAME != 0 || currSorting and SORT_BY_PATH != 0))
-            sorting_dialog_numeric_sorting.isChecked = currSorting and SORT_USE_NUMERIC_VALUE != 0
+            sorting_dialog_numeric_sorting.beVisibleIf(showFolderCheckbox && (currSorting has SORT_BY_NAME || currSorting has SORT_BY_PATH))
+            sorting_dialog_numeric_sorting.isChecked = currSorting has SORT_USE_NUMERIC_VALUE
 
             sorting_dialog_use_for_this_folder.beVisibleIf(showFolderCheckbox)
             sorting_dialog_use_for_this_folder.isChecked = config.hasCustomSorting(pathToUse)
@@ -58,12 +60,12 @@ class ChangeSortingDialog(
         }
 
         val sortBtn = when {
-            currSorting and SORT_BY_PATH != 0 -> sortingRadio.sorting_dialog_radio_path
-            currSorting and SORT_BY_SIZE != 0 -> sortingRadio.sorting_dialog_radio_size
-            currSorting and SORT_BY_DATE_MODIFIED != 0 -> sortingRadio.sorting_dialog_radio_last_modified
-            currSorting and SORT_BY_DATE_TAKEN != 0 -> sortingRadio.sorting_dialog_radio_date_taken
-            currSorting and SORT_BY_RANDOM != 0 -> sortingRadio.sorting_dialog_radio_random
-            currSorting and SORT_BY_CUSTOM != 0 -> sortingRadio.sorting_dialog_radio_custom
+            currSorting has SORT_BY_PATH -> sortingRadio.sorting_dialog_radio_path
+            currSorting has SORT_BY_SIZE -> sortingRadio.sorting_dialog_radio_size
+            currSorting has SORT_BY_DATE_MODIFIED -> sortingRadio.sorting_dialog_radio_last_modified
+            currSorting has SORT_BY_DATE_TAKEN -> sortingRadio.sorting_dialog_radio_date_taken
+            currSorting has SORT_BY_RANDOM -> sortingRadio.sorting_dialog_radio_random
+            currSorting has SORT_BY_CUSTOM -> sortingRadio.sorting_dialog_radio_custom
             else -> sortingRadio.sorting_dialog_radio_name
         }
         sortBtn.isChecked = true
@@ -73,7 +75,7 @@ class ChangeSortingDialog(
         val orderRadio = view.sorting_dialog_radio_order
         var orderBtn = orderRadio.sorting_dialog_radio_ascending
 
-        if (currSorting and SORT_DESCENDING != 0) {
+        if (currSorting has SORT_DESCENDING) {
             orderBtn = orderRadio.sorting_dialog_radio_descending
         }
         orderBtn.isChecked = true
@@ -89,14 +91,14 @@ class ChangeSortingDialog(
             R.id.sorting_dialog_radio_random -> SORT_BY_RANDOM
             R.id.sorting_dialog_radio_custom -> SORT_BY_CUSTOM
             else -> SORT_BY_DATE_TAKEN
-        }
+        }.toPackedInt()
 
         if (view.sorting_dialog_radio_order.checkedRadioButtonId == R.id.sorting_dialog_radio_descending) {
-            sorting = sorting or SORT_DESCENDING
+            sorting += SORT_DESCENDING
         }
 
         if (view.sorting_dialog_numeric_sorting.isChecked) {
-            sorting = sorting or SORT_USE_NUMERIC_VALUE
+            sorting += SORT_USE_NUMERIC_VALUE
         }
 
         if (isDirectorySorting) {
