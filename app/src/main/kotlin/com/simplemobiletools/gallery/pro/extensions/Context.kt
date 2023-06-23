@@ -1088,13 +1088,13 @@ fun Context.updateDirectoryPath(path: String) {
     val grouping = config.getFolderGrouping(path)
     val getProperDateTaken = config.directorySorting has SORT_BY_DATE_TAKEN ||
         sorting has SORT_BY_DATE_TAKEN ||
-        grouping and GROUP_BY_DATE_TAKEN_DAILY != 0 ||
-        grouping and GROUP_BY_DATE_TAKEN_MONTHLY != 0
+        grouping.has(GROUP_BY_DATE_TAKEN_DAILY) ||
+        grouping.has(GROUP_BY_DATE_TAKEN_MONTHLY)
 
     val getProperLastModified = config.directorySorting has SORT_BY_DATE_MODIFIED||
         sorting has SORT_BY_DATE_MODIFIED||
-        grouping and GROUP_BY_LAST_MODIFIED_DAILY != 0 ||
-        grouping and GROUP_BY_LAST_MODIFIED_MONTHLY != 0
+        grouping.has(GROUP_BY_LAST_MODIFIED_DAILY) ||
+        grouping.has(GROUP_BY_LAST_MODIFIED_MONTHLY)
 
     val getProperFileSize = config.directorySorting has SORT_BY_SIZE
 

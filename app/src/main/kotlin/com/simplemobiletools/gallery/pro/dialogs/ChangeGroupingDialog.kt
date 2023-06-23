@@ -6,6 +6,7 @@ import com.simplemobiletools.commons.activities.BaseSimpleActivity
 import com.simplemobiletools.commons.extensions.beVisibleIf
 import com.simplemobiletools.commons.extensions.getAlertDialogBuilder
 import com.simplemobiletools.commons.extensions.setupDialogStuff
+import com.simplemobiletools.commons.models.toPackedInt
 import com.simplemobiletools.gallery.pro.R
 import com.simplemobiletools.gallery.pro.extensions.config
 import com.simplemobiletools.gallery.pro.helpers.*
@@ -13,7 +14,7 @@ import kotlinx.android.synthetic.main.dialog_change_grouping.view.*
 
 class ChangeGroupingDialog(val activity: BaseSimpleActivity, val path: String = "", val callback: () -> Unit) :
     DialogInterface.OnClickListener {
-    private var currGrouping = 0
+    private var currGrouping = 0.toPackedInt()
     private var config = activity.config
     private val pathToUse = path.ifEmpty { SHOW_ALL }
     private var view: View
@@ -34,20 +35,20 @@ class ChangeGroupingDialog(val activity: BaseSimpleActivity, val path: String = 
 
         setupGroupRadio()
         setupOrderRadio()
-        view.grouping_dialog_show_file_count.isChecked = currGrouping and GROUP_SHOW_FILE_COUNT != 0
+        view.grouping_dialog_show_file_count.isChecked = currGrouping.has(GROUP_SHOW_FILE_COUNT)
     }
 
     private fun setupGroupRadio() {
         val groupingRadio = view.grouping_dialog_radio_grouping
 
         val groupBtn = when {
-            currGrouping and GROUP_BY_NONE != 0 -> groupingRadio.grouping_dialog_radio_none
-            currGrouping and GROUP_BY_LAST_MODIFIED_DAILY != 0 -> groupingRadio.grouping_dialog_radio_last_modified_daily
-            currGrouping and GROUP_BY_LAST_MODIFIED_MONTHLY != 0 -> groupingRadio.grouping_dialog_radio_last_modified_monthly
-            currGrouping and GROUP_BY_DATE_TAKEN_DAILY != 0 -> groupingRadio.grouping_dialog_radio_date_taken_daily
-            currGrouping and GROUP_BY_DATE_TAKEN_MONTHLY != 0 -> groupingRadio.grouping_dialog_radio_date_taken_monthly
-            currGrouping and GROUP_BY_FILE_TYPE != 0 -> groupingRadio.grouping_dialog_radio_file_type
-            currGrouping and GROUP_BY_EXTENSION != 0 -> groupingRadio.grouping_dialog_radio_extension
+            currGrouping.has(GROUP_BY_NONE) -> groupingRadio.grouping_dialog_radio_none
+            currGrouping.has(GROUP_BY_LAST_MODIFIED_DAILY) -> groupingRadio.grouping_dialog_radio_last_modified_daily
+            currGrouping.has(GROUP_BY_LAST_MODIFIED_MONTHLY) -> groupingRadio.grouping_dialog_radio_last_modified_monthly
+            currGrouping.has(GROUP_BY_DATE_TAKEN_DAILY) -> groupingRadio.grouping_dialog_radio_date_taken_daily
+            currGrouping.has(GROUP_BY_DATE_TAKEN_MONTHLY) -> groupingRadio.grouping_dialog_radio_date_taken_monthly
+            currGrouping.has(GROUP_BY_FILE_TYPE) -> groupingRadio.grouping_dialog_radio_file_type
+            currGrouping.has(GROUP_BY_EXTENSION) -> groupingRadio.grouping_dialog_radio_extension
             else -> groupingRadio.grouping_dialog_radio_folder
         }
         groupBtn.isChecked = true
@@ -57,7 +58,7 @@ class ChangeGroupingDialog(val activity: BaseSimpleActivity, val path: String = 
         val orderRadio = view.grouping_dialog_radio_order
         var orderBtn = orderRadio.grouping_dialog_radio_ascending
 
-        if (currGrouping and GROUP_DESCENDING != 0) {
+        if (currGrouping.has(GROUP_DESCENDING)) {
             orderBtn = orderRadio.grouping_dialog_radio_descending
         }
         orderBtn.isChecked = true

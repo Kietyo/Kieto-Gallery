@@ -802,7 +802,7 @@ class MediaFetcher(val context: Context) {
     fun groupMedia(media: List<Medium>, path: String): List<ThumbnailItem> {
         val pathToCheck = path.ifEmpty { SHOW_ALL }
         val currentGrouping = context.config.getFolderGrouping(pathToCheck)
-        if (currentGrouping and GROUP_BY_NONE != 0) {
+        if (currentGrouping.has(GROUP_BY_NONE)) {
             return media
         }
 
@@ -821,9 +821,9 @@ class MediaFetcher(val context: Context) {
             mediumGroups[key]!!.add(it)
         }
 
-        val sortDescending = currentGrouping and GROUP_DESCENDING != 0
-        val sorted = if (currentGrouping and GROUP_BY_LAST_MODIFIED_DAILY != 0 || currentGrouping and GROUP_BY_LAST_MODIFIED_MONTHLY != 0 ||
-            currentGrouping and GROUP_BY_DATE_TAKEN_DAILY != 0 || currentGrouping and GROUP_BY_DATE_TAKEN_MONTHLY != 0
+        val sortDescending = currentGrouping.has(GROUP_DESCENDING)
+        val sorted = if (currentGrouping.has(GROUP_BY_LAST_MODIFIED_DAILY) || currentGrouping.has(GROUP_BY_LAST_MODIFIED_MONTHLY) ||
+            currentGrouping.has(GROUP_BY_DATE_TAKEN_DAILY) || currentGrouping.has(GROUP_BY_DATE_TAKEN_MONTHLY)
         ) {
             mediumGroups.toSortedMap(if (sortDescending) compareByDescending {
                 it.toLongOrNull() ?: 0L
@@ -856,17 +856,17 @@ class MediaFetcher(val context: Context) {
         return thumbnailItems
     }
 
-    private fun getFormattedKey(key: String, grouping: Int, today: String, yesterday: String, count: Int): String {
+    private fun getFormattedKey(key: String, grouping: PackedInt, today: String, yesterday: String, count: Int): String {
         var result = when {
-            grouping and GROUP_BY_LAST_MODIFIED_DAILY != 0 || grouping and GROUP_BY_DATE_TAKEN_DAILY != 0 -> getFinalDate(
+            grouping.has(GROUP_BY_LAST_MODIFIED_DAILY) || grouping.has(GROUP_BY_DATE_TAKEN_DAILY) -> getFinalDate(
                 formatDate(key, true),
                 today,
                 yesterday
             )
-            grouping and GROUP_BY_LAST_MODIFIED_MONTHLY != 0 || grouping and GROUP_BY_DATE_TAKEN_MONTHLY != 0 -> formatDate(key, false)
-            grouping and GROUP_BY_FILE_TYPE != 0 -> getFileTypeString(key)
-            grouping and GROUP_BY_EXTENSION != 0 -> key.uppercase(Locale.getDefault())
-            grouping and GROUP_BY_FOLDER != 0 -> context.humanizePath(key)
+            grouping.has(GROUP_BY_LAST_MODIFIED_MONTHLY) || grouping.has(GROUP_BY_DATE_TAKEN_MONTHLY) -> formatDate(key, false)
+            grouping.has(GROUP_BY_FILE_TYPE) -> getFileTypeString(key)
+            grouping.has(GROUP_BY_EXTENSION) -> key.uppercase(Locale.getDefault())
+            grouping.has(GROUP_BY_FOLDER) -> context.humanizePath(key)
             else -> key
         }
 
@@ -874,7 +874,7 @@ class MediaFetcher(val context: Context) {
             result = context.getString(R.string.unknown)
         }
 
-        return if (grouping and GROUP_SHOW_FILE_COUNT != 0) {
+        return if (grouping.has(GROUP_SHOW_FILE_COUNT)) {
             "$result ($count)"
         } else {
             result

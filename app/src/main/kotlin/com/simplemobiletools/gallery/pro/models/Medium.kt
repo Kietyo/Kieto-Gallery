@@ -65,16 +65,16 @@ data class Medium(
         else -> taken.formatDate(context)
     }
 
-    fun getGroupingKey(groupBy: Int): String {
+    fun getGroupingKey(groupBy: PackedInt): String {
         return when {
-            groupBy and GROUP_BY_LAST_MODIFIED_DAILY != 0 -> getDayStartTS(modified, false)
-            groupBy and GROUP_BY_LAST_MODIFIED_MONTHLY != 0 -> getDayStartTS(modified, true)
-            groupBy and GROUP_BY_DATE_TAKEN_DAILY != 0 -> getDayStartTS(taken, false)
-            groupBy and GROUP_BY_DATE_TAKEN_MONTHLY != 0 -> getDayStartTS(taken, true)
-            groupBy and GROUP_BY_FILE_TYPE != 0 -> type.toString()
-            groupBy and GROUP_BY_EXTENSION != 0 -> name.getFilenameExtension()
+            groupBy.has(GROUP_BY_LAST_MODIFIED_DAILY) -> getDayStartTS(modified, false)
+            groupBy.has(GROUP_BY_LAST_MODIFIED_MONTHLY) -> getDayStartTS(modified, true)
+            groupBy.has(GROUP_BY_DATE_TAKEN_DAILY) -> getDayStartTS(taken, false)
+            groupBy.has(GROUP_BY_DATE_TAKEN_MONTHLY) -> getDayStartTS(taken, true)
+            groupBy.has(GROUP_BY_FILE_TYPE) -> type.toString()
+            groupBy.has(GROUP_BY_EXTENSION) -> name.getFilenameExtension()
                 .lowercase(Locale.getDefault())
-            groupBy and GROUP_BY_FOLDER != 0 -> parentPath
+            groupBy.has(GROUP_BY_FOLDER) -> parentPath
             else -> ""
         }
     }

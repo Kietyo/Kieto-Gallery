@@ -180,6 +180,7 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
         mTempShowHiddenHandler.removeCallbacksAndMessages(null)
     }
 
+    @RequiresApi(Build.VERSION_CODES.N)
     override fun onResume() {
         super.onResume()
         updateMenuColors()
@@ -912,7 +913,8 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
 
     @RequiresApi(Build.VERSION_CODES.N)
     private fun gotDirectories(newDirs: List<Directory>) {
-        Log.i("kiet", "gotDirectories called")
+        val throwable = Throwable()
+        Log.i("kiet", "gotDirectories called\n${throwable.stackTraceToString()}")
         mIsGettingDirs = false
         mShouldStopFetching = false
 
@@ -993,13 +995,13 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
             val grouping = config.getFolderGrouping(directory.path)
             val getProperDateTaken = config.directorySorting has SORT_BY_DATE_TAKEN ||
                 sorting.has(SORT_BY_DATE_TAKEN) ||
-                grouping and GROUP_BY_DATE_TAKEN_DAILY != 0 ||
-                grouping and GROUP_BY_DATE_TAKEN_MONTHLY != 0
+                grouping.has(GROUP_BY_DATE_TAKEN_DAILY) ||
+                grouping.has(GROUP_BY_DATE_TAKEN_MONTHLY)
 
             val getProperLastModified = config.directorySorting has SORT_BY_DATE_MODIFIED ||
                 sorting.has(SORT_BY_DATE_MODIFIED) ||
-                grouping and GROUP_BY_LAST_MODIFIED_DAILY != 0 ||
-                grouping and GROUP_BY_LAST_MODIFIED_MONTHLY != 0
+                grouping.has(GROUP_BY_LAST_MODIFIED_DAILY) ||
+                grouping.has(GROUP_BY_LAST_MODIFIED_MONTHLY)
 
             val curMedia = mLastMediaFetcher!!.getFilesFrom(
                 directory.path, getImagesOnly, getVideosOnly, getProperDateTaken, getProperLastModified,
@@ -1095,13 +1097,13 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
             val grouping = config.getFolderGrouping(folder)
             val getProperDateTaken = config.directorySorting has SORT_BY_DATE_TAKEN ||
                 sorting.has(SORT_BY_DATE_TAKEN) ||
-                grouping and GROUP_BY_DATE_TAKEN_DAILY != 0 ||
-                grouping and GROUP_BY_DATE_TAKEN_MONTHLY != 0
+                grouping.has(GROUP_BY_DATE_TAKEN_DAILY) ||
+                grouping.has(GROUP_BY_DATE_TAKEN_MONTHLY)
 
             val getProperLastModified = config.directorySorting has SORT_BY_DATE_MODIFIED ||
                 sorting.has(SORT_BY_DATE_MODIFIED) ||
-                grouping and GROUP_BY_LAST_MODIFIED_DAILY != 0 ||
-                grouping and GROUP_BY_LAST_MODIFIED_MONTHLY != 0
+                grouping.has(GROUP_BY_LAST_MODIFIED_DAILY) ||
+                grouping.has(GROUP_BY_LAST_MODIFIED_MONTHLY)
 
             val newMedia = mLastMediaFetcher!!.getFilesFrom(
                 folder, getImagesOnly, getVideosOnly, getProperDateTaken, getProperLastModified,

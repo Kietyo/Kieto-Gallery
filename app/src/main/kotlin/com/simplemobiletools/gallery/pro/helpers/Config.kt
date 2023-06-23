@@ -7,6 +7,7 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.simplemobiletools.commons.helpers.*
 import com.simplemobiletools.commons.models.PackedInt
+import com.simplemobiletools.commons.models.toPackedInt
 import com.simplemobiletools.gallery.pro.R
 import com.simplemobiletools.gallery.pro.enums.FileLoadingPriorityEnum
 import com.simplemobiletools.gallery.pro.models.AlbumCover
@@ -29,12 +30,12 @@ class Config(context: Context) : BaseConfig(context) {
         }
     }
 
-    fun getFolderGrouping(path: String): Int {
+    fun getFolderGrouping(path: String): PackedInt {
         var groupBy = prefs.getInt(GROUP_FOLDER_PREFIX + path.lowercase(Locale.getDefault()), groupBy)
         if (path != SHOW_ALL && groupBy and GROUP_BY_FOLDER != 0) {
             groupBy -= GROUP_BY_FOLDER + 1
         }
-        return groupBy
+        return groupBy.toPackedInt()
     }
 
     fun removeFolderGrouping(path: String) {
