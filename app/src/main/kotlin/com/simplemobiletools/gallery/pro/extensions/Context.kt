@@ -637,7 +637,6 @@ fun Context.tryLoadingWithPicasso(path: String, view: MySquareImageView, cropThu
     var pathToLoad = "file://$path"
     pathToLoad = pathToLoad.replace("%", "%25").replace("#", "%23")
 
-    try {
         var builder = Picasso.get()
             .load(pathToLoad)
             .stableKey(signature.toString())
@@ -655,8 +654,6 @@ fun Context.tryLoadingWithPicasso(path: String, view: MySquareImageView, cropThu
         }
 
         builder.into(view)
-    } catch (e: Exception) {
-    }
 }
 
 fun Context.getCachedDirectories(

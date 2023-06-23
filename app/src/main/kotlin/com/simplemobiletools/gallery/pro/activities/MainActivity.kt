@@ -1387,14 +1387,11 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
             config.lastBinCheck = System.currentTimeMillis()
             Handler().postDelayed({
                 ensureBackgroundThread {
-                    try {
-                        val filesToDelete = mediaDB.getOldRecycleBinItems(System.currentTimeMillis() - MONTH_MILLISECONDS)
-                        filesToDelete.forEach {
-                            if (File(it.path.replaceFirst(RECYCLE_BIN, recycleBinPath)).delete()) {
-                                mediaDB.deleteMediumPath(it.path)
-                            }
+                    val filesToDelete = mediaDB.getOldRecycleBinItems(System.currentTimeMillis() - MONTH_MILLISECONDS)
+                    filesToDelete.forEach {
+                        if (File(it.path.replaceFirst(RECYCLE_BIN, recycleBinPath)).delete()) {
+                            mediaDB.deleteMediumPath(it.path)
                         }
-                    } catch (e: Exception) {
                     }
                 }
             }, 3000L)
@@ -1406,41 +1403,38 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
     // /storage/emulated/0/Android/data/com.facebook.orca/files/stickers/497837993632037/499671223448714
     private fun excludeSpamFolders() {
         ensureBackgroundThread {
-            try {
-                val internalPath = internalStoragePath
-                val checkedPaths = ArrayList<String>()
-                val oftenRepeatedPaths = ArrayList<String>()
-                val paths = mDirs.map { it.path.removePrefix(internalPath) }.toMutableList() as ArrayList<String>
-                paths.forEach { it ->
-                    val parts = it.split("/")
-                    var currentString = ""
-                    for (element in parts) {
-                        currentString += "${element}/"
+            val internalPath = internalStoragePath
+            val checkedPaths = ArrayList<String>()
+            val oftenRepeatedPaths = ArrayList<String>()
+            val paths = mDirs.map { it.path.removePrefix(internalPath) }.toMutableList() as ArrayList<String>
+            paths.forEach { it ->
+                val parts = it.split("/")
+                var currentString = ""
+                for (element in parts) {
+                    currentString += "${element}/"
 
-                        if (!checkedPaths.contains(currentString)) {
-                            val cnt = paths.count { it.startsWith(currentString) }
-                            if (cnt > 50 && currentString.startsWith("/Android/data", true)) {
-                                oftenRepeatedPaths.add(currentString)
-                            }
+                    if (!checkedPaths.contains(currentString)) {
+                        val cnt = paths.count { it.startsWith(currentString) }
+                        if (cnt > 50 && currentString.startsWith("/Android/data", true)) {
+                            oftenRepeatedPaths.add(currentString)
                         }
-
-                        checkedPaths.add(currentString)
                     }
-                }
 
-                val substringToRemove = oftenRepeatedPaths.filter { it ->
-                    it == "/" || oftenRepeatedPaths.any { it != it && it.startsWith(it) }
+                    checkedPaths.add(currentString)
                 }
+            }
 
-                oftenRepeatedPaths.removeAll(substringToRemove.toSet())
-                val OTGPath = config.OTGPath
-                oftenRepeatedPaths.forEach {
-                    val file = File("$internalPath/$it")
-                    if (getDoesFilePathExist(file.absolutePath, OTGPath)) {
-                        config.addExcludedFolder(file.absolutePath)
-                    }
+            val substringToRemove = oftenRepeatedPaths.filter { it ->
+                it == "/" || oftenRepeatedPaths.any { it != it && it.startsWith(it) }
+            }
+
+            oftenRepeatedPaths.removeAll(substringToRemove.toSet())
+            val OTGPath = config.OTGPath
+            oftenRepeatedPaths.forEach {
+                val file = File("$internalPath/$it")
+                if (getDoesFilePathExist(file.absolutePath, OTGPath)) {
+                    config.addExcludedFolder(file.absolutePath)
                 }
-            } catch (e: Exception) {
             }
         }
     }

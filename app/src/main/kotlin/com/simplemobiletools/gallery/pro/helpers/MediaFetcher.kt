@@ -472,82 +472,79 @@ class MediaFetcher(val context: Context) {
                 return@queryCursor
             }
 
-            try {
-                val mediaStoreId = cursor.getLongValue(Images.Media._ID)
-                val filename = cursor.getStringValue(Images.Media.DISPLAY_NAME)
-                val path = cursor.getStringValue(Images.Media.DATA)
-                if (getFavoritePathsOnly && !favoritePaths.contains(path)) {
-                    return@queryCursor
-                }
-
-                val isPortrait = false
-                val isImage = path.isImageFast()
-                val isVideo = if (isImage) false else path.isVideoFast()
-                val isGif = if (isImage || isVideo) false else path.isGif()
-                val isRaw = if (isImage || isVideo || isGif) false else path.isRawFast()
-                val isSvg = if (isImage || isVideo || isGif || isRaw) false else path.isSvg()
-
-                if (!isImage && !isVideo && !isGif && !isRaw && !isSvg) {
-                    return@queryCursor
-                }
-
-                if (isVideo && (isPickImage || filterMedia.notHas(TYPE_VIDEOS)))
-                    return@queryCursor
-
-                if (isImage && (isPickVideo || filterMedia.notHas(TYPE_IMAGES)))
-                    return@queryCursor
-
-                if (isGif && filterMedia.notHas(TYPE_GIFS))
-                    return@queryCursor
-
-                if (isRaw && filterMedia.notHas(TYPE_RAWS))
-                    return@queryCursor
-
-                if (isSvg && filterMedia.notHas(TYPE_SVGS))
-                    return@queryCursor
-
-                if (!showHidden && filename.startsWith('.'))
-                    return@queryCursor
-
-                val size = cursor.getLongValue(Images.Media.SIZE)
-                if (size <= 0L) {
-                    return@queryCursor
-                }
-
-                val type = when {
-                    isVideo -> TYPE_VIDEOS
-                    isGif -> TYPE_GIFS
-                    isRaw -> TYPE_RAWS
-                    isSvg -> TYPE_SVGS
-                    isPortrait -> TYPE_PORTRAITS
-                    else -> TYPE_IMAGES
-                }
-
-                val lastModified = cursor.getLongValue(Images.Media.DATE_MODIFIED) * 1000
-                var dateTaken = cursor.getLongValue(Images.Media.DATE_TAKEN)
-
-                if (getProperDateTaken) {
-                    dateTaken = dateTakens.remove(path)
-                        ?: lastModified
-                }
-
-                if (dateTaken == 0L) {
-                    dateTaken = lastModified
-                }
-
-                val videoDuration = (cursor.getIntValue(MediaStore.MediaColumns.DURATION) / 1000.toDouble()).roundToLong().toInt()
-                val isFavorite = favoritePaths.contains(path)
-                val medium =
-                    Medium(null, filename, path, path.getParentPath(), lastModified, dateTaken, size, type, videoDuration, isFavorite, 0L, mediaStoreId)
-                val parent = medium.parentPath.lowercase(Locale.getDefault())
-                val currentFolderMedia = media[parent]
-                if (currentFolderMedia == null) {
-                    media[parent] = mutableListOf<Medium>()
-                }
-
-                media[parent]?.add(medium)
-            } catch (e: Exception) {
+            val mediaStoreId = cursor.getLongValue(Images.Media._ID)
+            val filename = cursor.getStringValue(Images.Media.DISPLAY_NAME)
+            val path = cursor.getStringValue(Images.Media.DATA)
+            if (getFavoritePathsOnly && !favoritePaths.contains(path)) {
+                return@queryCursor
             }
+
+            val isPortrait = false
+            val isImage = path.isImageFast()
+            val isVideo = if (isImage) false else path.isVideoFast()
+            val isGif = if (isImage || isVideo) false else path.isGif()
+            val isRaw = if (isImage || isVideo || isGif) false else path.isRawFast()
+            val isSvg = if (isImage || isVideo || isGif || isRaw) false else path.isSvg()
+
+            if (!isImage && !isVideo && !isGif && !isRaw && !isSvg) {
+                return@queryCursor
+            }
+
+            if (isVideo && (isPickImage || filterMedia.notHas(TYPE_VIDEOS)))
+                return@queryCursor
+
+            if (isImage && (isPickVideo || filterMedia.notHas(TYPE_IMAGES)))
+                return@queryCursor
+
+            if (isGif && filterMedia.notHas(TYPE_GIFS))
+                return@queryCursor
+
+            if (isRaw && filterMedia.notHas(TYPE_RAWS))
+                return@queryCursor
+
+            if (isSvg && filterMedia.notHas(TYPE_SVGS))
+                return@queryCursor
+
+            if (!showHidden && filename.startsWith('.'))
+                return@queryCursor
+
+            val size = cursor.getLongValue(Images.Media.SIZE)
+            if (size <= 0L) {
+                return@queryCursor
+            }
+
+            val type = when {
+                isVideo -> TYPE_VIDEOS
+                isGif -> TYPE_GIFS
+                isRaw -> TYPE_RAWS
+                isSvg -> TYPE_SVGS
+                isPortrait -> TYPE_PORTRAITS
+                else -> TYPE_IMAGES
+            }
+
+            val lastModified = cursor.getLongValue(Images.Media.DATE_MODIFIED) * 1000
+            var dateTaken = cursor.getLongValue(Images.Media.DATE_TAKEN)
+
+            if (getProperDateTaken) {
+                dateTaken = dateTakens.remove(path)
+                    ?: lastModified
+            }
+
+            if (dateTaken == 0L) {
+                dateTaken = lastModified
+            }
+
+            val videoDuration = (cursor.getIntValue(MediaStore.MediaColumns.DURATION) / 1000.toDouble()).roundToLong().toInt()
+            val isFavorite = favoritePaths.contains(path)
+            val medium =
+                Medium(null, filename, path, path.getParentPath(), lastModified, dateTaken, size, type, videoDuration, isFavorite, 0L, mediaStoreId)
+            val parent = medium.parentPath.lowercase(Locale.getDefault())
+            val currentFolderMedia = media[parent]
+            if (currentFolderMedia == null) {
+                media[parent] = mutableListOf<Medium>()
+            }
+
+            media[parent]?.add(medium)
         }
 
         return media
@@ -639,13 +636,10 @@ class MediaFetcher(val context: Context) {
             val selectionArgs = arrayOf("$folder/%", "$folder/%/%")
 
             context.queryCursor(uri, projection, selection, selectionArgs) { cursor ->
-                try {
-                    val dateTaken = cursor.getLongValue(Images.Media.DATE_TAKEN)
-                    if (dateTaken != 0L) {
-                        val name = cursor.getStringValue(Images.Media.DISPLAY_NAME)
-                        dateTakens["$folder/$name"] = dateTaken
-                    }
-                } catch (e: Exception) {
+                val dateTaken = cursor.getLongValue(Images.Media.DATE_TAKEN)
+                if (dateTaken != 0L) {
+                    val name = cursor.getStringValue(Images.Media.DISPLAY_NAME)
+                    dateTakens["$folder/$name"] = dateTaken
                 }
             }
         }
@@ -706,13 +700,10 @@ class MediaFetcher(val context: Context) {
             val selectionArgs = arrayOf("$folder/%", "$folder/%/%")
 
             context.queryCursor(uri, projection, selection, selectionArgs) { cursor ->
-                try {
-                    val lastModified = cursor.getLongValue(Images.Media.DATE_MODIFIED) * 1000
-                    if (lastModified != 0L) {
-                        val name = cursor.getStringValue(Images.Media.DISPLAY_NAME)
-                        lastModifieds["$folder/$name"] = lastModified
-                    }
-                } catch (e: Exception) {
+                val lastModified = cursor.getLongValue(Images.Media.DATE_MODIFIED) * 1000
+                if (lastModified != 0L) {
+                    val name = cursor.getStringValue(Images.Media.DISPLAY_NAME)
+                    lastModifieds["$folder/$name"] = lastModified
                 }
             }
         }
@@ -729,18 +720,12 @@ class MediaFetcher(val context: Context) {
 
         val uri = Files.getContentUri("external")
 
-        try {
-            context.queryCursor(uri, projection) { cursor ->
-                try {
-                    val lastModified = cursor.getLongValue(Images.Media.DATE_MODIFIED) * 1000
-                    if (lastModified != 0L) {
-                        val path = cursor.getStringValue(Images.Media.DATA)
-                        lastModifieds[path] = lastModified
-                    }
-                } catch (e: Exception) {
-                }
+        context.queryCursor(uri, projection) { cursor ->
+            val lastModified = cursor.getLongValue(Images.Media.DATE_MODIFIED) * 1000
+            if (lastModified != 0L) {
+                val path = cursor.getStringValue(Images.Media.DATA)
+                lastModifieds[path] = lastModified
             }
-        } catch (e: Exception) {
         }
 
         return lastModifieds
@@ -759,13 +744,10 @@ class MediaFetcher(val context: Context) {
             val selectionArgs = arrayOf("$folder/%", "$folder/%/%")
 
             context.queryCursor(uri, projection, selection, selectionArgs) { cursor ->
-                try {
-                    val size = cursor.getLongValue(Images.Media.SIZE)
-                    if (size != 0L) {
-                        val name = cursor.getStringValue(Images.Media.DISPLAY_NAME)
-                        sizes["$folder/$name"] = size
-                    }
-                } catch (e: Exception) {
+                val size = cursor.getLongValue(Images.Media.SIZE)
+                if (size != 0L) {
+                    val name = cursor.getStringValue(Images.Media.DISPLAY_NAME)
+                    sizes["$folder/$name"] = size
                 }
             }
         }
