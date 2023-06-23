@@ -14,6 +14,7 @@ import android.text.format.DateFormat
 import com.simplemobiletools.commons.extensions.*
 import com.simplemobiletools.commons.helpers.*
 import com.simplemobiletools.commons.models.PackedInt
+import com.simplemobiletools.commons.models.toPackedInt
 import com.simplemobiletools.gallery.pro.R
 import com.simplemobiletools.gallery.pro.enums.FileLoadingPriorityEnum
 import com.simplemobiletools.gallery.pro.extensions.*
@@ -34,7 +35,7 @@ class MediaFetcher(val context: Context) {
         lastModifieds: HashMap<String, Long>, dateTakens: HashMap<String, Long>, android11Files: HashMap<String, ArrayList<Medium>>?
     ): ArrayList<Medium> {
         val filterMedia = context.config.filterMedia
-        if (filterMedia == 0) {
+        if (filterMedia == 0.toPackedInt()) {
             return ArrayList()
         }
 
@@ -178,72 +179,72 @@ class MediaFetcher(val context: Context) {
         return parents
     }
 
-    private fun getSelectionQuery(filterMedia: Int): String {
+    private fun getSelectionQuery(filterMedia: PackedInt): String {
         val query = StringBuilder()
-        if (filterMedia and TYPE_IMAGES != 0) {
+        if (filterMedia.has(TYPE_IMAGES)) {
             repeat(photoExtensions.count()) {
                 query.append("${Images.Media.DATA} LIKE ? OR ")
             }
         }
 
-        if (filterMedia and TYPE_PORTRAITS != 0) {
+        if (filterMedia.has(TYPE_PORTRAITS)) {
             query.append("${Images.Media.DATA} LIKE ? OR ")
             query.append("${Images.Media.DATA} LIKE ? OR ")
         }
 
-        if (filterMedia and TYPE_VIDEOS != 0) {
+        if (filterMedia.has(TYPE_VIDEOS)) {
             repeat(videoExtensions.count()) {
                 query.append("${Images.Media.DATA} LIKE ? OR ")
             }
         }
 
-        if (filterMedia and TYPE_GIFS != 0) {
+        if (filterMedia.has(TYPE_GIFS)) {
             query.append("${Images.Media.DATA} LIKE ? OR ")
         }
 
-        if (filterMedia and TYPE_RAWS != 0) {
+        if (filterMedia.has(TYPE_RAWS)) {
             repeat(rawExtensions.count()) {
                 query.append("${Images.Media.DATA} LIKE ? OR ")
             }
         }
 
-        if (filterMedia and TYPE_SVGS != 0) {
+        if (filterMedia.has(TYPE_SVGS)) {
             query.append("${Images.Media.DATA} LIKE ? OR ")
         }
 
         return query.toString().trim().removeSuffix("OR")
     }
 
-    private fun getSelectionArgsQuery(filterMedia: Int): ArrayList<String> {
+    private fun getSelectionArgsQuery(filterMedia: PackedInt): ArrayList<String> {
         val args = ArrayList<String>()
-        if (filterMedia and TYPE_IMAGES != 0) {
+        if (filterMedia.has(TYPE_IMAGES)) {
             photoExtensions.forEach {
                 args.add("%$it")
             }
         }
 
-        if (filterMedia and TYPE_PORTRAITS != 0) {
+        if (filterMedia.has(TYPE_PORTRAITS)) {
             args.add("%.jpg")
             args.add("%.jpeg")
         }
 
-        if (filterMedia and TYPE_VIDEOS != 0) {
+        if (filterMedia.has(TYPE_VIDEOS)) {
             videoExtensions.forEach {
                 args.add("%$it")
             }
         }
 
-        if (filterMedia and TYPE_GIFS != 0) {
+        if (filterMedia.has(TYPE_GIFS)) {
             args.add("%.gif")
         }
 
-        if (filterMedia and TYPE_RAWS != 0) {
+        if (filterMedia.has(TYPE_RAWS)) {
             rawExtensions.forEach {
                 args.add("%$it")
             }
         }
 
-        if (filterMedia and TYPE_SVGS != 0) {
+        if (filterMedia.has(TYPE_SVGS)) {
             args.add("%.svg")
         }
 
@@ -287,7 +288,7 @@ class MediaFetcher(val context: Context) {
     }
 
     private fun getMediaInFolder(
-        folder: String, isPickImage: Boolean, isPickVideo: Boolean, filterMedia: Int, getProperDateTaken: Boolean,
+        folder: String, isPickImage: Boolean, isPickVideo: Boolean, filterMedia: PackedInt, getProperDateTaken: Boolean,
         getProperLastModified: Boolean, getProperFileSize: Boolean, favoritePaths: ArrayList<String>,
         getVideoDurations: Boolean, lastModifieds: HashMap<String, Long>, dateTakens: HashMap<String, Long>
     ): ArrayList<Medium> {
@@ -303,7 +304,7 @@ class MediaFetcher(val context: Context) {
         val checkProperFileSize = getProperFileSize || config.fileLoadingPriority == FileLoadingPriorityEnum.COMPROMISE
         val checkFileExistence = config.fileLoadingPriority == FileLoadingPriorityEnum.VALIDITY
         val showHidden = config.shouldShowHidden
-        val showPortraits = filterMedia and TYPE_PORTRAITS != 0
+        val showPortraits = filterMedia.has(TYPE_PORTRAITS)
         val fileSizes = if (checkProperFileSize || checkFileExistence) getFolderSizes(folder) else HashMap()
 
         val files = when (folder) {
@@ -342,19 +343,19 @@ class MediaFetcher(val context: Context) {
                 }
             }
 
-            if (isVideo && (isPickImage || filterMedia and TYPE_VIDEOS == 0))
+            if (isVideo && (isPickImage || filterMedia.notHas(TYPE_VIDEOS)))
                 continue
 
-            if (isImage && (isPickVideo || filterMedia and TYPE_IMAGES == 0))
+            if (isImage && (isPickVideo || filterMedia.notHas(TYPE_IMAGES)))
                 continue
 
-            if (isGif && filterMedia and TYPE_GIFS == 0)
+            if (isGif && filterMedia.notHas(TYPE_GIFS))
                 continue
 
-            if (isRaw && filterMedia and TYPE_RAWS == 0)
+            if (isRaw && filterMedia.notHas(TYPE_RAWS))
                 continue
 
-            if (isSvg && filterMedia and TYPE_SVGS == 0)
+            if (isSvg && filterMedia.notHas(TYPE_SVGS))
                 continue
 
             val filename = file.name
@@ -479,19 +480,19 @@ class MediaFetcher(val context: Context) {
                     return@queryCursor
                 }
 
-                if (isVideo && (isPickImage || filterMedia and TYPE_VIDEOS == 0))
+                if (isVideo && (isPickImage || filterMedia.notHas(TYPE_VIDEOS)))
                     return@queryCursor
 
-                if (isImage && (isPickVideo || filterMedia and TYPE_IMAGES == 0))
+                if (isImage && (isPickVideo || filterMedia.notHas(TYPE_IMAGES)))
                     return@queryCursor
 
-                if (isGif && filterMedia and TYPE_GIFS == 0)
+                if (isGif && filterMedia.notHas(TYPE_GIFS))
                     return@queryCursor
 
-                if (isRaw && filterMedia and TYPE_RAWS == 0)
+                if (isRaw && filterMedia.notHas(TYPE_RAWS))
                     return@queryCursor
 
-                if (isSvg && filterMedia and TYPE_SVGS == 0)
+                if (isSvg && filterMedia.notHas(TYPE_SVGS))
                     return@queryCursor
 
                 if (!showHidden && filename.startsWith('.'))
@@ -541,7 +542,7 @@ class MediaFetcher(val context: Context) {
     }
 
     private fun getMediaOnOTG(
-        folder: String, isPickImage: Boolean, isPickVideo: Boolean, filterMedia: Int, favoritePaths: ArrayList<String>,
+        folder: String, isPickImage: Boolean, isPickVideo: Boolean, filterMedia: PackedInt, favoritePaths: ArrayList<String>,
         getVideoDurations: Boolean
     ): ArrayList<Medium> {
         val media = ArrayList<Medium>()
@@ -565,19 +566,19 @@ class MediaFetcher(val context: Context) {
             if (!isImage && !isVideo && !isGif && !isRaw && !isSvg)
                 continue
 
-            if (isVideo && (isPickImage || filterMedia and TYPE_VIDEOS == 0))
+            if (isVideo && (isPickImage || filterMedia.notHas(TYPE_VIDEOS)))
                 continue
 
-            if (isImage && (isPickVideo || filterMedia and TYPE_IMAGES == 0))
+            if (isImage && (isPickVideo || filterMedia.notHas(TYPE_IMAGES)))
                 continue
 
-            if (isGif && filterMedia and TYPE_GIFS == 0)
+            if (isGif && filterMedia.notHas(TYPE_GIFS))
                 continue
 
-            if (isRaw && filterMedia and TYPE_RAWS == 0)
+            if (isRaw && filterMedia.notHas(TYPE_RAWS))
                 continue
 
-            if (isSvg && filterMedia and TYPE_SVGS == 0)
+            if (isSvg && filterMedia.notHas(TYPE_SVGS))
                 continue
 
             if (!showHidden && filename.startsWith('.'))

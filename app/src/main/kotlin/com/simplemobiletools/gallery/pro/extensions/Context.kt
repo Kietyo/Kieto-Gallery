@@ -707,12 +707,12 @@ fun Context.getCachedDirectories(
             getVideosOnly -> filteredDirectories.filter { it.types and TYPE_VIDEOS != 0 }
             getImagesOnly -> filteredDirectories.filter { it.types and TYPE_IMAGES != 0 }
             else -> filteredDirectories.filter {
-                (filterMedia and TYPE_IMAGES != 0 && it.types and TYPE_IMAGES != 0) ||
-                    (filterMedia and TYPE_VIDEOS != 0 && it.types and TYPE_VIDEOS != 0) ||
-                    (filterMedia and TYPE_GIFS != 0 && it.types and TYPE_GIFS != 0) ||
-                    (filterMedia and TYPE_RAWS != 0 && it.types and TYPE_RAWS != 0) ||
-                    (filterMedia and TYPE_SVGS != 0 && it.types and TYPE_SVGS != 0) ||
-                    (filterMedia and TYPE_PORTRAITS != 0 && it.types and TYPE_PORTRAITS != 0)
+                (filterMedia.has(TYPE_IMAGES) && it.types and TYPE_IMAGES != 0) ||
+                    (filterMedia.has(TYPE_VIDEOS) && it.types and TYPE_VIDEOS != 0) ||
+                    (filterMedia.has(TYPE_GIFS) && it.types and TYPE_GIFS != 0) ||
+                    (filterMedia.has(TYPE_RAWS) && it.types and TYPE_RAWS != 0) ||
+                    (filterMedia.has(TYPE_SVGS) && it.types and TYPE_SVGS != 0) ||
+                    (filterMedia.has(TYPE_PORTRAITS) && it.types and TYPE_PORTRAITS != 0)
             }
         })
 
@@ -755,7 +755,7 @@ fun Context.getCachedMedia(path: String, getVideosOnly: Boolean = false, getImag
             media.addAll(getUpdatedDeletedMedia())
         }
 
-        if (config.filterMedia and TYPE_PORTRAITS != 0) {
+        if (config.filterMedia.has(TYPE_PORTRAITS)) {
             val foldersToAdd = mutableListOf<String>()
             for (folder in foldersToScan) {
                 val allFiles = File(folder).listFiles() ?: continue
@@ -784,12 +784,12 @@ fun Context.getCachedMedia(path: String, getVideosOnly: Boolean = false, getImag
             getVideosOnly -> media.filter { it.type == TYPE_VIDEOS }
             getImagesOnly -> media.filter { it.type == TYPE_IMAGES }
             else -> media.filter {
-                (filterMedia and TYPE_IMAGES != 0 && it.type == TYPE_IMAGES) ||
-                    (filterMedia and TYPE_VIDEOS != 0 && it.type == TYPE_VIDEOS) ||
-                    (filterMedia and TYPE_GIFS != 0 && it.type == TYPE_GIFS) ||
-                    (filterMedia and TYPE_RAWS != 0 && it.type == TYPE_RAWS) ||
-                    (filterMedia and TYPE_SVGS != 0 && it.type == TYPE_SVGS) ||
-                    (filterMedia and TYPE_PORTRAITS != 0 && it.type == TYPE_PORTRAITS)
+                (filterMedia.has(TYPE_IMAGES) && it.type == TYPE_IMAGES) ||
+                    (filterMedia.has(TYPE_VIDEOS) && it.type == TYPE_VIDEOS) ||
+                    (filterMedia.has(TYPE_GIFS) && it.type == TYPE_GIFS) ||
+                    (filterMedia.has(TYPE_RAWS) && it.type == TYPE_RAWS) ||
+                    (filterMedia.has(TYPE_SVGS) && it.type == TYPE_SVGS) ||
+                    (filterMedia.has(TYPE_PORTRAITS) && it.type == TYPE_PORTRAITS)
             }
         }) as ArrayList<Medium>
 

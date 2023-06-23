@@ -342,12 +342,12 @@ open class PhotoVideoActivity : SimpleActivity(), ViewPagerFragment.FragmentList
 
     private fun isFileTypeVisible(path: String): Boolean {
         val filter = config.filterMedia
-        return !(path.isImageFast() && filter and TYPE_IMAGES == 0 ||
-            path.isVideoFast() && filter and TYPE_VIDEOS == 0 ||
-            path.isGif() && filter and TYPE_GIFS == 0 ||
-            path.isRawFast() && filter and TYPE_RAWS == 0 ||
-            path.isSvg() && filter and TYPE_SVGS == 0 ||
-            path.isPortrait() && filter and TYPE_PORTRAITS == 0)
+        return !(path.isImageFast() && filter.notHas(TYPE_IMAGES) ||
+            path.isVideoFast() && filter.notHas(TYPE_VIDEOS) ||
+            path.isGif() && filter.notHas(TYPE_GIFS) ||
+            path.isRawFast() && filter.notHas(TYPE_RAWS) ||
+            path.isSvg() && filter.notHas(TYPE_SVGS) ||
+            path.isPortrait() && filter.notHas(TYPE_PORTRAITS))
     }
 
     private fun initBottomActions() {

@@ -524,11 +524,11 @@ class DirectoryAdapter(
             File(it).listFiles()?.filter {
                 !File(it.absolutePath).isDirectory &&
                     it.absolutePath.isMediaFile() && (showHidden || !it.name.startsWith('.')) &&
-                    ((it.isImageFast() && filter and TYPE_IMAGES != 0) ||
-                        (it.isVideoFast() && filter and TYPE_VIDEOS != 0) ||
-                        (it.isGif() && filter and TYPE_GIFS != 0) ||
-                        (it.isRawFast() && filter and TYPE_RAWS != 0) ||
-                        (it.isSvg() && filter and TYPE_SVGS != 0))
+                    ((it.isImageFast() && filter.has(TYPE_IMAGES)) ||
+                        (it.isVideoFast() && filter.has(TYPE_VIDEOS)) ||
+                        (it.isGif() && filter.has(TYPE_GIFS)) ||
+                        (it.isRawFast() && filter.has(TYPE_RAWS)) ||
+                        (it.isSvg() && filter.has(TYPE_SVGS)))
             }?.mapTo(paths) { it.absolutePath }
         }
 

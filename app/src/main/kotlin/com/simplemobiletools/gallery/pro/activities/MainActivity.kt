@@ -132,7 +132,7 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
 
         if (!config.wasSVGShowingHandled) {
             config.wasSVGShowingHandled = true
-            if (config.filterMedia and TYPE_SVGS == 0) {
+            if (config.filterMedia.notHas(TYPE_SVGS)) {
                 config.filterMedia += TYPE_SVGS
             }
         }
@@ -667,11 +667,11 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
             val files = File(it.path).listFiles()
             files?.filter {
                 it.absolutePath.isMediaFile() && (showHidden || !it.name.startsWith('.')) &&
-                    ((it.isImageFast() && filter and TYPE_IMAGES != 0) ||
-                        (it.isVideoFast() && filter and TYPE_VIDEOS != 0) ||
-                        (it.isGif() && filter and TYPE_GIFS != 0) ||
-                        (it.isRawFast() && filter and TYPE_RAWS != 0) ||
-                        (it.isSvg() && filter and TYPE_SVGS != 0))
+                    ((it.isImageFast() && filter.has(TYPE_IMAGES)) ||
+                        (it.isVideoFast() && filter.has(TYPE_VIDEOS)) ||
+                        (it.isGif() && filter.has(TYPE_GIFS)) ||
+                        (it.isRawFast() && filter.has(TYPE_RAWS)) ||
+                        (it.isSvg() && filter.has(TYPE_SVGS)))
             }?.mapTo(itemsToDelete) { it.toFileDirItem(applicationContext) }
         }
 
@@ -1033,8 +1033,6 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
                 sortValue = getDirectorySortingValue(curMedia, path, name, size)
             }
 
-            setupAdapter(dirs)
-
             // update directories and media files in the local db, delete invalid items. Intentionally creating a new thread
             updateDBDirectory(directory)
             if (!directory.isRecycleBin() && !directory.areFavorites()) {
@@ -1048,7 +1046,7 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
 
             if (!directory.isRecycleBin()) {
                 getCachedMedia(directory.path, getVideosOnly, getImagesOnly) { it ->
-                    val mediaToDelete = ArrayList<Medium>()
+                    val mediaToDelete = mutableListOf<Medium>()
                     it.forEach {
                         if (!curMedia.contains(it)) {
                             val medium = it as? Medium
@@ -1062,6 +1060,8 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
                 }
             }
         }
+
+        setupAdapter(dirs)
 
         if (dirPathsToRemove.isNotEmpty()) {
             val dirsToRemove = dirs.asSequence().filter { dirPathsToRemove.contains(it.path) }.toSet()
@@ -1246,7 +1246,8 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
     }
 
     private fun setupAdapter(dirs: List<Directory>, textToSearch: String = main_menu.getCurrentQuery(), forceRecreate: Boolean = false) {
-        Log.i("kiet", "setupAdapter called")
+        val throwable = Throwable()
+        Log.i("kiet", "setupAdapter called\n${throwable.stackTraceToString()}")
         val currAdapter = directories_grid.adapter
         val distinctDirs = dirs.distinctBy { it.path.getDistinctPath() }
         val sortedDirs = getSortedDirectories(distinctDirs)

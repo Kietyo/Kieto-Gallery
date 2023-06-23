@@ -4,6 +4,8 @@ import com.simplemobiletools.commons.helpers.MONTH_SECONDS
 import com.simplemobiletools.commons.helpers.PERMISSION_READ_MEDIA_IMAGES
 import com.simplemobiletools.commons.helpers.PERMISSION_WRITE_STORAGE
 import com.simplemobiletools.commons.helpers.isTiramisuPlus
+import com.simplemobiletools.commons.models.PackedInt
+import com.simplemobiletools.commons.models.toPackedInt
 
 // shared preferences
 const val DIRECTORY_SORT_ORDER = "directory_sort_order"
@@ -182,7 +184,7 @@ const val TYPE_RAWS = 8
 const val TYPE_SVGS = 16
 const val TYPE_PORTRAITS = 32
 
-fun getDefaultFileFilter() = TYPE_IMAGES or TYPE_VIDEOS or TYPE_GIFS or TYPE_RAWS or TYPE_SVGS
+fun getDefaultFileFilter(): PackedInt = (TYPE_IMAGES or TYPE_VIDEOS or TYPE_GIFS or TYPE_RAWS or TYPE_SVGS).toPackedInt()
 
 const val LOCATION_INTERNAL = 1
 const val LOCATION_SD = 2
