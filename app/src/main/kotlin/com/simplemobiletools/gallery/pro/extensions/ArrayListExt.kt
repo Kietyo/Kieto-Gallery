@@ -3,7 +3,7 @@ package com.simplemobiletools.gallery.pro.extensions
 import com.simplemobiletools.gallery.pro.helpers.*
 import com.simplemobiletools.gallery.pro.models.Medium
 
-fun ArrayList<Medium>.getDirMediaTypes(): Int {
+fun List<Medium>.getDirMediaTypes(): Int {
     var types = 0
     if (any { it.isImage() }) {
         types += TYPE_IMAGES

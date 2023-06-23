@@ -737,8 +737,7 @@ fun Context.getCachedDirectories(
             }
         }
 
-        val clone = filteredDirectories
-        callback(clone.distinctBy { it.path.getDistinctPath() })
+        callback(filteredDirectories.distinctBy { it.path.getDistinctPath() })
         removeInvalidDBDirectories(filteredDirectories)
     }
 }
@@ -831,10 +830,7 @@ fun Context.removeInvalidDBDirectories(dirs: List<Directory>? = null) {
     val dirsToCheck = dirs ?: directoryDB.getAll()
     val OTGPath = config.OTGPath
     dirsToCheck.filter { !it.areFavorites() && !it.isRecycleBin() && !getDoesFilePathExist(it.path, OTGPath) && it.path != config.tempFolderPath }.forEach {
-        try {
             directoryDB.deleteDirPath(it.path)
-        } catch (ignored: Exception) {
-        }
     }
 }
 
@@ -1014,7 +1010,7 @@ fun Context.addPathToDB(path: String) {
 }
 
 fun Context.createDirectoryFromMedia(
-    path: String, curMedia: ArrayList<Medium>, albumCovers: ArrayList<AlbumCover>, hiddenString: String,
+    path: String, curMedia: List<Medium>, albumCovers: ArrayList<AlbumCover>, hiddenString: String,
     includedFolders: MutableSet<String>, getProperFileSize: Boolean, noMediaFolders: List<String>
 ): Directory {
     val OTGPath = config.OTGPath
@@ -1049,7 +1045,7 @@ fun Context.createDirectoryFromMedia(
     return Directory(null, path, thumbnail!!, dirName, curMedia.size, lastModified, dateTaken, size, getPathLocation(path), mediaTypes, sortValue)
 }
 
-fun Context.getDirectorySortingValue(media: ArrayList<Medium>, path: String, name: String, size: Long): String {
+fun Context.getDirectorySortingValue(media: List<Medium>, path: String, name: String, size: Long): String {
     val sorting = config.directorySorting
     val sorted = when {
         sorting has SORT_BY_NAME -> return name

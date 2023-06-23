@@ -486,6 +486,7 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.N)
     private fun tryLoadGallery() {
         // avoid calling anything right after granting the permission, it will be called from onResume()
         val wasMissingPermission = config.appRunCount == 1 && !hasPermission(getPermissionToRequest())
@@ -632,6 +633,7 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.N)
     private fun toggleTemporarilyShowExcluded(show: Boolean) {
         mLoadedInitialPhotos = false
         config.temporarilyShowExcluded = show
@@ -982,7 +984,7 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
             getImagesOnly, getVideosOnly, favoritePaths,
             getFavoritePathsOnly = false,
             getProperDateTaken = true,
-            dateTakens = dateTakens
+            dateTakenss = dateTakens
         )
 
         val dirPathsToRemove = mutableSetOf<String>()
@@ -1037,10 +1039,7 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
             updateDBDirectory(directory)
             if (!directory.isRecycleBin() && !directory.areFavorites()) {
                 Thread {
-                    try {
-                        mediaDB.insertAll(curMedia)
-                    } catch (ignored: Exception) {
-                    }
+                    mediaDB.insertAll(curMedia)
                 }.start()
             }
 
@@ -1061,7 +1060,6 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
             }
         }
 
-        setupAdapter(dirs)
 
         if (dirPathsToRemove.isNotEmpty()) {
             val dirsToRemove = dirs.asSequence().filter { dirPathsToRemove.contains(it.path) }.toSet()
@@ -1069,8 +1067,9 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
                 directoryDB.deleteDirPath(it.path)
             }
             dirs = dirs - dirsToRemove
-            setupAdapter(dirs)
         }
+
+        setupAdapter(dirs)
 
         val foldersToScan: List<String> = mLastMediaFetcher!!.getFoldersToScan().apply {
             remove(FAVORITES)
@@ -1128,12 +1127,9 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
 
             // make sure to create a new thread for these operations, dont just use the common bg thread
             Thread {
-                try {
-                    directoryDB.insert(newDir)
-                    if (folder != RECYCLE_BIN && folder != FAVORITES) {
-                        mediaDB.insertAll(newMedia)
-                    }
-                } catch (ignored: Exception) {
+                directoryDB.insert(newDir)
+                if (folder != RECYCLE_BIN && folder != FAVORITES) {
+                    mediaDB.insertAll(newMedia)
                 }
             }.start()
         }
