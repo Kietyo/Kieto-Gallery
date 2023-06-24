@@ -39,7 +39,7 @@ class MediaFetcher(val context: Context) {
             return listOf()
         }
 
-        val curMedia = ArrayList<Medium>()
+        val curMedia = mutableListOf<Medium>()
         if (context.isPathOnOTG(curPath)) {
             if (context.hasOTGConnected()) {
                 val newMedia = getMediaOnOTG(curPath, isPickImage, isPickVideo, filterMedia, favoritePaths, getVideoDurations)
@@ -67,7 +67,7 @@ class MediaFetcher(val context: Context) {
                     val files =
                         getAndroid11FolderMedia(isPickImage, isPickVideo, favoritePaths, true, getProperDateTaken, dateTakens)
                     newMedia.forEach { newMedium ->
-                        for ((folder, media) in files) {
+                        for ((_, media) in files) {
                             media.forEach { medium ->
                                 if (medium.path == newMedium.path) {
                                     newMedium.size = medium.size
@@ -773,7 +773,7 @@ class MediaFetcher(val context: Context) {
         return sizes
     }
 
-    fun sortMedia(media: ArrayList<Medium>, sorting: PackedInt) {
+    fun sortMedia(media: MutableList<Medium>, sorting: PackedInt) {
         if (sorting has SORT_BY_RANDOM) {
             media.shuffle()
             return

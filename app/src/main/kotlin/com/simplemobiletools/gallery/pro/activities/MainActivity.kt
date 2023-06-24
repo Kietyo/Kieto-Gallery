@@ -42,6 +42,7 @@ import com.simplemobiletools.gallery.pro.jobs.NewPhotoFetcher
 import com.simplemobiletools.gallery.pro.models.Directory
 import com.simplemobiletools.gallery.pro.models.Medium
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.coroutines.*
 import java.io.*
 
 class MainActivity : SimpleActivity(), DirectoryOperationsListener {
@@ -1038,9 +1039,12 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
             // update directories and media files in the local db, delete invalid items. Intentionally creating a new thread
             updateDBDirectory(directory)
             if (!directory.isRecycleBin() && !directory.areFavorites()) {
-                Thread {
+                GlobalScope.launch(Dispatchers.IO) {
                     mediaDB.insertAll(curMedia)
-                }.start()
+                }
+//                Thread {
+//                    mediaDB.insertAll(curMedia)
+//                }.start()
             }
 
             if (!directory.isRecycleBin()) {
