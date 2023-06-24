@@ -667,14 +667,15 @@ fun Context.getCachedDirectories(
     callback: (List<Directory>) -> Unit
 ) {
     ensureBackgroundThread {
-        try {
-            Process.setThreadPriority(Process.THREAD_PRIORITY_MORE_FAVORABLE)
-        } catch (ignored: Exception) {
-        }
+//        try {
+//            Process.setThreadPriority(Process.THREAD_PRIORITY_MORE_FAVORABLE)
+//        } catch (ignored: Exception) {
+//        }
 
         var directories = try {
             directoryDB.getAll()
         } catch (e: Exception) {
+            Log.e("kiet", "exception: $e")
             listOf()
         }
 
@@ -691,7 +692,7 @@ fun Context.getCachedDirectories(
 
         val includedPaths = config.includedFolders
 
-        val folderNoMediaStatuses = HashMap<String, Boolean>()
+        val folderNoMediaStatuses = mutableMapOf<String, Boolean>()
         val noMediaFolders = getNoMediaFoldersSync()
         noMediaFolders.forEach { folder ->
             folderNoMediaStatuses["$folder/$NOMEDIA"] = true

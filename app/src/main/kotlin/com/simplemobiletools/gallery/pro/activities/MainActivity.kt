@@ -83,6 +83,7 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
     private var mStoredPrimaryColor = 0
     private var mStoredStyleString = ""
 
+    @RequiresApi(Build.VERSION_CODES.N)
     override fun onCreate(savedInstanceState: Bundle?) {
         isMaterialActivity = true
         super.onCreate(savedInstanceState)
@@ -529,6 +530,8 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
         if (mIsGettingDirs) {
             return
         }
+        val throwable = Throwable()
+        Log.i("kiet", "getDirectories called\n${throwable.stackTraceToString()}")
 
         mShouldStopFetching = true
         mIsGettingDirs = true
@@ -917,8 +920,8 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
     @OptIn(DelicateCoroutinesApi::class)
     @RequiresApi(Build.VERSION_CODES.N)
     private fun gotDirectories(newDirs: List<Directory>) {
-//        val throwable = Throwable()
-//        Log.i("kiet", "gotDirectories called\n${throwable.stackTraceToString()}")
+        //        val throwable = Throwable()
+        //        Log.i("kiet", "gotDirectories called\n${throwable.stackTraceToString()}")
         mIsGettingDirs = false
         mShouldStopFetching = false
 
@@ -1132,12 +1135,12 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
                     mediaDB.insertAll(newMedia)
                 }
             }
-//            Thread {
-//                directoryDB.insert(newDir)
-//                if (folder != RECYCLE_BIN && folder != FAVORITES) {
-//                    mediaDB.insertAll(newMedia)
-//                }
-//            }.start()
+            //            Thread {
+            //                directoryDB.insert(newDir)
+            //                if (folder != RECYCLE_BIN && folder != FAVORITES) {
+            //                    mediaDB.insertAll(newMedia)
+            //                }
+            //            }.start()
         }
 
 
@@ -1167,7 +1170,6 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
         }
 
         setupAdapter(dirs)
-
 
         val excludedFolders = config.excludedFolders
         val everShownFolders = config.everShownFolders.toMutableSet()
@@ -1359,14 +1361,13 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
         ?: emptyList()
 
     private fun setupLatestMediaId() {
-        ensureBackgroundThread {
-            if (hasPermission(PERMISSION_READ_STORAGE)) {
-                mLatestMediaId = getLatestMediaId()
-                mLatestMediaDateId = getLatestMediaByDateId()
-            }
+        if (hasPermission(PERMISSION_READ_STORAGE)) {
+            mLatestMediaId = getLatestMediaId()
+            mLatestMediaDateId = getLatestMediaByDateId()
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.N)
     private fun checkLastMediaChanged() {
         if (isDestroyed) {
             return
@@ -1387,7 +1388,7 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
                     checkLastMediaChanged()
                 }
             }
-        }, Companion.LAST_MEDIA_CHECK_PERIOD)
+        }, LAST_MEDIA_CHECK_PERIOD)
     }
 
     private fun checkRecycleBinItems() {
