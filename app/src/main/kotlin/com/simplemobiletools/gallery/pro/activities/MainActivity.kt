@@ -914,10 +914,11 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
         }
     }
 
+    @OptIn(DelicateCoroutinesApi::class)
     @RequiresApi(Build.VERSION_CODES.N)
     private fun gotDirectories(newDirs: List<Directory>) {
-        val throwable = Throwable()
-        Log.i("kiet", "gotDirectories called\n${throwable.stackTraceToString()}")
+//        val throwable = Throwable()
+//        Log.i("kiet", "gotDirectories called\n${throwable.stackTraceToString()}")
         mIsGettingDirs = false
         mShouldStopFetching = false
 
@@ -1042,9 +1043,6 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
                 GlobalScope.launch(Dispatchers.IO) {
                     mediaDB.insertAll(curMedia)
                 }
-//                Thread {
-//                    mediaDB.insertAll(curMedia)
-//                }.start()
             }
 
             if (!directory.isRecycleBin()) {
@@ -1072,8 +1070,6 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
             }
             dirs = dirs - dirsToRemove
         }
-
-        setupAdapter(dirs)
 
         val foldersToScan: List<String> = mLastMediaFetcher!!.getFoldersToScan().apply {
             remove(FAVORITES)
@@ -1130,15 +1126,20 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
             dirs += newDir
 
             // make sure to create a new thread for these operations, dont just use the common bg thread
-            Thread {
+            GlobalScope.launch(Dispatchers.IO) {
                 directoryDB.insert(newDir)
                 if (folder != RECYCLE_BIN && folder != FAVORITES) {
                     mediaDB.insertAll(newMedia)
                 }
-            }.start()
+            }
+//            Thread {
+//                directoryDB.insert(newDir)
+//                if (folder != RECYCLE_BIN && folder != FAVORITES) {
+//                    mediaDB.insertAll(newMedia)
+//                }
+//            }.start()
         }
 
-        setupAdapter(dirs)
 
         mLoadedInitialPhotos = true
         if (config.appRunCount > 1) {
@@ -1153,17 +1154,20 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
         val invalidDirs = calculateInvalidDirs(dirs)
         if (invalidDirs.isNotEmpty()) {
             dirs -= invalidDirs
-            setupAdapter(dirs)
             invalidDirs.forEach {
                 try {
                     directoryDB.deleteDirPath(it.path)
                 } catch (ignored: Exception) {
+                    Log.e("kiet", "Exception: $ignored")
                 }
             }
         }
         if (mDirs.size > 50) {
             excludeSpamFolders()
         }
+
+        setupAdapter(dirs)
+
 
         val excludedFolders = config.excludedFolders
         val everShownFolders = config.everShownFolders.toMutableSet()
