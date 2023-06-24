@@ -1033,7 +1033,7 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
                 modified = newDir.modified
                 taken = newDir.taken
                 this@apply.size = newDir.size
-                types = newDir.types
+                _types = newDir._types
                 sortValue = getDirectorySortingValue(curMedia, path, name, size)
             }
 

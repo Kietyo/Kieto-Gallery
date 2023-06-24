@@ -7,6 +7,7 @@ import com.simplemobiletools.commons.extensions.formatDate
 import com.simplemobiletools.commons.extensions.formatSize
 import com.simplemobiletools.commons.helpers.*
 import com.simplemobiletools.commons.models.PackedInt
+import com.simplemobiletools.commons.models.toPackedInt
 import com.simplemobiletools.gallery.pro.helpers.RECYCLE_BIN
 
 @Entity(tableName = "directories", indices = [Index(value = ["path"], unique = true)])
@@ -20,7 +21,7 @@ data class Directory(
     @ColumnInfo(name = "date_taken") var taken: Long,
     @ColumnInfo(name = "size") var size: Long,
     @ColumnInfo(name = "location") var location: Int,
-    @ColumnInfo(name = "media_types") var types: Int,
+    @ColumnInfo(name = "media_types") var _types: Int,
     @ColumnInfo(name = "sort_value") var sortValue: String,
 
     // used with "Group direct subfolders" enabled
@@ -28,6 +29,7 @@ data class Directory(
     @Ignore var subfoldersMediaCount: Int = 0,
     @Ignore var containsMediaFilesDirectly: Boolean = true
 ) {
+    val types: PackedInt get() = _types.toPackedInt()
 
     constructor() : this(null, "", "", "", 0, 0L, 0L, 0L, 0, 0, "", 0, 0)
 

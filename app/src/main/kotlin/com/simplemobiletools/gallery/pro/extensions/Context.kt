@@ -28,6 +28,7 @@ import com.bumptech.glide.request.target.Target
 import com.bumptech.glide.signature.ObjectKey
 import com.simplemobiletools.commons.extensions.*
 import com.simplemobiletools.commons.helpers.*
+import com.simplemobiletools.commons.models.toPackedInt
 import com.simplemobiletools.commons.views.MySquareImageView
 import com.simplemobiletools.gallery.pro.R
 import com.simplemobiletools.gallery.pro.asynctasks.GetMediaAsynctask
@@ -263,9 +264,9 @@ fun Context.getDirectParentSubfolders(dirss: List<Directory>, currentPathPrefix:
                         subDirs.maxByOrNull { it.taken }?.taken
                     } ?: 0
 
-                    var mediaTypes = 0
+                    var mediaTypes = 0.toPackedInt()
                     subDirs.forEach {
-                        mediaTypes = mediaTypes or it.types
+                        mediaTypes = mediaTypes + it.types
                     }
 
                     val directory = Directory(
@@ -278,7 +279,7 @@ fun Context.getDirectParentSubfolders(dirss: List<Directory>, currentPathPrefix:
                         dateTaken,
                         subDirs.sumByLong { it.size },
                         getPathLocation(parent),
-                        mediaTypes,
+                        mediaTypes.data,
                         ""
                     )
 
@@ -704,15 +705,15 @@ fun Context.getCachedDirectories(
         val filterMedia = config.filterMedia
 
         filteredDirectories = (when {
-            getVideosOnly -> filteredDirectories.filter { it.types and TYPE_VIDEOS != 0 }
-            getImagesOnly -> filteredDirectories.filter { it.types and TYPE_IMAGES != 0 }
+            getVideosOnly -> filteredDirectories.filter { it.types.has(TYPE_VIDEOS) }
+            getImagesOnly -> filteredDirectories.filter { it.types.has(TYPE_IMAGES) }
             else -> filteredDirectories.filter {
-                (filterMedia.has(TYPE_IMAGES) && it.types and TYPE_IMAGES != 0) ||
-                    (filterMedia.has(TYPE_VIDEOS) && it.types and TYPE_VIDEOS != 0) ||
-                    (filterMedia.has(TYPE_GIFS) && it.types and TYPE_GIFS != 0) ||
-                    (filterMedia.has(TYPE_RAWS) && it.types and TYPE_RAWS != 0) ||
-                    (filterMedia.has(TYPE_SVGS) && it.types and TYPE_SVGS != 0) ||
-                    (filterMedia.has(TYPE_PORTRAITS) && it.types and TYPE_PORTRAITS != 0)
+                (filterMedia.has(TYPE_IMAGES) && it.types.has(TYPE_IMAGES)) ||
+                    (filterMedia.has(TYPE_VIDEOS) && it.types.has(TYPE_VIDEOS)) ||
+                    (filterMedia.has(TYPE_GIFS) && it.types.has(TYPE_GIFS)) ||
+                    (filterMedia.has(TYPE_RAWS) && it.types.has(TYPE_RAWS)) ||
+                    (filterMedia.has(TYPE_SVGS) && it.types.has(TYPE_SVGS)) ||
+                    (filterMedia.has(TYPE_PORTRAITS) && it.types.has(TYPE_PORTRAITS))
             }
         })
 
@@ -853,7 +854,7 @@ fun Context.updateDBDirectory(directory: Directory) {
             directory.modified,
             directory.taken,
             directory.size,
-            directory.types,
+            directory.types.data,
             directory.sortValue
         )
     } catch (ignored: Exception) {
