@@ -55,7 +55,8 @@ import java.io.File
 import java.util.*
 
 class DirectoryAdapter(
-    activity: BaseSimpleActivity, val dirs: MutableList<Directory>, val listener: DirectoryOperationsListener?, recyclerView: MyRecyclerView,
+    activity: BaseSimpleActivity,
+    val dirs: MutableList<Directory>, val listener: DirectoryOperationsListener?, recyclerView: MyRecyclerView,
     private val isPickIntent: Boolean, private val swipeRefreshLayout: SwipeRefreshLayout? = null, itemClick: (Any) -> Unit
 ) :
     MyRecyclerViewAdapter(activity, recyclerView, itemClick), ItemTouchHelperContract, RecyclerViewFastScroller.OnPopupTextUpdate {

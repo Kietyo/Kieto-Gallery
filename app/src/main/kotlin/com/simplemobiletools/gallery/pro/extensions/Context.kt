@@ -29,6 +29,7 @@ import com.bumptech.glide.signature.ObjectKey
 import com.simplemobiletools.commons.extensions.*
 import com.simplemobiletools.commons.helpers.*
 import com.simplemobiletools.commons.models.toPackedInt
+import com.simplemobiletools.commons.utils.KietLog
 import com.simplemobiletools.commons.views.MySquareImageView
 import com.simplemobiletools.gallery.pro.R
 import com.simplemobiletools.gallery.pro.asynctasks.GetMediaAsynctask
@@ -143,6 +144,7 @@ fun Context.getSortedDirectories(source: List<Directory>): List<Directory> {
                     o1.sortValue.normalizeString().lowercase(Locale.getDefault()).compareTo(o2.sortValue.normalizeString().lowercase(Locale.getDefault()))
                 }
             }
+
             sorting has SORT_BY_PATH -> {
                 if (o1.sortValue.isEmpty()) {
                     o1.sortValue = o1.path.lowercase(Locale.getDefault())
@@ -158,20 +160,24 @@ fun Context.getSortedDirectories(source: List<Directory>): List<Directory> {
                     o1.sortValue.lowercase(Locale.getDefault()).compareTo(o2.sortValue.lowercase(Locale.getDefault()))
                 }
             }
+
             sorting has SORT_BY_PATH -> AlphanumericComparator().compare(
                 o1.sortValue.lowercase(Locale.getDefault()),
                 o2.sortValue.lowercase(Locale.getDefault())
             )
+
             sorting has SORT_BY_SIZE -> (o1.sortValue.toLongOrNull()
                 ?: 0).compareTo(
                 o2.sortValue.toLongOrNull()
                     ?: 0
             )
+
             sorting has SORT_BY_DATE_MODIFIED -> (o1.sortValue.toLongOrNull()
                 ?: 0).compareTo(
                 o2.sortValue.toLongOrNull()
                     ?: 0
             )
+
             else -> (o1.sortValue.toLongOrNull()
                 ?: 0).compareTo(
                 o2.sortValue.toLongOrNull()
@@ -201,7 +207,12 @@ fun Context.getDirsToShow(dirs: List<Directory>, allDirs: List<Directory>, curre
         // show the current folder as an available option too, not just subfolders
         if (currentPathPrefix.isNotEmpty()) {
             val currentFolder =
-                allDirs.firstOrNull { it -> parentDirs.firstOrNull { it.path.equals(currentPathPrefix, true) } == null && it.path.equals(currentPathPrefix, true) }
+                allDirs.firstOrNull { it ->
+                    parentDirs.firstOrNull { it.path.equals(currentPathPrefix, true) } == null && it.path.equals(
+                        currentPathPrefix,
+                        true
+                    )
+                }
             currentFolder?.apply {
                 subfoldersCount = 1
                 parentDirs = parentDirs + this
@@ -256,13 +267,15 @@ fun Context.getDirectParentSubfolders(dirss: List<Directory>, currentPathPrefix:
                         subDirs.minByOrNull { it.modified }?.modified
                     } else {
                         subDirs.maxByOrNull { it.modified }?.modified
-                    } ?: 0
+                    }
+                        ?: 0
 
                     val dateTaken = if (isSortingAscending) {
                         subDirs.minByOrNull { it.taken }?.taken
                     } else {
                         subDirs.maxByOrNull { it.taken }?.taken
-                    } ?: 0
+                    }
+                        ?: 0
 
                     var mediaTypes = 0.toPackedInt()
                     subDirs.forEach {
@@ -297,11 +310,11 @@ fun Context.getDirectParentSubfolders(dirss: List<Directory>, currentPathPrefix:
     var areDirectSubfoldersAvailable = false
     currentPaths.forEach { it ->
         // TODO: Check if commenting out this is ok
-//        currentPaths.forEach {
-            if (!foldersWithoutMediaFiles.contains(it) && !it.equals(it, true) && (File(it).parent?.equals(it, true) == true)) {
-                areDirectSubfoldersAvailable = true
-            }
-//        }
+        //        currentPaths.forEach {
+        if (!foldersWithoutMediaFiles.contains(it) && !it.equals(it, true) && (File(it).parent?.equals(it, true) == true)) {
+            areDirectSubfoldersAvailable = true
+        }
+        //        }
     }
 
     if (currentPathPrefix.isEmpty() && folders.contains(RECYCLE_BIN)) {
@@ -374,7 +387,8 @@ fun Context.getNoMediaFoldersSync(): List<String> {
         cursor = contentResolver.query(uri, projection, selection, selectionArgs, sortOrder)
         if (cursor?.moveToFirst() == true) {
             do {
-                val path = cursor.getStringValue(Files.FileColumns.DATA) ?: continue
+                val path = cursor.getStringValue(Files.FileColumns.DATA)
+                    ?: continue
                 val noMediaFile = File(path)
                 if (getDoesFilePathExist(noMediaFile.absolutePath, OTGPath) && noMediaFile.name == NOMEDIA) {
                     noMediaFile.parent?.let { noMediaFolders.add(it) }
@@ -519,9 +533,9 @@ fun Context.loadPng(
         .priority(Priority.LOW)
         .format(DecodeFormat.PREFER_ARGB_8888)
     // TODO: Provide ability to change these in settings
-//        .run {
-//            if (cropThumbnails) centerCrop() else fitCenter()
-//        }
+    //        .run {
+    //            if (cropThumbnails) centerCrop() else fitCenter()
+    //        }
 
     var builder = Glide.with(applicationContext)
         .asBitmap()
@@ -667,11 +681,6 @@ fun Context.getCachedDirectories(
     callback: (List<Directory>) -> Unit
 ) {
     ensureBackgroundThread {
-//        try {
-//            Process.setThreadPriority(Process.THREAD_PRIORITY_MORE_FAVORABLE)
-//        } catch (ignored: Exception) {
-//        }
-
         var directories = try {
             directoryDB.getAll()
         } catch (e: Exception) {
@@ -759,7 +768,8 @@ fun Context.getCachedMedia(path: String, getVideosOnly: Boolean = false, getImag
         if (config.filterMedia.has(TYPE_PORTRAITS)) {
             val foldersToAdd = mutableListOf<String>()
             for (folder in foldersToScan) {
-                val allFiles = File(folder).listFiles() ?: continue
+                val allFiles = File(folder).listFiles()
+                    ?: continue
                 allFiles.asSequence().filter { it.name.startsWith("img_", true) && it.isDirectory }.forEach {
                     foldersToAdd.add(it.absolutePath)
                 }
@@ -829,11 +839,13 @@ fun Context.getCachedMedia(path: String, getVideosOnly: Boolean = false, getImag
 }
 
 fun Context.removeInvalidDBDirectories(dirs: List<Directory>? = null) {
-    val dirsToCheck = dirs ?: directoryDB.getAll()
+    val dirsToCheck = dirs
+        ?: directoryDB.getAll()
     val OTGPath = config.OTGPath
-    dirsToCheck.filter { !it.areFavorites() && !it.isRecycleBin() && !getDoesFilePathExist(it.path, OTGPath) && it.path != config.tempFolderPath }.forEach {
+    dirsToCheck.asSequence().filter { !it.areFavorites() && !it.isRecycleBin() && !getDoesFilePathExist(it.path, OTGPath) && it.path != config.tempFolderPath }
+        .forEach {
             directoryDB.deleteDirPath(it.path)
-    }
+        }
 }
 
 fun Context.updateDBMediaPath(oldPath: String, newPath: String) {
@@ -843,6 +855,7 @@ fun Context.updateDBMediaPath(oldPath: String, newPath: String) {
         mediaDB.updateMedium(newFilename, newPath, newParentPath, oldPath)
         favoritesDB.updateFavorite(newFilename, newPath, newParentPath, oldPath)
     } catch (ignored: Exception) {
+        KietLog.e("Ignored exception: $ignored")
     }
 }
 
@@ -859,6 +872,7 @@ fun Context.updateDBDirectory(directory: Directory) {
             directory.sortValue
         )
     } catch (ignored: Exception) {
+        KietLog.e("Ignored exception: $ignored")
     }
 }
 
@@ -866,11 +880,12 @@ fun Context.getOTGFolderChildren(path: String) = getDocumentFile(path)?.listFile
 
 fun Context.getOTGFolderChildrenNames(path: String) = getOTGFolderChildren(path)?.map { it.name }?.toMutableList()
 
-fun Context.getFavoritePaths(): ArrayList<String> {
+fun Context.getFavoritePaths(): List<String> {
     return try {
-        favoritesDB.getValidFavoritePaths() as ArrayList<String>
+        favoritesDB.getValidFavoritePaths()
     } catch (e: Exception) {
-        ArrayList()
+        KietLog.e("Ignored exception: $e")
+        emptyList()
     }
 }
 
@@ -889,11 +904,11 @@ fun Context.updateFavorite(path: String, isFavorite: Boolean) {
 }
 
 // remove the "recycle_bin" from the file path prefix, replace it with real bin path /data/user...
-fun Context.getUpdatedDeletedMedia(): ArrayList<Medium> {
+fun Context.getUpdatedDeletedMedia(): List<Medium> {
     val media = try {
-        mediaDB.getDeletedMedia() as ArrayList<Medium>
+        mediaDB.getDeletedMedia()
     } catch (ignored: Exception) {
-        ArrayList()
+        emptyList()
     }
 
     media.forEach {
@@ -910,6 +925,7 @@ fun Context.deleteMediumWithPath(path: String) {
     try {
         mediaDB.deleteMediumPath(path)
     } catch (ignored: Exception) {
+        KietLog.e("Ignored exception: $ignored")
     }
 }
 
@@ -999,7 +1015,8 @@ fun Context.addPathToDB(path: String) {
 
         try {
             val isFavorite = favoritesDB.isFavorite(path)
-            val videoDuration = if (type == TYPE_VIDEOS) getDuration(path) ?: 0 else 0
+            val videoDuration = if (type == TYPE_VIDEOS) getDuration(path)
+                ?: 0 else 0
             val medium = Medium(
                 null, path.getFilenameFromPath(), path, path.getParentPath(), System.currentTimeMillis(), System.currentTimeMillis(),
                 File(path).length(), type, videoDuration, isFavorite, 0L, 0L
@@ -1007,6 +1024,7 @@ fun Context.addPathToDB(path: String) {
 
             mediaDB.insert(medium)
         } catch (ignored: Exception) {
+            KietLog.e("Ignored exception: $ignored")
         }
     }
 }
@@ -1027,7 +1045,8 @@ fun Context.createDirectoryFromMedia(
 
     if (thumbnail == null) {
         val sortedMedia = grouped.filterIsInstance<Medium>().toMutableList() as ArrayList<Medium>
-        thumbnail = sortedMedia.firstOrNull { getDoesFilePathExist(it.path, OTGPath) }?.path ?: ""
+        thumbnail = sortedMedia.firstOrNull { getDoesFilePathExist(it.path, OTGPath) }?.path
+            ?: ""
     }
 
     if (config.OTGPath.isNotEmpty() && thumbnail!!.startsWith(config.OTGPath)) {
@@ -1036,8 +1055,10 @@ fun Context.createDirectoryFromMedia(
 
     val isSortingAscending = config.directorySorting.isSortingAscending()
     val defaultMedium = Medium(0, "", "", "", 0L, 0L, 0L, 0, 0, false, 0L, 0L)
-    val firstItem = curMedia.firstOrNull() ?: defaultMedium
-    val lastItem = curMedia.lastOrNull() ?: defaultMedium
+    val firstItem = curMedia.firstOrNull()
+        ?: defaultMedium
+    val lastItem = curMedia.lastOrNull()
+        ?: defaultMedium
     val dirName = checkAppendingHidden(path, hiddenString, includedFolders, noMediaFolders)
     val lastModified = if (isSortingAscending) min(firstItem.modified, lastItem.modified) else max(firstItem.modified, lastItem.modified)
     val dateTaken = if (isSortingAscending) min(firstItem.taken, lastItem.taken) else max(firstItem.taken, lastItem.taken)
@@ -1059,9 +1080,11 @@ fun Context.getDirectorySortingValue(media: List<Medium>, path: String, name: St
     }
 
     val relevantMedium = if (sorting.isSortingAscending()) {
-        sorted.firstOrNull() ?: return ""
+        sorted.firstOrNull()
+            ?: return ""
     } else {
-        sorted.lastOrNull() ?: return ""
+        sorted.lastOrNull()
+            ?: return ""
     }
 
     val result: Any = when {
@@ -1089,8 +1112,8 @@ fun Context.updateDirectoryPath(path: String) {
         grouping.has(GROUP_BY_DATE_TAKEN_DAILY) ||
         grouping.has(GROUP_BY_DATE_TAKEN_MONTHLY)
 
-    val getProperLastModified = config.directorySorting has SORT_BY_DATE_MODIFIED||
-        sorting has SORT_BY_DATE_MODIFIED||
+    val getProperLastModified = config.directorySorting has SORT_BY_DATE_MODIFIED ||
+        sorting has SORT_BY_DATE_MODIFIED ||
         grouping.has(GROUP_BY_LAST_MODIFIED_DAILY) ||
         grouping.has(GROUP_BY_LAST_MODIFIED_MONTHLY)
 
@@ -1124,6 +1147,7 @@ fun Context.getFileDateTaken(path: String): Long {
             }
         }
     } catch (ignored: Exception) {
+        KietLog.e("Ignored exception: $ignored")
     }
 
     return 0L

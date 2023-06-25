@@ -25,6 +25,7 @@ import com.simplemobiletools.commons.helpers.*
 import com.simplemobiletools.commons.models.FileDirItem
 import com.simplemobiletools.commons.models.RadioItem
 import com.simplemobiletools.commons.models.Release
+import com.simplemobiletools.commons.utils.KietLog
 import com.simplemobiletools.commons.views.MyGridLayoutManager
 import com.simplemobiletools.commons.views.MyRecyclerView
 import com.simplemobiletools.gallery.pro.BuildConfig
@@ -44,6 +45,8 @@ import com.simplemobiletools.gallery.pro.models.Medium
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.*
 import java.io.*
+import kotlin.time.ExperimentalTime
+import kotlin.time.measureTimedValue
 
 class MainActivity : SimpleActivity(), DirectoryOperationsListener {
 
@@ -217,7 +220,7 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
 
         val styleString = "${config.folderStyle}${config.showFolderMediaCount}${config.limitFolderTitle}"
         if (mStoredStyleString != styleString) {
-            setupAdapter(mDirs, forceRecreate = true)
+            setupAdapter("onResume", mDirs, forceRecreate = true)
         }
 
         directories_fastscroller.updateColors(primaryColor)
@@ -305,7 +308,7 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
             } else {
                 mOpenedSubfolders.removeLast()
                 mCurrentPathPrefix = mOpenedSubfolders.last()
-                setupAdapter(mDirs)
+                setupAdapter("onBackPressed", mDirs)
             }
         } else {
             super.onBackPressed()
@@ -380,7 +383,7 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
         }
 
         main_menu.onSearchTextChangedListener = { text ->
-            setupAdapter(mDirsIgnoringSearch, text)
+            setupAdapter("main_menu.onSearchTextChangedListener", mDirsIgnoringSearch, text)
             directories_refresh_layout.isEnabled = text.isEmpty() && config.enablePullToRefresh
             directories_switch_searching.beVisibleIf(text.isNotEmpty())
         }
@@ -554,6 +557,7 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
         }, 500)
     }
 
+    @RequiresApi(Build.VERSION_CODES.N)
     private fun showSortingDialog() {
         ChangeSortingDialog(this, true, false) {
             directories_grid.adapter = null
@@ -600,6 +604,7 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
             setupLayoutManager()
             directories_grid.adapter = null
             setupAdapter(
+                "changeViewType",
                 getRecyclerAdapter()?.dirs
                     ?: mDirs
             )
@@ -713,7 +718,8 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
                 }
 
                 if (config.deleteEmptyFolders) {
-                    folders.asSequence().filter { !it.absolutePath.isDownloadsFolder() && it.isDirectory && it.toFileDirItem(this).getProperFileCount(this, true) == 0 }
+                    folders.asSequence()
+                        .filter { !it.absolutePath.isDownloadsFolder() && it.isDirectory && it.toFileDirItem(this).getProperFileCount(this, true) == 0 }
                         .forEach {
                             tryDeleteFileDirItem(it.toFileDirItem(this), true, true)
                         }
@@ -965,10 +971,7 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
 
         var isPlaceholderVisible = dirs.isEmpty()
 
-//        runOnUiThread {
-//            checkPlaceholderVisibility(dirs)
-//            setupAdapter(dirs)
-//        }
+        checkPlaceholderVisibility(dirs)
 
         // cached folders have been loaded, recheck folders one by one starting with the first displayed
         mLastMediaFetcher?.shouldStop = true
@@ -1137,7 +1140,6 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
             }
         }
 
-
         mLoadedInitialPhotos = true
         if (config.appRunCount > 1) {
             checkLastMediaChanged()
@@ -1159,11 +1161,12 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
                 }
             }
         }
+
         if (mDirs.size > 50) {
             excludeSpamFolders()
         }
 
-        setupAdapter(dirs)
+        setupAdapter("gotDirectories 2", dirs)
 
         val excludedFolders = config.excludedFolders
         val everShownFolders = config.everShownFolders.toMutableSet()
@@ -1245,13 +1248,18 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
         directories_fastscroller.beVisibleIf(directories_empty_placeholder.isGone())
     }
 
-    private fun setupAdapter(dirs: List<Directory>, textToSearch: String = main_menu.getCurrentQuery(), forceRecreate: Boolean = false) {
+    @OptIn(ExperimentalTime::class)
+    private fun setupAdapter(caller: String, dirs: List<Directory>, textToSearch: String = main_menu.getCurrentQuery(), forceRecreate: Boolean = false) {
         val throwable = Throwable()
-        Log.i("kiet", "setupAdapter called\n${throwable.stackTraceToString()}")
+        Log.i("kiet", "setupAdapter called from $caller\n${throwable.stackTraceToString()}")
         val currAdapter = directories_grid.adapter
-        val distinctDirs = dirs.distinctBy { it.path.getDistinctPath() }
-        val sortedDirs = getSortedDirectories(distinctDirs)
-        var dirsToShow = getDirsToShow(sortedDirs, mDirs, mCurrentPathPrefix)
+        val dirsToShowTimedValue = measureTimedValue {
+            val distinctDirs = dirs.distinctBy { it.path.getDistinctPath() }
+            val sortedDirs = getSortedDirectories(distinctDirs)
+            getDirsToShow(sortedDirs, mDirs, mCurrentPathPrefix)
+        }
+        KietLog.i("Time for dirsToShowTimedValue: ${dirsToShowTimedValue.duration}")
+        var dirsToShow = dirsToShowTimedValue.value
 
         if (currAdapter == null || forceRecreate) {
             mDirsIgnoringSearch = dirs
@@ -1273,7 +1281,7 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
                 } else {
                     mCurrentPathPrefix = path
                     mOpenedSubfolders.add(path)
-                    setupAdapter(mDirs, "")
+                    setupAdapter("setupAdapter", mDirs, "")
                 }
             }.apply {
                 setupZoomListener(mZoomListener)
@@ -1299,9 +1307,9 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
         }
 
         // recyclerview sometimes becomes empty at init/update, triggering an invisible refresh like this seems to work fine
-//        directories_grid.postDelayed({
-//            directories_grid.scrollBy(0, 0)
-//        }, 500)
+        //        directories_grid.postDelayed({
+        //            directories_grid.scrollBy(0, 0)
+        //        }, 500)
     }
 
     private fun setupScrollDirection() {

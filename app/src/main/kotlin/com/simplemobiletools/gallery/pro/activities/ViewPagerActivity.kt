@@ -456,7 +456,7 @@ class ViewPagerActivity : SimpleActivity(), ViewPager.OnPageChangeListener, View
 
     private fun initFavorites() {
         ensureBackgroundThread {
-            mFavoritePaths = getFavoritePaths()
+            mFavoritePaths = getFavoritePaths().toMutableList()
         }
     }
 
