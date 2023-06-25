@@ -773,6 +773,9 @@ class MediaFetcher(val context: Context) {
         return sizes
     }
 
+    /**
+     * Modifies `media` directly.
+     */
     fun sortMedia(media: MutableList<Medium>, sorting: PackedInt) {
         if (sorting has SORT_BY_RANDOM) {
             media.shuffle()

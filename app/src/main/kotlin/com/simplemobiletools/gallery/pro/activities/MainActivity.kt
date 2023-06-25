@@ -45,6 +45,7 @@ import com.simplemobiletools.gallery.pro.models.Medium
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.*
 import java.io.*
+import kotlin.time.Duration
 import kotlin.time.ExperimentalTime
 import kotlin.time.measureTime
 import kotlin.time.measureTimedValue
@@ -1007,6 +1008,7 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
 
         val dirPathsToRemove = mutableSetOf<String>()
         val block1 = measureTime {
+            var aggregateCurMediaTime = Duration.ZERO
             for (directory in dirs) {
                 if (mShouldStopFetching || isDestroyed || isFinishing) {
                     return
@@ -1018,16 +1020,18 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
                     sorting.has(SORT_BY_DATE_TAKEN) ||
                     grouping.has(GROUP_BY_DATE_TAKEN_DAILY) ||
                     grouping.has(GROUP_BY_DATE_TAKEN_MONTHLY)
-
                 val getProperLastModified = config.directorySorting has SORT_BY_DATE_MODIFIED ||
                     sorting.has(SORT_BY_DATE_MODIFIED) ||
                     grouping.has(GROUP_BY_LAST_MODIFIED_DAILY) ||
                     grouping.has(GROUP_BY_LAST_MODIFIED_MONTHLY)
 
-                val curMedia = mLastMediaFetcher!!.getFilesFrom(
+                val curMediaTimedValue = measureTimedValue {  mLastMediaFetcher!!.getFilesFrom(
                     directory.path, getImagesOnly, getVideosOnly, getProperDateTaken, getProperLastModified,
                     getProperFileSize, favoritePaths, false, lastModifieds, dateTakens, android11Files
-                )
+                ) }
+                aggregateCurMediaTime += curMediaTimedValue.duration
+
+                val curMedia = curMediaTimedValue.value
 
                 val newDir = if (curMedia.isEmpty()) {
                     if (directory.path != tempFolderPath) {
@@ -1063,21 +1067,27 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
                 }
 
                 if (!directory.isRecycleBin()) {
-                    getCachedMedia(directory.path, getVideosOnly, getImagesOnly) { it ->
-                        val mediaToDelete = mutableListOf<Medium>()
-                        it.forEach {
-                            if (!curMedia.contains(it)) {
-                                val medium = it as? Medium
-                                val path = medium?.path
-                                if (path != null) {
-                                    mediaToDelete.add(medium)
+                    // Already optimized
+                    val getCachedMediaTime = measureTime {
+                        getCachedMedia(directory.path, getVideosOnly, getImagesOnly) { it ->
+                            val mediaToDelete = mutableListOf<Medium>()
+                            it.forEach {
+                                if (!curMedia.contains(it)) {
+                                    val medium = it as? Medium
+                                    val path = medium?.path
+                                    if (path != null) {
+                                        mediaToDelete.add(medium)
+                                    }
                                 }
                             }
+                            mediaDB.deleteMedia(*mediaToDelete.toTypedArray())
                         }
-                        mediaDB.deleteMedia(*mediaToDelete.toTypedArray())
                     }
+                    KietLog.i("getCachedMediaTime: $getCachedMediaTime")
                 }
             }
+
+            KietLog.i("aggregateCurMediaTime: $aggregateCurMediaTime")
 
             if (dirPathsToRemove.isNotEmpty()) {
                 val dirsToRemove = dirs.asSequence().filter { dirPathsToRemove.contains(it.path) }.toSet()
