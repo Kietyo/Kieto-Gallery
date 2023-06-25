@@ -46,6 +46,7 @@ import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.*
 import java.io.*
 import kotlin.time.ExperimentalTime
+import kotlin.time.measureTime
 import kotlin.time.measureTimedValue
 
 class MainActivity : SimpleActivity(), DirectoryOperationsListener {
@@ -528,6 +529,7 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
         }
     }
 
+    @OptIn(ExperimentalTime::class)
     @RequiresApi(Build.VERSION_CODES.N)
     private fun getDirectories() {
         if (mIsGettingDirs) {
@@ -542,7 +544,10 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
         val getVideosOnly = mIsPickVideoIntent || mIsGetVideoContentIntent
 
         getCachedDirectories(getVideosOnly, getImagesOnly) {
-            gotDirectories(addTempFolderIfNeeded(it))
+            val time = measureTime {
+                gotDirectories(addTempFolderIfNeeded(it))
+            }
+            KietLog.i("gotDirectories(addTempFolderIfNeeded(it)) time: $time")
         }
     }
 
@@ -924,7 +929,7 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
         }
     }
 
-    @OptIn(DelicateCoroutinesApi::class)
+    @OptIn(DelicateCoroutinesApi::class, ExperimentalTime::class)
     @RequiresApi(Build.VERSION_CODES.N)
     private fun gotDirectories(newDirs: List<Directory>) {
         //        val throwable = Throwable()
@@ -932,7 +937,7 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
         mIsGettingDirs = false
         mShouldStopFetching = false
 
-        var dirs: List<Directory> = getSortedDirectories(newDirs).toMutableList().apply {
+        var dirs: MutableList<Directory> = getSortedDirectories(newDirs).toMutableList().apply {
             // if hidden item showing is disabled but all Favorite items are hidden, hide the Favorites folder
             if (!config.shouldShowHidden) {
                 val favoritesFolder = newDirs.firstOrNull { it.areFavorites() }
@@ -1074,7 +1079,7 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
             dirsToRemove.forEach {
                 directoryDB.deleteDirPath(it.path)
             }
-            dirs = dirs - dirsToRemove
+            dirs.removeAll(dirsToRemove)
         }
 
         val foldersToScan: List<String> = mLastMediaFetcher!!.getFoldersToScan().apply {
@@ -1163,7 +1168,10 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
         }
 
         if (mDirs.size > 50) {
-            excludeSpamFolders()
+            val time = measureTime {
+                excludeSpamFolders()
+            }
+            KietLog.i("excludeSpamFolders time: $time")
         }
 
         setupAdapter("gotDirectories 2", dirs)
@@ -1419,9 +1427,9 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
         ensureBackgroundThread {
             try {
                 val internalPath = internalStoragePath
-                val checkedPaths = ArrayList<String>()
-                val oftenRepeatedPaths = ArrayList<String>()
-                val paths = mDirs.map { it.path.removePrefix(internalPath) }.toMutableList() as ArrayList<String>
+                val checkedPaths = mutableListOf<String>()
+                val oftenRepeatedPaths = mutableListOf<String>()
+                val paths = mDirs.map { it.path.removePrefix(internalPath) }
                 paths.forEach { it ->
                     val parts = it.split("/")
                     var currentString = ""
@@ -1439,12 +1447,12 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
                     }
                 }
 
-                val substringToRemove = oftenRepeatedPaths.filter { it ->
+                val substringToRemove = oftenRepeatedPaths.asSequence().filter { it ->
                     it == "/" || oftenRepeatedPaths.any { it != it && it.startsWith(it) }
-                }
+                }.toSet()
 
-                oftenRepeatedPaths.removeAll(substringToRemove.toSet())
                 val OTGPath = config.OTGPath
+                oftenRepeatedPaths.removeAll(substringToRemove)
                 oftenRepeatedPaths.forEach {
                     val file = File("$internalPath/$it")
                     if (getDoesFilePathExist(file.absolutePath, OTGPath)) {
@@ -1452,6 +1460,7 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
                     }
                 }
             } catch (e: Exception) {
+                KietLog.e("Ignore exception: $e")
             }
         }
     }
