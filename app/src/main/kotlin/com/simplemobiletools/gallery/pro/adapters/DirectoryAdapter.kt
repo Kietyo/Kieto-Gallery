@@ -55,7 +55,7 @@ import java.io.File
 import java.util.*
 
 class DirectoryAdapter(
-    activity: BaseSimpleActivity, var dirs: List<Directory>, val listener: DirectoryOperationsListener?, recyclerView: MyRecyclerView,
+    activity: BaseSimpleActivity, val dirs: MutableList<Directory>, val listener: DirectoryOperationsListener?, recyclerView: MyRecyclerView,
     private val isPickIntent: Boolean, private val swipeRefreshLayout: SwipeRefreshLayout? = null, itemClick: (Any) -> Unit
 ) :
     MyRecyclerViewAdapter(activity, recyclerView, itemClick), ItemTouchHelperContract, RecyclerViewFastScroller.OnPopupTextUpdate {
@@ -210,10 +210,8 @@ class DirectoryAdapter(
         selectedKeys.reversed().forEach { key ->
             val position = dirs.indexOfFirst { it.path.hashCode() == key }
             val tempItem = dirs[position]
-            val newDirs = dirs.toMutableList()
-            newDirs.removeAt(position)
-            newDirs.add(0, tempItem)
-            dirs = newDirs
+            dirs.removeAt(position)
+            dirs.add(0, tempItem)
         }
 
         notifyDataSetChanged()
@@ -223,10 +221,8 @@ class DirectoryAdapter(
         selectedKeys.forEach { key ->
             val position = dirs.indexOfFirst { it.path.hashCode() == key }
             val tempItem = dirs[position]
-            val newDirs = dirs.toMutableList()
-            newDirs.removeAt(position)
-            newDirs.add(dirs.size, tempItem)
-            dirs = newDirs
+            dirs.removeAt(position)
+            dirs.add(dirs.size, tempItem)
         }
 
         notifyDataSetChanged()
@@ -390,7 +386,7 @@ class DirectoryAdapter(
             if (config.shouldShowHidden) {
                 updateFolderNames()
             } else {
-                val affectedPositions = ArrayList<Int>()
+                val affectedPositions = mutableListOf<Int>()
                 val includedFolders = config.includedFolders
                 val newDirs = dirs.filterIndexed { index, directory ->
                     val removeDir = directory.path.doesThisOrParentHaveNoMedia(HashMap(), null) && !includedFolders.contains(directory.path)
@@ -398,7 +394,7 @@ class DirectoryAdapter(
                         affectedPositions.add(index)
                     }
                     !removeDir
-                } as ArrayList<Directory>
+                }
 
                 activity.runOnUiThread {
                     affectedPositions.sortedDescending().forEach {
@@ -406,7 +402,8 @@ class DirectoryAdapter(
                     }
 
                     currentDirectoriesHash = newDirs.hashCode()
-                    dirs = newDirs
+                    dirs.clear()
+                    dirs.addAll(newDirs)
 
                     finishActMode()
                     listener?.updateDirectories(newDirs)
@@ -736,7 +733,8 @@ class DirectoryAdapter(
         val directories = newDirs
         if (directories.hashCode() != currentDirectoriesHash) {
             currentDirectoriesHash = directories.hashCode()
-            dirs = directories
+            dirs.clear()
+            dirs.addAll(newDirs)
             fillLockedFolders()
             notifyDataSetChanged()
             finishActMode()

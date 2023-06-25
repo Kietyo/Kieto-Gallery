@@ -110,7 +110,7 @@ class PickDirectoryDialog(
         }
 
         shownDirectories = dirs
-        val adapter = DirectoryAdapter(activity, dirs, null, view.directories_grid, true) {
+        val adapter = DirectoryAdapter(activity, dirs.toMutableList(), null, view.directories_grid, true) {
             val clickedDir = it as Directory
             val path = clickedDir.path
             if (clickedDir.subfoldersCount == 1 || !activity.config.groupDirectSubfolders) {

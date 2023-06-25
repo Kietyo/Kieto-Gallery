@@ -569,6 +569,7 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.N)
     private fun showFilterMediaDialog() {
         FilterMediaDialog(this) {
             mShouldStopFetching = true
@@ -619,6 +620,7 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.N)
     private fun toggleTemporarilyShowHidden(show: Boolean) {
         mLoadedInitialPhotos = false
         config.temporarilyShowHidden = show
@@ -627,6 +629,7 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
         refreshMenuItems()
     }
 
+    @RequiresApi(Build.VERSION_CODES.N)
     private fun tryToggleTemporarilyShowExcluded() {
         if (config.temporarilyShowExcluded) {
             toggleTemporarilyShowExcluded(false)
@@ -705,12 +708,12 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
             }
 
             ensureBackgroundThread {
-                folders.filter { !getDoesFilePathExist(it.absolutePath, OTGPath) }.forEach {
+                folders.asSequence().filter { !getDoesFilePathExist(it.absolutePath, OTGPath) }.forEach {
                     directoryDB.deleteDirPath(it.absolutePath)
                 }
 
                 if (config.deleteEmptyFolders) {
-                    folders.filter { !it.absolutePath.isDownloadsFolder() && it.isDirectory && it.toFileDirItem(this).getProperFileCount(this, true) == 0 }
+                    folders.asSequence().filter { !it.absolutePath.isDownloadsFolder() && it.isDirectory && it.toFileDirItem(this).getProperFileCount(this, true) == 0 }
                         .forEach {
                             tryDeleteFileDirItem(it.toFileDirItem(this), true, true)
                         }
@@ -773,6 +776,7 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.N)
     private fun createNewFolder() {
         FilePickerDialog(this, internalStoragePath, false, config.shouldShowHidden, false, true) { it ->
             CreateNewFolderDialog(this, it) {
@@ -785,10 +789,7 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
     }
 
     private fun changeColumnCount() {
-        val items = ArrayList<RadioItem>()
-        for (i in 1..MAX_COLUMN_COUNT) {
-            items.add(RadioItem(i, resources.getQuantityString(R.plurals.column_counts, i, i)))
-        }
+        val items = (1..MAX_COLUMN_COUNT).map { i -> RadioItem(i, resources.getQuantityString(R.plurals.column_counts, i, i)) }
 
         val currentColumnCount = (directories_grid.layoutManager as MyGridLayoutManager).spanCount
         RadioGroupDialog(this, items, currentColumnCount) {
@@ -964,10 +965,10 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
 
         var isPlaceholderVisible = dirs.isEmpty()
 
-        runOnUiThread {
-            checkPlaceholderVisibility(dirs)
-            setupAdapter(dirs)
-        }
+//        runOnUiThread {
+//            checkPlaceholderVisibility(dirs)
+//            setupAdapter(dirs)
+//        }
 
         // cached folders have been loaded, recheck folders one by one starting with the first displayed
         mLastMediaFetcher?.shouldStop = true
@@ -1065,7 +1066,6 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
             }
         }
 
-
         if (dirPathsToRemove.isNotEmpty()) {
             val dirsToRemove = dirs.asSequence().filter { dirPathsToRemove.contains(it.path) }.toSet()
             dirsToRemove.forEach {
@@ -1135,12 +1135,6 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
                     mediaDB.insertAll(newMedia)
                 }
             }
-            //            Thread {
-            //                directoryDB.insert(newDir)
-            //                if (folder != RECYCLE_BIN && folder != FAVORITES) {
-            //                    mediaDB.insertAll(newMedia)
-            //                }
-            //            }.start()
         }
 
 
@@ -1264,7 +1258,7 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
             initZoomListener()
             DirectoryAdapter(
                 this,
-                dirsToShow,
+                dirsToShow.toMutableList(),
                 this,
                 directories_grid,
                 isPickIntent(intent) || isGetAnyContentIntent(intent),
@@ -1305,9 +1299,9 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
         }
 
         // recyclerview sometimes becomes empty at init/update, triggering an invisible refresh like this seems to work fine
-        directories_grid.postDelayed({
-            directories_grid.scrollBy(0, 0)
-        }, 500)
+//        directories_grid.postDelayed({
+//            directories_grid.scrollBy(0, 0)
+//        }, 500)
     }
 
     private fun setupScrollDirection() {
