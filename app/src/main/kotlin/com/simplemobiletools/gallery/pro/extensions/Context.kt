@@ -39,6 +39,9 @@ import com.simplemobiletools.gallery.pro.interfaces.*
 import com.simplemobiletools.gallery.pro.models.*
 import com.simplemobiletools.gallery.pro.svg.SvgSoftwareLayerSetter
 import com.squareup.picasso.Picasso
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import pl.droidsonroids.gif.GifDrawable
 import java.io.File
 import java.io.FileInputStream
@@ -778,23 +781,24 @@ fun Context.getCachedMedia(path: String, getVideosOnly: Boolean = false, getImag
         }
 
         val shouldShowHidden = config.shouldShowHidden
-        foldersToScan.filter { path.isNotEmpty() || !config.isFolderProtected(it) }.forEach {
+        foldersToScan.asSequence().filter { path.isNotEmpty() || !config.isFolderProtected(it) }.forEach {
             try {
                 val currMedia = mediaDB.getMediaFromPath(it)
                 media.addAll(currMedia)
             } catch (ignored: Exception) {
+                KietLog.e("Ignored exception: $ignored")
             }
         }
 
         if (!shouldShowHidden) {
-            media = media.filter { !it.path.contains("/.") } as ArrayList<Medium>
+            media.removeAll {it.path.contains("/.")  }
         }
 
         val filterMedia = config.filterMedia
-        media = (when {
-            getVideosOnly -> media.filter { it.type == TYPE_VIDEOS }
-            getImagesOnly -> media.filter { it.type == TYPE_IMAGES }
-            else -> media.filter {
+        when {
+            getVideosOnly -> media.retainAll { it.type == TYPE_VIDEOS }
+            getImagesOnly -> media.retainAll { it.type == TYPE_IMAGES }
+            else -> media.retainAll {
                 (filterMedia.has(TYPE_IMAGES) && it.type == TYPE_IMAGES) ||
                     (filterMedia.has(TYPE_VIDEOS) && it.type == TYPE_VIDEOS) ||
                     (filterMedia.has(TYPE_GIFS) && it.type == TYPE_GIFS) ||
@@ -802,19 +806,21 @@ fun Context.getCachedMedia(path: String, getVideosOnly: Boolean = false, getImag
                     (filterMedia.has(TYPE_SVGS) && it.type == TYPE_SVGS) ||
                     (filterMedia.has(TYPE_PORTRAITS) && it.type == TYPE_PORTRAITS)
             }
-        }) as ArrayList<Medium>
+        }
 
         val pathToUse = path.ifEmpty { SHOW_ALL }
         mediaFetcher.sortMedia(media, config.getFolderSorting(pathToUse))
         val grouped = mediaFetcher.groupMedia(media, pathToUse)
         callback(grouped)
         val OTGPath = config.OTGPath
-
         try {
-            val mediaToDelete = ArrayList<Medium>()
+            val mediaToDelete = mutableListOf<Medium>()
             // creating a new thread intentionally, do not reuse the common background thread
+//            GlobalScope.launch(Dispatchers.IO) {
+//
+//            }
             Thread {
-                media.filter { !getDoesFilePathExist(it.path, OTGPath) }.forEach {
+                media.asSequence().filter { !getDoesFilePathExist(it.path, OTGPath) }.forEach {
                     if (it.path.startsWith(recycleBinPath)) {
                         deleteDBPath(it.path)
                     } else {
@@ -825,15 +831,16 @@ fun Context.getCachedMedia(path: String, getVideosOnly: Boolean = false, getImag
                 if (mediaToDelete.isNotEmpty()) {
                     try {
                         mediaDB.deleteMedia(*mediaToDelete.toTypedArray())
-
-                        mediaToDelete.filter { it.isFavorite }.forEach {
+                        mediaToDelete.asSequence().filter { it.isFavorite }.forEach {
                             favoritesDB.deleteFavoritePath(it.path)
                         }
                     } catch (ignored: Exception) {
+                        KietLog.e("Ignore exception: $ignored")
                     }
                 }
             }.start()
         } catch (ignored: Exception) {
+            KietLog.e("Ignore exception: $ignored")
         }
     }
 }
