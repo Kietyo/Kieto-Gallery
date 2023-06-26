@@ -40,11 +40,13 @@ import com.simplemobiletools.gallery.pro.extensions.*
 import com.simplemobiletools.gallery.pro.helpers.*
 import com.simplemobiletools.gallery.pro.interfaces.DirectoryOperationsListener
 import com.simplemobiletools.gallery.pro.jobs.NewPhotoFetcher
+import com.simplemobiletools.gallery.pro.models.AlbumCover
 import com.simplemobiletools.gallery.pro.models.Directory
 import com.simplemobiletools.gallery.pro.models.Medium
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.*
 import java.io.*
+import java.util.HashMap
 import kotlin.time.Duration
 import kotlin.time.ExperimentalTime
 import kotlin.time.measureTime
@@ -1008,86 +1010,27 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
 
         val dirPathsToRemove = mutableSetOf<String>()
         val block1 = measureTime {
-            var aggregateCurMediaTime = Duration.ZERO
             for (directory in dirs) {
                 if (mShouldStopFetching || isDestroyed || isFinishing) {
                     return
                 }
-
-                val sorting = config.getFolderSorting(directory.path)
-                val grouping = config.getFolderGrouping(directory.path)
-                val getProperDateTaken = config.directorySorting has SORT_BY_DATE_TAKEN ||
-                    sorting.has(SORT_BY_DATE_TAKEN) ||
-                    grouping.has(GROUP_BY_DATE_TAKEN_DAILY) ||
-                    grouping.has(GROUP_BY_DATE_TAKEN_MONTHLY)
-                val getProperLastModified = config.directorySorting has SORT_BY_DATE_MODIFIED ||
-                    sorting.has(SORT_BY_DATE_MODIFIED) ||
-                    grouping.has(GROUP_BY_LAST_MODIFIED_DAILY) ||
-                    grouping.has(GROUP_BY_LAST_MODIFIED_MONTHLY)
-
-                val curMediaTimedValue = measureTimedValue {  mLastMediaFetcher!!.getFilesFrom(
-                    directory.path, getImagesOnly, getVideosOnly, getProperDateTaken, getProperLastModified,
-                    getProperFileSize, favoritePaths, false, lastModifieds, dateTakens, android11Files
-                ) }
-                aggregateCurMediaTime += curMediaTimedValue.duration
-
-                val curMedia = curMediaTimedValue.value
-
-                val newDir = if (curMedia.isEmpty()) {
-                    if (directory.path != tempFolderPath) {
-                        dirPathsToRemove.add(directory.path)
-                    }
-                    directory
-                } else {
-                    createDirectoryFromMedia(directory.path, curMedia, albumCovers, hiddenString, includedFolders, getProperFileSize, noMediaFolders)
-                }
-
-                // we are looping through the already displayed folders looking for changes, do not do anything if nothing changed
-                if (directory.copy(subfoldersCount = 0, subfoldersMediaCount = 0) == newDir) {
-                    continue
-                }
-
-                directory.apply {
-                    tmb = newDir.tmb
-                    name = newDir.name
-                    mediaCnt = newDir.mediaCnt
-                    modified = newDir.modified
-                    taken = newDir.taken
-                    this@apply.size = newDir.size
-                    _types = newDir._types
-                    sortValue = getDirectorySortingValue(curMedia, path, name, size)
-                }
-
-                // update directories and media files in the local db, delete invalid items. Intentionally creating a new thread
-                updateDBDirectory(directory)
-                if (!directory.isRecycleBin() && !directory.areFavorites()) {
-                    GlobalScope.launch(Dispatchers.IO) {
-                        mediaDB.insertAll(curMedia)
-                    }
-                }
-
-                if (!directory.isRecycleBin()) {
-                    // Already optimized
-                    val getCachedMediaTime = measureTime {
-                        getCachedMedia(directory.path, getVideosOnly, getImagesOnly) { it ->
-                            val mediaToDelete = mutableListOf<Medium>()
-                            it.forEach {
-                                if (!curMedia.contains(it)) {
-                                    val medium = it as? Medium
-                                    val path = medium?.path
-                                    if (path != null) {
-                                        mediaToDelete.add(medium)
-                                    }
-                                }
-                            }
-                            mediaDB.deleteMedia(*mediaToDelete.toTypedArray())
-                        }
-                    }
-                    KietLog.i("getCachedMediaTime: $getCachedMediaTime")
-                }
+                extracted(
+                    directory,
+                    getImagesOnly,
+                    getVideosOnly,
+                    getProperFileSize,
+                    favoritePaths,
+                    lastModifieds,
+                    dateTakens,
+                    android11Files,
+                    tempFolderPath,
+                    dirPathsToRemove,
+                    albumCovers,
+                    hiddenString,
+                    includedFolders,
+                    noMediaFolders
+                )
             }
-
-            KietLog.i("aggregateCurMediaTime: $aggregateCurMediaTime")
 
             if (dirPathsToRemove.isNotEmpty()) {
                 val dirsToRemove = dirs.asSequence().filter { dirPathsToRemove.contains(it.path) }.toSet()
@@ -1218,6 +1161,97 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
         }
 
         mDirs = dirs
+    }
+
+    @OptIn(DelicateCoroutinesApi::class, ExperimentalTime::class)
+    private fun extracted(
+        directory: Directory,
+        getImagesOnly: Boolean,
+        getVideosOnly: Boolean,
+        getProperFileSize: Boolean,
+        favoritePaths: List<String>,
+        lastModifieds: HashMap<String, Long>,
+        dateTakens: Map<String, Long>,
+        android11Files: Map<String, List<Medium>>?,
+        tempFolderPath: String,
+        dirPathsToRemove: MutableSet<String>,
+        albumCovers: java.util.ArrayList<AlbumCover>,
+        hiddenString: String,
+        includedFolders: MutableSet<String>,
+        noMediaFolders: List<String>
+    ) {
+        val sorting = config.getFolderSorting(directory.path)
+        val grouping = config.getFolderGrouping(directory.path)
+        val getProperDateTaken = config.directorySorting has SORT_BY_DATE_TAKEN ||
+            sorting.has(SORT_BY_DATE_TAKEN) ||
+            grouping.has(GROUP_BY_DATE_TAKEN_DAILY) ||
+            grouping.has(GROUP_BY_DATE_TAKEN_MONTHLY)
+        val getProperLastModified = config.directorySorting has SORT_BY_DATE_MODIFIED ||
+            sorting.has(SORT_BY_DATE_MODIFIED) ||
+            grouping.has(GROUP_BY_LAST_MODIFIED_DAILY) ||
+            grouping.has(GROUP_BY_LAST_MODIFIED_MONTHLY)
+
+        val curMediaTimedValue = measureTimedValue {
+            mLastMediaFetcher!!.getFilesFrom(
+                directory.path, getImagesOnly, getVideosOnly, getProperDateTaken, getProperLastModified,
+                getProperFileSize, favoritePaths, false, lastModifieds, dateTakens, android11Files
+            )
+        }
+
+        val curMedia = curMediaTimedValue.value
+
+        val newDir = if (curMedia.isEmpty()) {
+            if (directory.path != tempFolderPath) {
+                dirPathsToRemove.add(directory.path)
+            }
+            directory
+        } else {
+            createDirectoryFromMedia(directory.path, curMedia, albumCovers, hiddenString, includedFolders, getProperFileSize, noMediaFolders)
+        }
+
+        // we are looping through the already displayed folders looking for changes, do not do anything if nothing changed
+        if (directory.copy(subfoldersCount = 0, subfoldersMediaCount = 0) == newDir) {
+            return
+        }
+
+        directory.apply {
+            tmb = newDir.tmb
+            name = newDir.name
+            mediaCnt = newDir.mediaCnt
+            modified = newDir.modified
+            taken = newDir.taken
+            this@apply.size = newDir.size
+            _types = newDir._types
+            sortValue = getDirectorySortingValue(curMedia, path, name, size)
+        }
+
+        // update directories and media files in the local db, delete invalid items. Intentionally creating a new thread
+        updateDBDirectory(directory)
+        if (!directory.isRecycleBin() && !directory.areFavorites()) {
+            GlobalScope.launch(Dispatchers.IO) {
+                mediaDB.insertAll(curMedia)
+            }
+        }
+
+        if (!directory.isRecycleBin()) {
+            // Already optimized
+            val getCachedMediaTime = measureTime {
+                getCachedMedia(directory.path, getVideosOnly, getImagesOnly) { it ->
+                    val mediaToDelete = mutableListOf<Medium>()
+                    it.forEach {
+                        if (!curMedia.contains(it)) {
+                            val medium = it as? Medium
+                            val path = medium?.path
+                            if (path != null) {
+                                mediaToDelete.add(medium)
+                            }
+                        }
+                    }
+                    mediaDB.deleteMedia(*mediaToDelete.toTypedArray())
+                }
+            }
+            KietLog.i("getCachedMediaTime: $getCachedMediaTime")
+        }
     }
 
     private fun setAsDefaultFolder() {
