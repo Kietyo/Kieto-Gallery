@@ -1168,6 +1168,7 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
             config.everShownFolders = everShownFolders
         } catch (e: Exception) {
             config.everShownFolders = HashSet()
+            KietLog.e("ignored exception: $e")
         }
 
         mDirs = dirs
