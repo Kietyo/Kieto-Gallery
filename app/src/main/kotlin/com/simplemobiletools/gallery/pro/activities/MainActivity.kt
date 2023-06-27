@@ -43,6 +43,8 @@ import com.simplemobiletools.gallery.pro.jobs.NewPhotoFetcher
 import com.simplemobiletools.gallery.pro.models.AlbumCover
 import com.simplemobiletools.gallery.pro.models.Directory
 import com.simplemobiletools.gallery.pro.models.Medium
+import com.simplemobiletools.gallery.pro.utils.MainArgs
+import com.simplemobiletools.gallery.pro.utils.measureTimeAndLog
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.*
 import java.io.*
@@ -54,19 +56,22 @@ import kotlin.time.measureTimedValue
 
 class MainActivity : SimpleActivity(), DirectoryOperationsListener {
 
-    private var mIsPickImageIntent = false
-    private var mIsPickVideoIntent = false
-    private var mIsGetImageContentIntent = false
-    private var mIsGetVideoContentIntent = false
-    private var mIsGetAnyContentIntent = false
-    private var mIsSetWallpaperIntent = false
-    private var mAllowPickingMultiple = false
-    private var mIsThirdPartyIntent = false
+    lateinit var mainArgs: MainArgs
+    private val mIsPickImageIntent: Boolean get() = mainArgs.mIsPickImageIntent
+    private val mIsPickVideoIntent: Boolean get() = mainArgs.mIsPickVideoIntent
+    private val mIsGetImageContentIntent get() = mainArgs.mIsGetImageContentIntent
+    private val mIsGetVideoContentIntent get() = mainArgs.mIsGetVideoContentIntent
+    private val mIsGetAnyContentIntent get() = mainArgs.mIsGetAnyContentIntent
+    private val mIsSetWallpaperIntent get() = mainArgs.mIsSetWallpaperIntent
+    private val mAllowPickingMultiple get() = mainArgs.mAllowPickingMultiple
+    private val mIsThirdPartyIntent get() = mainArgs.mIsThirdPartyIntent
+
     private var mIsGettingDirs = false
     private var mLoadedInitialPhotos = false
     private var mIsPasswordProtectionPending = false
     private var mWasProtectionHandled = false
     private var mShouldStopFetching = false
+
     private var mWasDefaultFolderChecked = false
     private var mWasMediaManagementPromptShown = false
     private var mWasUpgradedFromFreeShown = false
@@ -92,80 +97,78 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
 
     @RequiresApi(Build.VERSION_CODES.N)
     override fun onCreate(savedInstanceState: Bundle?) {
-        isMaterialActivity = true
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-        appLaunched(BuildConfig.APPLICATION_ID)
-
-        if (savedInstanceState == null) {
-            config.temporarilyShowHidden = false
-            config.temporarilyShowExcluded = false
-            config.tempSkipDeleteConfirmation = false
-            removeTempFolder()
-            checkRecycleBinItems()
-            startNewPhotoFetcher()
-        }
-
-        mIsPickImageIntent = isPickImageIntent(intent)
-        mIsPickVideoIntent = isPickVideoIntent(intent)
-        mIsGetImageContentIntent = isGetImageContentIntent(intent)
-        mIsGetVideoContentIntent = isGetVideoContentIntent(intent)
-        mIsGetAnyContentIntent = isGetAnyContentIntent(intent)
-        mIsSetWallpaperIntent = isSetWallpaperIntent(intent)
-        mAllowPickingMultiple = intent.getBooleanExtra(Intent.EXTRA_ALLOW_MULTIPLE, false)
-        mIsThirdPartyIntent = mIsPickImageIntent || mIsPickVideoIntent || mIsGetImageContentIntent || mIsGetVideoContentIntent ||
-            mIsGetAnyContentIntent || mIsSetWallpaperIntent
-
-        setupOptionsMenu()
-        refreshMenuItems()
-
-        updateMaterialActivityViews(directories_coordinator, directories_grid, useTransparentNavigation = !config.scrollHorizontally, useTopSearchMenu = true)
-
-        directories_refresh_layout.setOnRefreshListener { getDirectories() }
-        storeStateVariables()
-        checkWhatsNewDialog()
-
-        mIsPasswordProtectionPending = config.isAppPasswordProtectionOn
-        setupLatestMediaId()
-
-        if (!config.wereFavoritesPinned) {
-            config.addPinnedFolders(hashSetOf(FAVORITES))
-            config.wereFavoritesPinned = true
-        }
-
-        if (!config.wasRecycleBinPinned) {
-            config.addPinnedFolders(hashSetOf(RECYCLE_BIN))
-            config.wasRecycleBinPinned = true
-            config.saveFolderGrouping(SHOW_ALL, GROUP_BY_DATE_TAKEN_DAILY or GROUP_DESCENDING)
-        }
-
-        if (!config.wasSVGShowingHandled) {
-            config.wasSVGShowingHandled = true
-            if (config.filterMedia.notHas(TYPE_SVGS)) {
-                config.filterMedia += TYPE_SVGS
+        measureTimeAndLog("setup 1") {
+            isMaterialActivity = true
+            super.onCreate(savedInstanceState)
+            setContentView(R.layout.activity_main)
+            appLaunched(BuildConfig.APPLICATION_ID)
+            if (savedInstanceState == null) {
+                config.temporarilyShowHidden = false
+                config.temporarilyShowExcluded = false
+                config.tempSkipDeleteConfirmation = false
+                removeTempFolder()
+                checkRecycleBinItems()
+                startNewPhotoFetcher()
             }
-        }
+            mainArgs = MainArgs(
+                mIsPickImageIntent = isPickImageIntent(intent),
+                mIsPickVideoIntent = isPickVideoIntent(intent),
+                mIsGetImageContentIntent = isGetImageContentIntent(intent),
+                mIsGetVideoContentIntent = isGetVideoContentIntent(intent),
+                mIsGetAnyContentIntent = isGetAnyContentIntent(intent),
+                mIsSetWallpaperIntent = isSetWallpaperIntent(intent),
+                mAllowPickingMultiple = intent.getBooleanExtra(Intent.EXTRA_ALLOW_MULTIPLE, false),
+            )
 
-        if (!config.wasSortingByNumericValueAdded) {
-            config.wasSortingByNumericValueAdded = true
-            config.sorting = config.sorting + SORT_USE_NUMERIC_VALUE
-        }
+            setupOptionsMenu()
+            refreshMenuItems()
+            updateMaterialActivityViews(directories_coordinator, directories_grid, useTransparentNavigation = !config.scrollHorizontally, useTopSearchMenu = true)
+            directories_refresh_layout.setOnRefreshListener { getDirectories() }
+            storeStateVariables()
 
-        updateWidgets()
-        registerFileUpdateListener()
+            mIsPasswordProtectionPending = config.isAppPasswordProtectionOn
+            setupLatestMediaId()
 
-        directories_switch_searching.setOnClickListener {
-            launchSearchActivity()
-        }
+            if (!config.wereFavoritesPinned) {
+                config.addPinnedFolders(hashSetOf(FAVORITES))
+                config.wereFavoritesPinned = true
+            }
 
-        // just request the permission, tryLoadGallery will then trigger in onResume
-        handleMediaPermissions { success ->
-            if (!success) {
-                toast(R.string.no_storage_permissions)
-                finish()
+            if (!config.wasRecycleBinPinned) {
+                config.addPinnedFolders(hashSetOf(RECYCLE_BIN))
+                config.wasRecycleBinPinned = true
+                config.saveFolderGrouping(SHOW_ALL, GROUP_BY_DATE_TAKEN_DAILY or GROUP_DESCENDING)
+            }
+
+            if (!config.wasSVGShowingHandled) {
+                config.wasSVGShowingHandled = true
+                if (config.filterMedia.notHas(TYPE_SVGS)) {
+                    config.filterMedia += TYPE_SVGS
+                }
+            }
+
+            if (!config.wasSortingByNumericValueAdded) {
+                config.wasSortingByNumericValueAdded = true
+                config.sorting = config.sorting + SORT_USE_NUMERIC_VALUE
+            }
+
+            updateWidgets()
+            registerFileUpdateListener()
+
+            directories_switch_searching.setOnClickListener {
+                launchSearchActivity()
+            }
+
+            // just request the permission, tryLoadGallery will then trigger in onResume
+            handleMediaPermissions { success ->
+                if (!success) {
+                    toast(R.string.no_storage_permissions)
+                    finish()
+                }
             }
         }
     }
+
 
     private fun handleMediaPermissions(callback: (granted: Boolean) -> Unit) {
         handlePermission(getPermissionToRequest()) { granted ->
@@ -192,75 +195,78 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
     @RequiresApi(Build.VERSION_CODES.N)
     override fun onResume() {
         super.onResume()
-        updateMenuColors()
-        config.isThirdPartyIntent = false
-        mDateFormat = config.dateFormat
-        mTimeFormat = getTimeFormat()
+        measureTimeAndLog {
+            updateMenuColors()
+            config.isThirdPartyIntent = false
+            mDateFormat = config.dateFormat
+            mTimeFormat = getTimeFormat()
 
-        refreshMenuItems()
-
-        if (mStoredAnimateGifs != config.animateGifs) {
-            getRecyclerAdapter()?.updateAnimateGifs(config.animateGifs)
-        }
-
-        if (mStoredCropThumbnails != config.cropThumbnails) {
-            getRecyclerAdapter()?.updateCropThumbnails(config.cropThumbnails)
-        }
-
-        if (mStoredScrollHorizontally != config.scrollHorizontally) {
-            mLoadedInitialPhotos = false
-            directories_grid.adapter = null
-            getDirectories()
-        }
-
-        if (mStoredTextColor != getProperTextColor()) {
-            getRecyclerAdapter()?.updateTextColor(getProperTextColor())
-        }
-
-        val primaryColor = getProperPrimaryColor()
-        if (mStoredPrimaryColor != primaryColor) {
-            getRecyclerAdapter()?.updatePrimaryColor()
-        }
-
-        val styleString = "${config.folderStyle}${config.showFolderMediaCount}${config.limitFolderTitle}"
-        if (mStoredStyleString != styleString) {
-            setupAdapter("onResume", mDirs, forceRecreate = true)
-        }
-
-        directories_fastscroller.updateColors(primaryColor)
-        directories_refresh_layout.isEnabled = config.enablePullToRefresh
-        getRecyclerAdapter()?.apply {
-            dateFormat = config.dateFormat
-            timeFormat = getTimeFormat()
-        }
-
-        directories_empty_placeholder.setTextColor(getProperTextColor())
-        directories_empty_placeholder_2.setTextColor(primaryColor)
-        directories_switch_searching.setTextColor(primaryColor)
-        directories_switch_searching.underlineText()
-        directories_empty_placeholder_2.bringToFront()
-
-        if (!main_menu.isSearchOpen) {
             refreshMenuItems()
-            if (mIsPasswordProtectionPending && !mWasProtectionHandled) {
-                handleAppPasswordProtection {
-                    mWasProtectionHandled = it
-                    if (it) {
-                        mIsPasswordProtectionPending = false
-                        tryLoadGallery()
-                    } else {
-                        finish()
-                    }
-                }
-            } else {
-                tryLoadGallery()
-            }
-        }
 
-        if (config.searchAllFilesByDefault) {
-            main_menu.updateHintText(getString(R.string.search_files))
-        } else {
-            main_menu.updateHintText(getString(R.string.search_folders))
+            if (mStoredAnimateGifs != config.animateGifs) {
+                getRecyclerAdapter()?.updateAnimateGifs(config.animateGifs)
+            }
+
+            if (mStoredCropThumbnails != config.cropThumbnails) {
+                getRecyclerAdapter()?.updateCropThumbnails(config.cropThumbnails)
+            }
+
+            if (mStoredScrollHorizontally != config.scrollHorizontally) {
+                mLoadedInitialPhotos = false
+                directories_grid.adapter = null
+                getDirectories()
+            }
+
+
+            if (mStoredTextColor != getProperTextColor()) {
+                getRecyclerAdapter()?.updateTextColor(getProperTextColor())
+            }
+
+            val primaryColor = getProperPrimaryColor()
+            if (mStoredPrimaryColor != primaryColor) {
+                getRecyclerAdapter()?.updatePrimaryColor()
+            }
+
+            val styleString = "${config.folderStyle}${config.showFolderMediaCount}${config.limitFolderTitle}"
+            if (mStoredStyleString != styleString) {
+                setupAdapter("onResume", mDirs, forceRecreate = true)
+            }
+
+            directories_fastscroller.updateColors(primaryColor)
+            directories_refresh_layout.isEnabled = config.enablePullToRefresh
+            getRecyclerAdapter()?.apply {
+                dateFormat = config.dateFormat
+                timeFormat = getTimeFormat()
+            }
+
+            directories_empty_placeholder.setTextColor(getProperTextColor())
+            directories_empty_placeholder_2.setTextColor(primaryColor)
+            directories_switch_searching.setTextColor(primaryColor)
+            directories_switch_searching.underlineText()
+            directories_empty_placeholder_2.bringToFront()
+
+            if (!main_menu.isSearchOpen) {
+                refreshMenuItems()
+                if (mIsPasswordProtectionPending && !mWasProtectionHandled) {
+                    handleAppPasswordProtection {
+                        mWasProtectionHandled = it
+                        if (it) {
+                            mIsPasswordProtectionPending = false
+                            tryLoadGallery()
+                        } else {
+                            finish()
+                        }
+                    }
+                } else {
+                    tryLoadGallery()
+                }
+            }
+
+            if (config.searchAllFilesByDefault) {
+                main_menu.updateHintText(getString(R.string.search_files))
+            } else {
+                main_menu.updateHintText(getString(R.string.search_folders))
+            }
         }
     }
 
@@ -369,6 +375,7 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.N)
     private fun setupOptionsMenu() {
         val menuId = if (mIsThirdPartyIntent) {
             R.menu.menu_main_intent
@@ -619,6 +626,7 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.N)
     private fun tryToggleTemporarilyShowHidden() {
         if (config.temporarilyShowHidden) {
             toggleTemporarilyShowHidden(false)
@@ -662,6 +670,7 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
         refreshMenuItems()
     }
 
+    @RequiresApi(Build.VERSION_CODES.N)
     override fun deleteFolders(folders: ArrayList<File>) {
         val fileDirItems =
             folders.asSequence().filter { it.isDirectory }.map { FileDirItem(it.absolutePath, it.name, true) }.toMutableList() as ArrayList<FileDirItem>
@@ -713,6 +722,7 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.N)
     private fun deleteFilteredFileDirItems(fileDirItems: ArrayList<FileDirItem>, folders: ArrayList<File>) {
         val OTGPath = config.OTGPath
         deleteFiles(fileDirItems) {
@@ -1277,6 +1287,7 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.N)
     private fun checkPlaceholderVisibility(dirs: List<Directory>) {
         directories_empty_placeholder.beVisibleIf(dirs.isEmpty() && mLoadedInitialPhotos)
         directories_empty_placeholder_2.beVisibleIf(dirs.isEmpty() && mLoadedInitialPhotos)
@@ -1544,10 +1555,12 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
         return folders
     }
 
+    @RequiresApi(Build.VERSION_CODES.N)
     override fun refreshItems() {
         getDirectories()
     }
 
+    @RequiresApi(Build.VERSION_CODES.N)
     override fun recheckPinnedFolders() {
         ensureBackgroundThread {
             gotDirectories(movePinnedDirectoriesToFront(getCurrentlyDisplayedDirs()))
@@ -1561,25 +1574,9 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
         }
     }
 
-    private fun checkWhatsNewDialog() {
-        arrayListOf<Release>().apply {
-            add(Release(213, R.string.release_213))
-            add(Release(217, R.string.release_217))
-            add(Release(220, R.string.release_220))
-            add(Release(221, R.string.release_221))
-            add(Release(225, R.string.release_225))
-            add(Release(258, R.string.release_258))
-            add(Release(277, R.string.release_277))
-            add(Release(295, R.string.release_295))
-            add(Release(327, R.string.release_327))
-            add(Release(369, R.string.release_369))
-            checkWhatsNew(this, BuildConfig.VERSION_CODE)
-        }
-    }
-
     companion object {
-        private val PICK_MEDIA = 2
-        private val PICK_WALLPAPER = 3
-        private val LAST_MEDIA_CHECK_PERIOD = 3000L
+        private const val PICK_MEDIA = 2
+        private const val PICK_WALLPAPER = 3
+        private const val LAST_MEDIA_CHECK_PERIOD = 3000L
     }
 }

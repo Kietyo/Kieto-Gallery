@@ -18,6 +18,7 @@ import android.provider.MediaStore.Video
 import com.simplemobiletools.commons.extensions.getParentPath
 import com.simplemobiletools.commons.extensions.getStringValue
 import com.simplemobiletools.commons.helpers.ensureBackgroundThread
+import com.simplemobiletools.commons.utils.KietLog
 import com.simplemobiletools.gallery.pro.extensions.addPathToDB
 import com.simplemobiletools.gallery.pro.extensions.updateDirectoryPath
 
@@ -51,6 +52,7 @@ class NewPhotoFetcher : JobService() {
             try {
                 context.getSystemService(JobScheduler::class.java)?.schedule(build())
             } catch (ignored: Exception) {
+                KietLog.e("ignored exception: $ignored")
             }
         }
     }
@@ -96,6 +98,7 @@ class NewPhotoFetcher : JobService() {
                             }
                         }
                     } catch (ignored: Exception) {
+                        KietLog.e("ignored exception: $ignored")
                     } finally {
                         cursor?.close()
                     }
