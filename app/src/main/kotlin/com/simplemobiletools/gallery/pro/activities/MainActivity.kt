@@ -843,34 +843,6 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
         }
     }
 
-    private fun isPickImageIntent(intent: Intent) = isPickIntent(intent) && (hasImageContentData(intent) || isImageType(intent))
-
-    private fun isPickVideoIntent(intent: Intent) = isPickIntent(intent) && (hasVideoContentData(intent) || isVideoType(intent))
-
-    private fun isPickIntent(intent: Intent) = intent.action == Intent.ACTION_PICK
-
-    private fun isGetContentIntent(intent: Intent) = intent.action == Intent.ACTION_GET_CONTENT && intent.type != null
-
-    private fun isGetImageContentIntent(intent: Intent) = isGetContentIntent(intent) &&
-        (intent.type!!.startsWith("image/") || intent.type == Images.Media.CONTENT_TYPE)
-
-    private fun isGetVideoContentIntent(intent: Intent) = isGetContentIntent(intent) &&
-        (intent.type!!.startsWith("video/") || intent.type == Video.Media.CONTENT_TYPE)
-
-    private fun isGetAnyContentIntent(intent: Intent) = isGetContentIntent(intent) && intent.type == "*/*"
-
-    private fun isSetWallpaperIntent(intent: Intent?) = intent?.action == Intent.ACTION_SET_WALLPAPER
-
-    private fun hasImageContentData(intent: Intent) = (intent.data == Images.Media.EXTERNAL_CONTENT_URI ||
-        intent.data == Images.Media.INTERNAL_CONTENT_URI)
-
-    private fun hasVideoContentData(intent: Intent) = (intent.data == Video.Media.EXTERNAL_CONTENT_URI ||
-        intent.data == Video.Media.INTERNAL_CONTENT_URI)
-
-    private fun isImageType(intent: Intent) = (intent.type?.startsWith("image/") == true || intent.type == Images.Media.CONTENT_TYPE)
-
-    private fun isVideoType(intent: Intent) = (intent.type?.startsWith("video/") == true || intent.type == Video.Media.CONTENT_TYPE)
-
     private fun fillExtraOutput(resultData: Intent): Uri? {
         val file = File(resultData.data!!.path!!)
         var inputStream: InputStream? = null
@@ -989,11 +961,13 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
 
         var isPlaceholderVisible = dirs.isEmpty()
 
-        val initialSetupTime = measureTime {
-            checkPlaceholderVisibility(dirs)
-            setupAdapter("gotDirectories 1", dirs)
+        runOnUiThread {
+            measureTimeAndLog {
+                checkPlaceholderVisibility(dirs)
+                setupAdapter("gotDirectories 1", dirs)
+            }
         }
-        KietLog.i("initialSetupTime: $initialSetupTime")
+
 
         // cached folders have been loaded, recheck folders one by one starting with the first displayed
         mLastMediaFetcher?.shouldStop = true
@@ -1579,5 +1553,34 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
         private const val PICK_MEDIA = 2
         private const val PICK_WALLPAPER = 3
         private const val LAST_MEDIA_CHECK_PERIOD = 3000L
+
+        private fun isPickIntent(intent: Intent) = intent.action == Intent.ACTION_PICK
+
+        private fun hasImageContentData(intent: Intent) = (intent.data == Images.Media.EXTERNAL_CONTENT_URI ||
+            intent.data == Images.Media.INTERNAL_CONTENT_URI)
+
+        private fun hasVideoContentData(intent: Intent) = (intent.data == Video.Media.EXTERNAL_CONTENT_URI ||
+            intent.data == Video.Media.INTERNAL_CONTENT_URI)
+
+        private fun isImageType(intent: Intent) = (intent.type?.startsWith("image/") == true || intent.type == Images.Media.CONTENT_TYPE)
+
+        private fun isVideoType(intent: Intent) = (intent.type?.startsWith("video/") == true || intent.type == Video.Media.CONTENT_TYPE)
+
+        private fun isPickImageIntent(intent: Intent) = isPickIntent(intent) && (hasImageContentData(intent) || isImageType(intent))
+
+        private fun isPickVideoIntent(intent: Intent) = isPickIntent(intent) && (hasVideoContentData(intent) || isVideoType(intent))
+
+        private fun isGetContentIntent(intent: Intent) = intent.action == Intent.ACTION_GET_CONTENT && intent.type != null
+
+        private fun isGetImageContentIntent(intent: Intent) = isGetContentIntent(intent) &&
+            (intent.type!!.startsWith("image/") || intent.type == Images.Media.CONTENT_TYPE)
+
+        private fun isGetVideoContentIntent(intent: Intent) = isGetContentIntent(intent) &&
+            (intent.type!!.startsWith("video/") || intent.type == Video.Media.CONTENT_TYPE)
+
+        private fun isGetAnyContentIntent(intent: Intent) = isGetContentIntent(intent) && intent.type == "*/*"
+
+        private fun isSetWallpaperIntent(intent: Intent?) = intent?.action == Intent.ACTION_SET_WALLPAPER
+
     }
 }

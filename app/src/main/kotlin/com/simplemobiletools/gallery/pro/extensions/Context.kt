@@ -38,6 +38,7 @@ import com.simplemobiletools.gallery.pro.helpers.*
 import com.simplemobiletools.gallery.pro.interfaces.*
 import com.simplemobiletools.gallery.pro.models.*
 import com.simplemobiletools.gallery.pro.svg.SvgSoftwareLayerSetter
+import com.simplemobiletools.gallery.pro.utils.measureTimeAndLog
 import com.squareup.picasso.Picasso
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -399,6 +400,7 @@ fun Context.getNoMediaFoldersSync(): List<String> {
             } while (cursor.moveToNext())
         }
     } catch (ignored: Exception) {
+        KietLog.e("ignored: $ignored")
     } finally {
         cursor?.close()
     }
@@ -684,69 +686,77 @@ fun Context.getCachedDirectories(
     callback: (List<Directory>) -> Unit
 ) {
     ensureBackgroundThread {
-        var directories = try {
-            directoryDB.getAll()
-        } catch (e: Exception) {
-            Log.e("kiet", "exception: $e")
-            listOf()
+        var filteredDirectories = emptyList<Directory>()
+        var directories = emptyList<Directory>()
+        measureTimeAndLog("getCachedDirectories directoryDB.getAll()") {
+            directories = try {
+                val dirs = directoryDB.getAll()
+                if (!config.showRecycleBinAtFolders) {
+                    dirs.filter { !it.isRecycleBin() }
+                } else {
+                    dirs
+                }
+            } catch (e: Exception) {
+                Log.e("kiet", "exception: $e")
+                listOf()
+            }
         }
-
-        if (!config.showRecycleBinAtFolders) {
-            directories = directories.filter { !it.isRecycleBin() }
+        val folderNoMediaStatuses = measureTimeAndLog("getCachedDirectories: getNoMediaFoldersSync") {
+            mutableMapOf<String, Boolean>().apply {
+                getNoMediaFoldersSync().forEach { put("$it/$NOMEDIA",  true) }
+            }
         }
 
         val shouldShowHidden = config.shouldShowHidden || forceShowHidden
-        val excludedPaths = if (config.temporarilyShowExcluded || forceShowExcluded) {
-            setOf()
-        } else {
-            config.excludedFolders
-        }
-
         val includedPaths = config.includedFolders
 
-        val folderNoMediaStatuses = mutableMapOf<String, Boolean>()
-        val noMediaFolders = getNoMediaFoldersSync()
-        noMediaFolders.forEach { folder ->
-            folderNoMediaStatuses["$folder/$NOMEDIA"] = true
-        }
-
-        var filteredDirectories = directories.filter {
-            it.path.shouldFolderBeVisible(excludedPaths, includedPaths, shouldShowHidden, folderNoMediaStatuses) { path, hasNoMedia ->
-                folderNoMediaStatuses[path] = hasNoMedia
+        measureTimeAndLog("getCachedDirectories block 2") {
+            val excludedPaths = if (config.temporarilyShowExcluded || forceShowExcluded) {
+                setOf()
+            } else {
+                config.excludedFolders
             }
-        }
-        val filterMedia = config.filterMedia
+            val filterMedia = config.filterMedia
 
-        filteredDirectories = (when {
-            getVideosOnly -> filteredDirectories.filter { it.types.has(TYPE_VIDEOS) }
-            getImagesOnly -> filteredDirectories.filter { it.types.has(TYPE_IMAGES) }
-            else -> filteredDirectories.filter {
-                (filterMedia.has(TYPE_IMAGES) && it.types.has(TYPE_IMAGES)) ||
-                    (filterMedia.has(TYPE_VIDEOS) && it.types.has(TYPE_VIDEOS)) ||
-                    (filterMedia.has(TYPE_GIFS) && it.types.has(TYPE_GIFS)) ||
-                    (filterMedia.has(TYPE_RAWS) && it.types.has(TYPE_RAWS)) ||
-                    (filterMedia.has(TYPE_SVGS) && it.types.has(TYPE_SVGS)) ||
-                    (filterMedia.has(TYPE_PORTRAITS) && it.types.has(TYPE_PORTRAITS))
-            }
-        })
-
-        if (shouldShowHidden) {
-            val hiddenString = resources.getString(R.string.hidden)
-            filteredDirectories.forEach {
-                val noMediaPath = "${it.path}/$NOMEDIA"
-                val hasNoMedia = if (folderNoMediaStatuses.keys.contains(noMediaPath)) {
-                    folderNoMediaStatuses[noMediaPath]!!
-                } else {
-                    it.path.doesThisOrParentHaveNoMedia(folderNoMediaStatuses) { path, hasNoMedia ->
-                        val newPath = "$path/$NOMEDIA"
-                        folderNoMediaStatuses[newPath] = hasNoMedia
-                    }
+            filteredDirectories = directories.filter {
+                val shouldFolderBeVisible = it.path.shouldFolderBeVisible(excludedPaths, includedPaths, shouldShowHidden, folderNoMediaStatuses) { path, hasNoMedia ->
+                    folderNoMediaStatuses[path] = hasNoMedia
                 }
+                val filterMediaPredicate = (when {
+                    getVideosOnly ->  it.types.has(TYPE_VIDEOS)
+                    getImagesOnly -> it.types.has(TYPE_IMAGES)
+                    else ->
+                        (filterMedia.has(TYPE_IMAGES) && it.types.has(TYPE_IMAGES)) ||
+                            (filterMedia.has(TYPE_VIDEOS) && it.types.has(TYPE_VIDEOS)) ||
+                            (filterMedia.has(TYPE_GIFS) && it.types.has(TYPE_GIFS)) ||
+                            (filterMedia.has(TYPE_RAWS) && it.types.has(TYPE_RAWS)) ||
+                            (filterMedia.has(TYPE_SVGS) && it.types.has(TYPE_SVGS)) ||
+                            (filterMedia.has(TYPE_PORTRAITS) && it.types.has(TYPE_PORTRAITS))
 
-                it.name = if (hasNoMedia && !it.path.isThisOrParentIncluded(includedPaths)) {
-                    "${it.name.removeSuffix(hiddenString).trim()} $hiddenString"
-                } else {
-                    it.name.removeSuffix(hiddenString).trim()
+                })
+                shouldFolderBeVisible && filterMediaPredicate
+            }
+        }
+
+        measureTimeAndLog("getCachedDirectories, shouldShowHidden block") {
+            if (shouldShowHidden) {
+                val hiddenString = resources.getString(R.string.hidden)
+                filteredDirectories.forEach {
+                    val noMediaPath = "${it.path}/$NOMEDIA"
+                    val hasNoMedia = if (folderNoMediaStatuses.keys.contains(noMediaPath)) {
+                        folderNoMediaStatuses[noMediaPath]!!
+                    } else {
+                        it.path.doesThisOrParentHaveNoMedia(folderNoMediaStatuses) { path, hasNoMedia ->
+                            folderNoMediaStatuses["$path/$NOMEDIA"] = hasNoMedia
+                        }
+                    }
+
+                    val trimmed = it.name.removeSuffix(hiddenString).trim()
+                    it.name = if (hasNoMedia && !it.path.isThisOrParentIncluded(includedPaths)) {
+                        "$trimmed $hiddenString"
+                    } else {
+                        trimmed
+                    }
                 }
             }
         }
